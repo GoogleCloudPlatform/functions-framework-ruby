@@ -1,0 +1,11 @@
+--no-private
+--title=Functions Framework
+--markup markdown
+--markup-provider redcarpet
+--main=README.md
+./lib/functions_framework/**/*.rb
+./lib/functions_framework.rb
+-
+README.md
+CONTRIBUTING.md
+CHANGELOG.md
