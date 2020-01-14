@@ -31,10 +31,14 @@ require "functions_framework/version"
   spec.homepage = "https://github.com/GoogleCloudPlatform/functions-framework-ruby"
 
   spec.files = ::Dir.glob("lib/**/*.rb") +
+               ::Dir.glob("bin/*") +
                ::Dir.glob("*.md") +
                ["LICENSE", ".yardopts"]
-  spec.required_ruby_version = ">= 2.4.0"
   spec.require_paths = ["lib"]
+  spec.bindir = "bin"
+  spec.executables = ["functions-framework"]
+
+  spec.required_ruby_version = ">= 2.4.0"
 
   spec.add_dependency "puma", "~> 4.3"
   spec.add_dependency "rack", "~> 2.1"

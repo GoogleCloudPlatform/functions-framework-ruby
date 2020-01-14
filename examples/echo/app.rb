@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module FunctionsFramework
-  ##
-  # Version of the Ruby Functions Framework
-  # @return [String]
-  #
-  VERSION = "0.1.0".freeze
+require "functions_framework"
+
+FunctionsFramework.http "http" do |request|
+  "I received: #{request.request_method} #{request.url}\n"
+end
+
+FunctionsFramework.event "event" do |data, context|
+  puts "I received: #{data.inspect} in an event type #{context.type}\n"
 end
