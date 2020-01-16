@@ -14,11 +14,13 @@
 
 module FunctionsFramework
   ##
-  # Representation of a function
+  # Representation of a function.
+  #
+  # A function has a name, a type, and a code definition.
   #
   class Function
     ##
-    # Create a new function definition
+    # Create a new function definition.
     #
     # @param name [String] The function name
     # @param type [Symbol] The type of function. Valid types are
@@ -58,7 +60,7 @@ module FunctionsFramework
     #     Note that for an `:event` type function, the passed event argument is
     #     split into two arguments when passed to the underlying block.
     #
-    # @param argument [Object]
+    # @param argument [Rack::Request,FunctionsFramework::CloudEvents::Event]
     # @return [Object]
     #
     def call argument

@@ -15,7 +15,8 @@
 module FunctionsFramework
   module CloudEvents
     ##
-    # A content handler for the binary mode
+    # A content handler for the binary mode.
+    # See https://github.com/cloudevents/spec/blob/master/http-protocol-binding.md
     #
     module BinaryContent
       class << self

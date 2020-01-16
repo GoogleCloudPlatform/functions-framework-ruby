@@ -16,13 +16,13 @@ require "monitor"
 
 module FunctionsFramework
   ##
-  # Registry of functions by name.
+  # Registry providing lookup of functions by name.
   #
   class Registry
     include ::MonitorMixin
 
     ##
-    # Create a new registry.
+    # Create a new empty registry.
     #
     def initialize
       super()

@@ -21,16 +21,19 @@ require "rack"
 
 module FunctionsFramework
   ##
-  # Web server
+  # A web server that wraps a function.
   #
   class Server
     include ::MonitorMixin
 
     ##
-    # Create a new web server
+    # Create a new web server given a function. Yields a
+    # {FunctionsFramework::Server::Config} object that you can use to set
+    # server configuration parameters. This block is the only opportunity to
+    # set configuration; once the server is initialized, configuration is
+    # frozen.
     #
-    # @param function [FunctionsFramework::Function]
-    #     The function to execute.
+    # @param function [FunctionsFramework::Function] The function to execute.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure this server.
     #
@@ -39,6 +42,7 @@ module FunctionsFramework
       @config = Config.new
       yield @config if block_given?
       @config.freeze
+      @function = function
       @app =
         case function.type
         when :http
@@ -59,7 +63,7 @@ module FunctionsFramework
     attr_reader :function
 
     ##
-    # The final configuration.
+    # The final configuration. This is a frozen object that cannot be modified.
     # @return [FunctionsFramework::Server::Config]
     #
     attr_reader :config
@@ -76,9 +80,10 @@ module FunctionsFramework
           @server = ::Puma::Server.new @app
           @server.min_threads = @config.min_threads
           @server.max_threads = @config.max_threads
-          @server.leak_stack_on_error = @config.show_verbose_errors?
+          @server.leak_stack_on_error = @config.show_error_details?
           @server.binder.add_tcp_listener @config.bind_addr, @config.port
           @server.run true
+          @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect}..."
         end
       end
       self
@@ -89,15 +94,17 @@ module FunctionsFramework
     # is not running.
     #
     # @param force [Boolean] Use a forced halt instead of a graceful shutdown
+    # @param wait [Boolean] Block until shutdown is complete
     # @return [self]
     #
-    def stop force: false
+    def stop force: false, wait: false
       synchronize do
         if running?
+          @config.logger.info "FunctionsFramework: Shutting down server..."
           if force
-            @server.halt
+            @server.halt wait
           else
-            @server.stop
+            @server.stop wait
           end
         end
       end
@@ -113,9 +120,7 @@ module FunctionsFramework
     # @return [self]
     #
     def wait_until_stopped timeout: nil
-      synchronize do
-        @server.thread.join timeout if running?
-      end
+      @server&.thread&.join timeout
       self
     end
 
@@ -125,37 +130,58 @@ module FunctionsFramework
     # @return [Boolean]
     #
     def running?
-      synchronize do
-        @server&.thread&.alive?
-      end
+      @server&.thread&.alive?
     end
 
     ##
     # Cause this server to respond to SIGTERM, SIGINT, and SIGHUP by shutting
     # down gracefully.
     #
-    # @return [Boolean]
+    # @return [self]
     #
     def respond_to_signals
       synchronize do
-        unless @signals_installed
-          ::Signal.trap "SIGTERM" do
-            @server&.stop true
-          end
-          ::Signal.trap "SIGINT" do
-            @server&.stop false
-          end
-          ::Signal.trap "SIGHUP" do
-            @server&.stop false
-          end
-          @signals_installed = true
+        return self if @signals_installed
+        ::Signal.trap "SIGTERM" do
+          Server.signal_enqueue "SIGTERM", @config.logger, @server
         end
+        ::Signal.trap "SIGINT" do
+          Server.signal_enqueue "SIGINT", @config.logger, @server
+        end
+        ::Signal.trap "SIGHUP" do
+          Server.signal_enqueue "SIGHUP", @config.logger, @server
+        end
+        @signals_installed = true
       end
       self
     end
 
+    class << self
+      ## @private
+      def start_signal_queue
+        @signal_queue = ::Queue.new
+        ::Thread.start do
+          loop do
+            signal, logger, server = @signal_queue.pop
+            logger.info "FunctionsFramework: Caught #{signal}; shutting down server..."
+            server&.stop
+          end
+        end
+      end
+
+      ## @private
+      def signal_enqueue signal, logger, server
+        @signal_queue << [signal, logger, server]
+      end
+    end
+
+    start_signal_queue
+
     ##
-    # The web server configuration
+    # The web server configuration. This object is yielded from the
+    # {FunctionsFramework::Server} constructor and can be modified at that
+    # point. Afterward, it is available from {FunctionsFramework::Server#config}
+    # but it is frozen.
     #
     class Config
       ##
@@ -167,7 +193,8 @@ module FunctionsFramework
         self.port = nil
         self.min_threads = nil
         self.max_threads = nil
-        self.show_verbose_errors = nil
+        self.show_error_details = nil
+        self.logger = nil
       end
 
       ##
@@ -175,7 +202,8 @@ module FunctionsFramework
       # @param rack_env [String,nil]
       #
       def rack_env= rack_env
-        @rack_env = rack_env || ::ENV["RACK_ENV"] || "development"
+        @rack_env = rack_env || ::ENV["RACK_ENV"] ||
+                    (::ENV["K_REVISION"] ? "production" : "development")
       end
 
       ##
@@ -183,7 +211,7 @@ module FunctionsFramework
       # @param bind_addr [String,nil]
       #
       def bind_addr= bind_addr
-        @bind_addr = bind_addr || ::ENV["BIND_ADDR"]
+        @bind_addr = bind_addr || ::ENV["BIND_ADDR"] || "0.0.0.0"
       end
 
       ##
@@ -191,7 +219,7 @@ module FunctionsFramework
       # @param port [Integer,nil]
       #
       def port= port
-        @port = (port || ::ENV["PORT"])&.to_i
+        @port = (port || ::ENV["PORT"] || 8080).to_i
       end
 
       ##
@@ -211,16 +239,20 @@ module FunctionsFramework
       end
 
       ##
-      # Set whether to show verbose error messages, or `nil` to use the default.
-      # @param show_verbose_errors [Boolean,nil]
+      # Set whether to show detailed error messages, or `nil` to use the default.
+      # @param show_error_details [Boolean,nil]
       #
-      def show_verbose_errors= show_verbose_errors
-        @show_verbose_errors =
-          if show_verbose_errors.nil?
-            nil
-          else
-            show_verbose_errors ? true : false
-          end
+      def show_error_details= show_error_details
+        val = show_error_details.nil? ? ::ENV["DETAILED_ERRORS"] : show_error_details
+        @show_error_details = val ? true : false
+      end
+
+      ##
+      # Set the logger for server messages, or `nil` to use the global default.
+      # @param logger [Logger]
+      #
+      def logger= logger
+        @logger = logger || ::FunctionsFramework.logger
       end
 
       ##
@@ -236,7 +268,7 @@ module FunctionsFramework
       # @return [String]
       #
       def bind_addr
-        @bind_addr || (@rack_env == "development" ? "127.0.0.1" : "0.0.0.0")
+        @bind_addr
       end
 
       ##
@@ -244,7 +276,7 @@ module FunctionsFramework
       # @return [Integer]
       #
       def port
-        @port || 8080
+        @port
       end
 
       ##
@@ -264,11 +296,19 @@ module FunctionsFramework
       end
 
       ##
-      # Returns whether to show verbose error messages.
+      # Returns whether to show detailed error messages.
       # @return [Boolean]
       #
-      def show_verbose_errors?
-        @show_verbose_errors.nil? ? (@rack_env == "development") : @show_verbose_errors
+      def show_error_details?
+        @show_error_details.nil? ? (@rack_env == "development") : @show_error_details
+      end
+
+      ##
+      # Returns the logger.
+      # @return [Logger]
+      #
+      def logger
+        @logger
       end
     end
 
@@ -308,10 +348,18 @@ module FunctionsFramework
       end
 
       def error_message error
-        if @config.show_verbose_errors?
+        if @config.show_error_details?
           "#{error.class}: #{error.message}\n#{error.backtrace}\n"
         else
           "Unexpected internal error"
+        end
+      end
+
+      def usage_message error
+        if @config.show_error_details?
+          "Failed to decode CloudEvent: #{error.inspect}"
+        else
+          "Failed to decode CloudEvent"
         end
       end
     end
@@ -324,12 +372,14 @@ module FunctionsFramework
       end
 
       def call env
-        request = ::Rack::Request.new env
         response =
           begin
+            logger = env["rack.logger"] = @config.logger
+            request = ::Rack::Request.new env
+            logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
             @function.call request
           rescue ::StandardError => e
-            warn "#{e.class}: #{e.message}\n#{e.backtrace}\n"
+            logger.warn e
             e
           end
         interpret_response response
@@ -344,14 +394,26 @@ module FunctionsFramework
       end
 
       def call env
-        event = CloudEvents.decode_rack_env env
-        response =
+        logger = env["rack.logger"] = @config.logger
+        event =
           begin
-            @function.call event
-            "ok"
+            CloudEvents.decode_rack_env env
           rescue ::StandardError => e
-            warn "#{e.class}: #{e.message}\n#{e.backtrace}\n"
             e
+          end
+        response =
+          if event.is_a? CloudEvents::Event
+            logger.info "FunctionsFramework: Handling CloudEvent"
+            begin
+              @function.call event
+              "ok"
+            rescue ::StandardError => e
+              logger.warn e
+              e
+            end
+          else
+            logger.warn e.inspect
+            string_response usage_message(e), "text/plain", 400
           end
         interpret_response response
       end

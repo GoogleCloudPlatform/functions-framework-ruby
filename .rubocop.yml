@@ -3,8 +3,13 @@ inherit_gem:
 
 AllCops:
   Exclude:
-    - "test/**/*"
+    - "test/**/test_*.rb"
+    - "examples/**/test/**/test_*.rb"
     - "**/.toys.rb"
 
 Metrics/ClassLength:
   Max: 200
+Metrics/ModuleLength:
+  Max: 200
+Style/ModuleFunction:
+  Enabled: false

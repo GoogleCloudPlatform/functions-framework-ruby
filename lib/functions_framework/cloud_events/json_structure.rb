@@ -18,19 +18,21 @@ require "json"
 module FunctionsFramework
   module CloudEvents
     ##
-    # A content handler for the JSON structure
+    # A content handler for the JSON structure and JSON batch format.
+    # See https://github.com/cloudevents/spec/blob/master/json-format.md
     #
     module JsonStructure
       class << self
         ##
         # Decode an event from the given input string
         #
-        # @param input [String] Input JSON-formatted string
+        # @param input [IO] An IO-like object providing a JSON-formatted string
         # @param content_type [FunctionsFramework::CloudEvents::ContentType]
         #     the content type
         # @return [FunctionsFramework::CloudEvents::Event]
         #
         def decode_structured_content input, content_type
+          input = input.read if input.respond_to? :read
           charset = content_type.charset
           input = input.encode charset if charset
           structure = ::JSON.parse input
@@ -40,12 +42,13 @@ module FunctionsFramework
         ##
         # Decode a batch of events from the given input string
         #
-        # @param input [String] Input JSON-formatted string
+        # @param input [IO] An IO-like object providing a JSON-formatted string
         # @param content_type [FunctionsFramework::CloudEvents::ContentType]
         #     the content type
         # @return [Array<FunctionsFramework::CloudEvents::Event>]
         #
         def decode_batched_content input, content_type
+          input = input.read if input.respond_to? :read
           charset = content_type.charset
           input = input.encode charset if charset
           structure_array = Array(::JSON.parse(input))

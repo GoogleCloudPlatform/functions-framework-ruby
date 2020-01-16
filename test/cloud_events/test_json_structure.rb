@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require "helper"
+require "stringio"
 
 describe FunctionsFramework::CloudEvents::JsonStructure do
   let(:my_id) { "my_id" }
@@ -56,8 +57,8 @@ describe FunctionsFramework::CloudEvents::JsonStructure do
       "time" => my_time_string
     }
   }
-  let(:my_json_struct_encoded) { JSON.dump my_json_struct }
-  let(:my_batch_encoded) { JSON.dump [my_base64_struct, my_json_struct] }
+  let(:my_json_struct_io) { StringIO.new(JSON.dump(my_json_struct)) }
+  let(:my_batch_io) { StringIO.new(JSON.dump([my_base64_struct, my_json_struct])) }
   let(:structured_content_type_string) { "application/cloudevents+json" }
   let(:structured_content_type) { FunctionsFramework::CloudEvents::ContentType.new structured_content_type_string }
   let(:batched_content_type_string) { "application/cloudevents-batch+json" }
@@ -91,7 +92,7 @@ describe FunctionsFramework::CloudEvents::JsonStructure do
 
   it "decodes json-encoded content" do
     event = FunctionsFramework::CloudEvents::JsonStructure.decode_structured_content \
-      my_json_struct_encoded, structured_content_type
+      my_json_struct_io, structured_content_type
     assert_equal my_id, event.id
     assert_equal my_source, event.source
     assert_equal my_type, event.type
@@ -105,7 +106,7 @@ describe FunctionsFramework::CloudEvents::JsonStructure do
 
   it "decodes json-encoded batch" do
     events = FunctionsFramework::CloudEvents::JsonStructure.decode_batched_content \
-      my_batch_encoded, batched_content_type
+      my_batch_io, batched_content_type
     assert_equal 2, events.size
     event = events[0]
     assert_equal my_id, event.id

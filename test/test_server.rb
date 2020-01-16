@@ -26,6 +26,11 @@ describe FunctionsFramework::Server do
     end
   }
   let(:port) { 8077 }
+  let(:quiet_logger) {
+    logger = ::Logger.new ::STDOUT
+    logger.level = ::Logger::ERROR
+    logger
+  }
   let(:server) {
     FunctionsFramework::Server.new function do |config|
       config.min_threads = 1
@@ -33,6 +38,7 @@ describe FunctionsFramework::Server do
       config.port = port
       config.bind_addr = "127.0.0.1"
       config.rack_env = "development"
+      config.logger = quiet_logger
     end
   }
   let(:retry_count) { 10 }

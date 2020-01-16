@@ -18,7 +18,14 @@ require "functions_framework/cloud_events/event"
 
 module FunctionsFramework
   ##
-  # CloudEvents tools
+  # CloudEvents implementation.
+  #
+  # This is a Ruby implementation of the [CloudEvents](https://cloudevents.io)
+  # [1.0 specification](https://github.com/cloudevents/spec/blob/master/spec.md).
+  # It provides for unmarshaling of events from Rack environment data from
+  # binary (i.e. header-based) format, as well as structured (body-based) and
+  # batch formats. A standard JSON structure parser is included. It is also
+  # possible to register handlers for other formats.
   #
   module CloudEvents
     @structured_formats = {}
@@ -60,7 +67,9 @@ module FunctionsFramework
       end
 
       ##
-      # Decode an event from the given Rack environment hash.
+      # Decode an event from the given Rack environment hash. Following the
+      # CloudEvents spec, this chooses a handler based on the Content-Type of
+      # the request.
       #
       # @param env [Hash] The Rack environment
       # @return [FunctionsFramework::CloudEvents::Event] if the request
@@ -75,45 +84,47 @@ module FunctionsFramework
         if content_type.media_type == "application"
           case content_type.subtype_prefix
           when "cloudevents"
-            data = env["rack.input"].read
-            return decode_structured_content data, content_type
+            return decode_structured_content env["rack.input"], content_type
           when "cloudevents-batch"
-            data = env["rack.input"].read
-            return decode_batched_content data, content_type
+            return decode_batched_content env["rack.input"], content_type
           end
         end
         BinaryContent.decode_rack_env env, content_type
       end
 
       ##
-      # Decode a single event from the given content data.
+      # Decode a single event from the given content data. This should be
+      # passed the request body, if the Content-Type is of the form
+      # `application/cloudevents+format`.
       #
-      # @param data [String] The content
+      # @param input [IO] An IO-like object providing the content
       # @param content_type [FunctionsFramework::CloudEvents::ContentType] the
       #     content type
       # @return [FunctionsFramework::CloudEvents::Event]
       #
-      def decode_structured_content data, content_type
+      def decode_structured_content input, content_type
         handlers = @structured_formats[content_type.subtype_format] || []
         handlers.reverse_each do |handler|
-          event = handler.decode_structured_content data, content_type
+          event = handler.decode_structured_content input, content_type
           return event if event
         end
         raise "Unknown cloudevents format: #{content_type.subtype_format.inspect}"
       end
 
       ##
-      # Decode a batch of events from the given content data.
+      # Decode a batch of events from the given content data. This should be
+      # passed the request body, if the Content-Type is of the form
+      # `application/cloudevents-batch+format`.
       #
-      # @param data [String] The content
+      # @param input [IO] An IO-like object providing the content
       # @param content_type [FunctionsFramework::CloudEvents::ContentType] the
       #     content type
       # @return [Array<FunctionsFramework::CloudEvents::Event>]
       #
-      def decode_batched_content data, content_type
+      def decode_batched_content input, content_type
         handlers = @batched_formats[content_type.subtype_format] || []
         handlers.reverse_each do |handler|
-          events = handler.decode_batched_content data, content_type
+          events = handler.decode_batched_content input, content_type
           return events if events
         end
         raise "Unknown cloudevents batch format: #{content_type.subtype_format.inspect}"

@@ -22,8 +22,8 @@ module FunctionsFramework
     #
     # This object represents both the event data and the context attributes.
     # It is immutable. The data and attribute values can be retrieved but not
-    # mutated. To obtain an event with modifications, use the {#with} method to
-    # create a copy with the desired changes.
+    # modified. To obtain an event with modifications, use the {#with} method
+    # to create a copy with the desired changes.
     #
     # See https://github.com/cloudevents/spec/blob/master/spec.md for
     # descriptions of the various attributes.
@@ -70,7 +70,7 @@ module FunctionsFramework
       # Create and return a copy of this event with the given changes. See the
       # constructor for the parameters that can be passed.
       #
-      # @param changes [Hash] See {#initialize}
+      # @param changes [keywords] See {#initialize} for a list of arguments.
       # @return [FunctionFramework::CloudEvents::Event]
       #
       def with **changes

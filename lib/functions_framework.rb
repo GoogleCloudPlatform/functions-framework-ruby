@@ -12,19 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require "logger"
+
 require "functions_framework/cloud_events"
 require "functions_framework/function"
 require "functions_framework/registry"
 require "functions_framework/version"
 
 ##
-# The Functions Framework for Ruby
+# The Functions Framework for Ruby.
+#
+# Functions Framework is an open source framework for writing lightweight,
+# portable Ruby functions that run in a serverless environment. For general
+# information about the Functions Framework, see
+# https://github.com/GoogleCloudPlatform/functions-framework
 #
 module FunctionsFramework
   @global_registry = Registry.new
+  @logger = ::Logger.new ::STDERR
+  @logger.level = ::Logger::INFO
 
   ##
-  # The default target function name
+  # The default target function name. If you define a function without
+  # specifying a name, or run the framework without giving a target, this name
+  # is used.
+  #
   # @return [String]
   #
   DEFAULT_TARGET = "function".freeze
@@ -36,10 +48,18 @@ module FunctionsFramework
     #
     # @return [FunctionsFramework::Registry]
     #
-    attr_reader :global_registry
+    attr_accessor :global_registry
 
     ##
-    # Define an HTTP function.
+    # A "global" logger that is used by the framework's web server, and can
+    # also be used by functions.
+    #
+    # @return [Logger]
+    #
+    attr_accessor :logger
+
+    ##
+    # Define a function that response to HTTP requests.
     #
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take a single `Rack::Request` argument. It
@@ -51,6 +71,12 @@ module FunctionsFramework
     #  *  A Hash object that will be encoded as JSON and sent as the response
     #     body.
     #
+    # ## Example
+    #
+    #     FunctionsFramework.http "my-function" do |request|
+    #       "I received a request for #{request.url}"
+    #     end
+    #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
     # @param block [Proc] The function code as a proc.
     # @return [self]
@@ -61,7 +87,7 @@ module FunctionsFramework
     end
 
     ##
-    # Define a CloudEvent function.
+    # Define a function that responds to CloudEvents.
     #
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take two arguments: the event _data_ and the
@@ -83,6 +109,12 @@ module FunctionsFramework
     # See also {FunctionsFramework.cloud_event} which defines a function that
     # takes a single argument of type {FunctionsFramework::CloudEvents::Event}.
     #
+    # ## Example
+    #
+    #     FunctionsFramework.event "my-function" do |data, context|
+    #       FunctionsFramework.logger.info "Event data: #{data.inspect}"
+    #     end
+    #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
     # @param block [Proc] The function code as a proc.
     # @return [self]
@@ -93,7 +125,7 @@ module FunctionsFramework
     end
 
     ##
-    # Define a CloudEvent function.
+    # Define a function that responds to CloudEvents.
     #
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take _one_ argument: the event object of type
@@ -101,6 +133,12 @@ module FunctionsFramework
     #
     # See also {FunctionsFramework.event} which creates a function that takes
     # data and context as separate arguments.
+    #
+    # ## Example
+    #
+    #     FunctionsFramework.cloud_event "my-function" do |event|
+    #       FunctionsFramework.logger.info "Event data: #{event.data.inspect}"
+    #     end
     #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
     # @param block [Proc] The function code as a proc.
@@ -112,7 +150,8 @@ module FunctionsFramework
     end
 
     ##
-    # Start the functions framework server in the background.
+    # Start the functions framework server in the background. The server will
+    # look up the given target function name in the global registry.
     #
     # @param target [String] The name of the function to run
     # @yield [FunctionsFramework::Server::Config] A config object that can be
@@ -122,14 +161,15 @@ module FunctionsFramework
     def start target, &block
       require "functions_framework/server"
       function = global_registry[target]
-      raise ::ArgumentError, "Undefined function: #{target}" if function.nil?
+      raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       server = Server.new function, &block
       server.respond_to_signals
       server.start
     end
 
     ##
-    # Run the functions framework server and block until it stops.
+    # Run the functions framework server and block until it stops. The server
+    # will look up the given target function name in the global registry.
     #
     # @param target [String] The name of the function to run
     # @yield [FunctionsFramework::Server::Config] A config object that can be

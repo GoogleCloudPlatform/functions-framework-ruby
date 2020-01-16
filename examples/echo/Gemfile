@@ -14,5 +14,12 @@
 
 source "https://rubygems.org"
 
-gem "functions_framework", path: "../.."
-gem "toys", "~> 0.9.3"
+ffargs =
+  if ::File.directory? "vendor/functions_framework"
+    { path: "vendor/functions_framework" }
+  else
+    {}
+  end
+gem "functions_framework", **ffargs
+
+gem "minitest", "~> 5.14", group: "test"

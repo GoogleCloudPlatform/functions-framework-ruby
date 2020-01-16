@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require "optparse"
+
 require "functions_framework"
 
 module FunctionsFramework
@@ -21,13 +22,14 @@ module FunctionsFramework
   #
   class CLI
     ##
-    # The default source file path
+    # The default source file path.
+    #
     # @return [String]
     #
     DEFAULT_SOURCE = "./app.rb".freeze
 
     ##
-    # Create a new CLI
+    # Create a new CLI, setting arguments to their defaults.
     #
     def initialize
       @target = ::ENV["FUNCTION_TARGET"] || DEFAULT_TARGET
@@ -35,48 +37,83 @@ module FunctionsFramework
       @env = nil
       @port = nil
       @bind = nil
+      @min_threads = nil
+      @max_threads = nil
+      @detailed_errors = nil
     end
 
     ##
-    # Parse the given command line arguments
+    # Parse the given command line arguments.
+    # Exits if argument parsing failed.
     #
     # @param argv [Array<String>]
     # @return [self]
     #
-    def parse_args argv
-      option_parser = ::OptionParser.new do |op|
-        op.on("-t", "--target TARGET", "Name of the function to execute") { |val| @target = val }
-        op.on("-s", "--source SOURCE", "Source file to load") { |val| @source = val }
-        op.on("-p", "--port PORT", "The port to listen to") { |val| @port = val.to_i }
-        op.on("-b", "--bind BIND", "The address to bind to") { |val| @bind = val }
-        op.on("-e", "--environment ENV", "The Rack environment") { |val| @env = val }
+    def parse_args argv # rubocop:disable Metrics/MethodLength
+      option_parser = ::OptionParser.new do |op| # rubocop:disable Metrics/BlockLength
+        op.on "-t", "--target TARGET",
+              "Set the name of the function to execute (defaults to #{DEFAULT_TARGET})" do |val|
+          @target = val
+        end
+        op.on "-s", "--source SOURCE",
+              "Set the source file to load (defaults to #{DEFAULT_SOURCE})" do |val|
+          @source = val
+        end
+        op.on "-p", "--port PORT", "Set the port to listen to (defaults to 8080)" do |val|
+          @port = val.to_i
+        end
+        op.on "-b", "--bind BIND", "Set the address to bind to (defaults to 0.0.0.0)" do |val|
+          @bind = val
+        end
+        op.on "-e", "--environment ENV", "Set the Rack environment" do |val|
+          @env = val
+        end
+        op.on "--min-threads NUM", "Set the minimum threead pool size" do |val|
+          @min_threads = val
+        end
+        op.on "--max-threads NUM", "Set the maximum threead pool size" do |val|
+          @max_threads = val
+        end
+        op.on "--[no-]detailed-errors", "Set whether to show error details" do |val|
+          @detailed_errors = val
+        end
+        op.on "-v", "--verbose", "Increase log verbosity" do
+          ::FunctionsFramework.logger.level -= 1
+        end
+        op.on "-q", "--quiet", "Decrease log verbosity" do
+          ::FunctionsFramework.logger.level += 1
+        end
         op.on "--help", "Display help" do
-          $stdout.puts op
+          puts op
           exit
         end
       end
       option_parser.parse! argv
       unless argv.empty?
         warn "Unrecognized arguments: #{argv}"
+        puts op
         exit 1
       end
       self
     end
 
     ##
-    # Run the CLI
+    # Run the configured server, and block until it stops.
+    # @return [self]
     #
     def run
-      puts "Functions Framework: Loading functions from #{@source.inspect}..."
+      FunctionsFramework.logger.info \
+        "FunctionsFramework: Loading functions from #{@source.inspect}..."
       load @source
       server = ::FunctionsFramework.start @target do |config|
         config.rack_env = @env
         config.port = @port
         config.bind_addr = @bind
+        config.show_error_details = @detailed_errors
+        config.min_threads = @min_threads
+        config.max_threads = @max_threads
       end
-      puts "Functions Framework: Serving function #{@target.inspect} on port #{server.config.port}..."
       server.wait_until_stopped
-      puts "Functions Framework: Shut down server."
       self
     end
   end
