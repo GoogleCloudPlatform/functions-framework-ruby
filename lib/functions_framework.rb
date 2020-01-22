@@ -41,6 +41,14 @@ module FunctionsFramework
   #
   DEFAULT_TARGET = "function".freeze
 
+  ##
+  # The default source file path. The CLI loads functions from this file if no
+  # source file is given explicitly.
+  #
+  # @return [String]
+  #
+  DEFAULT_SOURCE = "./app.rb".freeze
+
   class << self
     ##
     # The "global" registry that holds events defined by the

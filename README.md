@@ -19,7 +19,7 @@ end
 
 To:
 
-```
+```sh
 curl http://my-url
 # Output: Hello, world!
 ```
@@ -44,13 +44,13 @@ https://github.com/GoogleCloudPlatform/functions-framework
 
 Install the Functions Framework via Rubygems:
 
-```
-$ gem install functions_framework
+```sh
+gem install functions_framework
 ```
 
 Or add it to your Gemfile for installation using Bundler:
 
-```
+```ruby
 # Gemfile
 gem "functions_framework", "~> 0.1"
 ```
@@ -92,18 +92,18 @@ end
 Install the bundle, and start the framework. This spins up a local web server
 with your function:
 
-```
-$ bundle install
-    # ...installs the functions_framework gem and other dependencies
-$ bundle exec functions-framework
-    # ...starts the web server in the foreground
+```sh
+bundle install
+# ...installs the functions_framework gem and other dependencies
+bundle exec functions-framework
+# ...starts the web server in the foreground
 ```
 
 In a separate shell, you can send requests to this function using curl:
 
-```
-$ curl localhost:8080
-    # Output: Hello, world!
+```sh
+curl localhost:8080
+# Output: Hello, world!
 ```
 
 Stop the web server with `CTRL+C`.
@@ -116,7 +116,7 @@ Stop the web server with `CTRL+C`.
 
 Create a `Dockerfile` for your function:
 
-```
+```dockerfile
 # Dockerfile
 FROM ruby:2.6
 
@@ -131,14 +131,14 @@ ENTRYPOINT ["bundle", "exec", "functions-framework"]
 
 Build your function into a Docker image:
 
-```
-$ gcloud builds submit --tag=gcr.io/[YOUR-PROJECT]/hello:build-1
+```sh
+gcloud builds submit --tag=gcr.io/[YOUR-PROJECT]/hello:build-1
 ```
 
 Deploy to Cloud Run:
 
-```
-$ gcloud run deploy hello --image=gcr.io/[YOUR-PROJECT]/hello:build-1 \
+```sh
+gcloud run deploy hello --image=gcr.io/[YOUR-PROJECT]/hello:build-1 \
   --platform=managed --allow-unauthenticated --region=us-central1
 ```
 
@@ -164,21 +164,21 @@ end
 
 Start up the framework with this new function:
 
-```
-$ bundle install
-$ bundle exec functions-framework
+```sh
+bundle install
+bundle exec functions-framework
 ```
 
 In a separate shell, you can send a CloudEvent to this function using curl:
 
-```
-$ curl --header "Content-Type: text/plain; charset=utf-8" \
-       --header "CE-ID: 12345" \
-       --header "CE-Source: curl" \
-       --header "CE-Type: com.example.test" \
-       --header "CE-Specversion: 1.0" \
-       --data "Hello, world!" \
-       http://localhost:8080
+```sh
+curl --header "Content-Type: text/plain; charset=utf-8" \
+     --header "CE-ID: 12345" \
+     --header "CE-Source: curl" \
+     --header "CE-Type: com.example.test" \
+     --header "CE-Specversion: 1.0" \
+     --data "Hello, world!" \
+     http://localhost:8080
 ```
 
 CloudEvents functions do not return meaningful results, but you will see the
@@ -205,32 +205,11 @@ The Ruby `functions-framework` executable also recognizes several additional
 flags that can be used to control logging verbosity, binding, and other
 parameters. For details, see the online help:
 
-```
-$ functions-framework --help
+```sh
+functions-framework --help
 ```
 
-### For more information
+## For more information
 
 See the examples directory for additional examples, and consult the gem
 documentation on rubydoc.info for full reference documentation.
-
-## Contributing
-
-Contributions to this library are welcome and encouraged. See the CONTRIBUTING
-document for more information on how to get started.
-
-## License
-
-Copyright 2020 Google LLC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-> https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.

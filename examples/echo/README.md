@@ -31,8 +31,8 @@ it easier to use the provided Toys scripts.
 
 To run the commands here, first install Toys:
 
-```
-$ gem install toys
+```sh
+gem install toys
 ```
 
 Each of the `toys` commands below supports online help; just add `--help` to
@@ -45,8 +45,8 @@ info about what it is doing internally.
 
 To run unit tests, run the "test" toys script:
 
-```
-$ toys test
+```sh
+toys test
 ```
 
 ### Running the examples locally
@@ -56,26 +56,26 @@ pass the name of the function to run (either `http-sample` or `event-sample`).
 
 Here is how to serve the HTTP sample function:
 
-```
-$ toys server http-sample
+```sh
+toys server http-sample
 ```
 
 Then, in a separate shell, you can send requests to it:
 
-```
-$ toys request
+```sh
+toys request
 ```
 
 To serve the event sample function:
 
-```
-$ toys server event-sample
+```sh
+toys server event-sample
 ```
 
 Then, in a separate shell, you can send events to it:
 
-```
-$ toys event
+```sh
+toys event
 ```
 
 Hit `CTRL`+`C` to stop a running server.
@@ -87,15 +87,15 @@ image and then run it.
 
 To build the image:
 
-```
-$ toys image build
+```sh
+toys image build
 ```
 
 Then you can run it in Docker by passing the function name to
 `toys image server`, as below:
 
-```
-$ toys image server http-sample
+```sh
+toys image server http-sample
 ```
 
 Again, use `toys request` or `toys event` to send example requests.
@@ -106,8 +106,8 @@ To deploy to Cloud Run, first create a project and enable billing. Then run the
 `toys run deploy` command, providing the function name, and the project. For
 example:
 
-```
-$ toys run deploy http-sample --project=[PROJECT NAME] 
+```sh
+toys run deploy http-sample --project=[PROJECT NAME] 
 ```
 
 It may ask you for permission to enable the Cloud Build and Cloud Run APIs for
@@ -120,6 +120,6 @@ At the end of the deployment process, the command will display the hostname for
 the Cloud Run service. Use that hostname to send requests via the commands
 `toys run request` or `toys run event`. For example:
 
-```
-$ toys run request echo-atlttjf4ya-uc.a.run.app
+```sh
+toys run request echo-abcdefghij-uc.a.run.app
 ```

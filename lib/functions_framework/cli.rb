@@ -22,18 +22,11 @@ module FunctionsFramework
   #
   class CLI
     ##
-    # The default source file path.
-    #
-    # @return [String]
-    #
-    DEFAULT_SOURCE = "./app.rb".freeze
-
-    ##
     # Create a new CLI, setting arguments to their defaults.
     #
     def initialize
-      @target = ::ENV["FUNCTION_TARGET"] || DEFAULT_TARGET
-      @source = ::ENV["FUNCTION_SOURCE"] || DEFAULT_SOURCE
+      @target = ::ENV["FUNCTION_TARGET"] || ::FunctionsFramework::DEFAULT_TARGET
+      @source = ::ENV["FUNCTION_SOURCE"] || ::FunctionsFramework::DEFAULT_SOURCE
       @env = nil
       @port = nil
       @bind = nil
