@@ -12,7 +12,7 @@ in many different environments, including:
 The framework allows you to go from:
 
 ```ruby
-FunctionsFrameowork.http do |request|
+FunctionsFramework.http do |request|
   "Hello, world!\n"
 end
 ```
@@ -78,24 +78,25 @@ source "https://rubygems.org"
 gem "functions_framework", "~> 0.1"
 ```
 
-Create a file called `app.rb` and include the following code:
+Create a file called `app.rb` and include the following code. This defines a
+simple function called "hello".
 
 ```ruby
 # app.rb
 require "functions_framework"
 
-FunctionsFrameowork.http do |request|
+FunctionsFramework.http("hello") do |request|
   "Hello, world!\n"
 end
 ```
 
 Install the bundle, and start the framework. This spins up a local web server
-with your function:
+running your "hello" function:
 
 ```sh
 bundle install
 # ...installs the functions_framework gem and other dependencies
-bundle exec functions-framework
+bundle exec functions-framework --target hello
 # ...starts the web server in the foreground
 ```
 
@@ -127,6 +128,7 @@ RUN gem install --no-document bundler \
     && bundle install
 
 ENTRYPOINT ["bundle", "exec", "functions-framework"]
+CMD ["--target", "hello"]
 ```
 
 Build your function into a Docker image:
@@ -157,7 +159,7 @@ Change `app.rb` to read:
 # app.rb
 require "functions_framework"
 
-FunctionsFrameowork.event do |data, context|
+FunctionsFramework.event("my-handler") do |data, context|
   FunctionsFramework.logger.info "I received #{data.inspect}"
 end
 ```
@@ -166,7 +168,7 @@ Start up the framework with this new function:
 
 ```sh
 bundle install
-bundle exec functions-framework
+bundle exec functions-framework --target my-handler
 ```
 
 In a separate shell, you can send a CloudEvent to this function using curl:

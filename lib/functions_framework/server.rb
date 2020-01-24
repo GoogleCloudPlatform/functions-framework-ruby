@@ -83,7 +83,8 @@ module FunctionsFramework
           @server.leak_stack_on_error = @config.show_error_details?
           @server.binder.add_tcp_listener @config.bind_addr, @config.port
           @server.run true
-          @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect}..."
+          @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect}" \
+                              " on port #{@config.port}..."
         end
       end
       self
