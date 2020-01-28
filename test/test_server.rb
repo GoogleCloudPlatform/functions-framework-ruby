@@ -69,7 +69,7 @@ describe FunctionsFramework::Server do
       success = false
       retry_count.times do
         response = ::Net::HTTP.post \
-          URI("http://127.0.0.1:#{port}"), "Hello, world!", {"Content-Type" => "text/plain"}
+          URI("http://127.0.0.1:#{port}/"), "Hello, world!", {"Content-Type" => "text/plain"}
         if response.code == "200"
           success = true
           assert_equal "Received: \"Hello, world!\"", response.body
