@@ -57,7 +57,7 @@ workflows:
   version: 2
   builds:
     jobs:
-      - test-ruby24:
-      - test-ruby25:
-      - test-ruby26:
-      - test-ruby27:
+      - test-ruby24
+      - test-ruby25
+      - test-ruby26
+      - test-ruby27
