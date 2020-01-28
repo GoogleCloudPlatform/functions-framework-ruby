@@ -52,31 +52,35 @@ describe FunctionsFramework::Server do
   end
 
   it "starts and stops" do
-    refute server.running?
-    server.start
-    assert server.running?
-    server.stop.wait_until_stopped timeout: 10
-    refute server.running?
-  ensure
-    server.stop.wait_until_stopped timeout: 10
+    begin
+      refute server.running?
+      server.start
+      assert server.running?
+      server.stop.wait_until_stopped timeout: 10
+      refute server.running?
+    ensure
+      server.stop.wait_until_stopped timeout: 10
+    end
   end
 
   it "handles requests" do
-    server.start
-    success = false
-    retry_count.times do
-      response = ::Net::HTTP.post \
-        URI("http://127.0.0.1:#{port}"), "Hello, world!", {"Content-Type" => "text/plain"}
-      if response.code == "200"
-        success = true
-        assert_equal "Received: \"Hello, world!\"", response.body
-        break
+    begin
+      server.start
+      success = false
+      retry_count.times do
+        response = ::Net::HTTP.post \
+          URI("http://127.0.0.1:#{port}"), "Hello, world!", {"Content-Type" => "text/plain"}
+        if response.code == "200"
+          success = true
+          assert_equal "Received: \"Hello, world!\"", response.body
+          break
+        end
+        sleep retry_interval
       end
-      sleep retry_interval
+      assert success, "Failed to connect to the server"
+    ensure
+      server.stop.wait_until_stopped timeout: 10
     end
-    assert success, "Failed to connect to the server"
-  ensure
-    server.stop.wait_until_stopped timeout: 10
   end
 
   describe "::Config" do
