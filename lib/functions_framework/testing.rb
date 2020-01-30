@@ -23,18 +23,45 @@ module FunctionsFramework
   # Helpers for writing unit tests.
   #
   # Methods on this module can be called as module methods, or this module can
-  # be included in a test class. For example:
+  # be included in a test class.
   #
-  # ```
-  # require "functions_framework/testing"
-  # class MyTest < Minitest::Test
-  #   include FunctionsFramework::Testing
-  #   def test_something
-  #     request = make_get_request "http://xample.com"
-  #     call_http "my-function", request
-  #   end
-  # end
-  # ```
+  # ## Example
+  #
+  # Suppose we have the following app that uses the functions framework:
+  #
+  #     # app.rb
+  #
+  #     require "functions_framework"
+  #
+  #     FunctionsFramework.http "my-function" do |request|
+  #       "Hello, world!"
+  #     end
+  #
+  # The following is a test that could be run against that app:
+  #
+  #     # test_app.rb
+  #
+  #     require "minitest/autorun"
+  #     require "functions_framework/testing"
+  #
+  #     class MyTest < Minitest::Test
+  #       # Make the testing methods available.
+  #       include FunctionsFramework::Testing
+  #
+  #       def test_my_function
+  #         # Load app.rb and apply its functions within this block
+  #         load_temporary "app.rb" do
+  #           # Create a mock http (rack) request
+  #           request = make_get_request "http://example.com"
+  #
+  #           # Call the function and get a rack response
+  #           response = call_http "my-function", request
+  #
+  #           # Assert against the response
+  #           assert_equal "Hello, world!", response.body.join
+  #         end
+  #       end
+  #     end
   #
   module Testing
     ##

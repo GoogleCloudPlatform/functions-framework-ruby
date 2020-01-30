@@ -27,6 +27,8 @@ module FunctionsFramework
   # batch formats. A standard JSON structure parser is included. It is also
   # possible to register handlers for other formats.
   #
+  # TODO: Unmarshaling of events is implemented, but marshaling is not.
+  #
   module CloudEvents
     @structured_formats = {}
     @batched_formats = {}
