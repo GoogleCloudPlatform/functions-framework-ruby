@@ -27,7 +27,7 @@ executors:
     docker:
       - image: "circleci/ruby:2.7-buster"
 commands:
-  rake-test:
+  run-ci:
     steps:
       - checkout
       - run:
@@ -36,28 +36,70 @@ commands:
       - run:
           name: CI
           command: "bundle exec toys ci"
+  run-test:
+    steps:
+      - checkout
+      - run:
+          name: Bundle
+          command: "gem install --no-document bundler && bundle install --jobs=3 --retry=3"
+      - run:
+          name: Test
+          command: "bundle exec toys test"
+  run-release:
+    steps:
+      - checkout
+      - run:
+          name: Release
+          command: "gem install --no-document toys && toys push-release"
 jobs:
   test-ruby24:
     executor: ruby24
     steps:
-      - rake-test
+      - run-test
   test-ruby25:
     executor: ruby25
     steps:
-      - rake-test
+      - run-test
   test-ruby26:
     executor: ruby26
     steps:
-      - rake-test
+      - run-test
   test-ruby27:
     executor: ruby27
     steps:
-      - rake-test
+      - run-ci
+  release:
+    executor: ruby27
+    steps:
+      - run-release
 workflows:
   version: 2
   builds:
     jobs:
-      - test-ruby24
-      - test-ruby25
-      - test-ruby26
-      - test-ruby27
+      - test-ruby24:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+/
+      - test-ruby25:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+/
+      - test-ruby26:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+/
+      - test-ruby27:
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+/
+      - release:
+          requires:
+            - test-ruby24
+            - test-ruby25
+            - test-ruby26
+            - test-ruby27
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v\d+\.\d+\.\d+/
