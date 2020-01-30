@@ -213,5 +213,6 @@ functions-framework --help
 
 ## For more information
 
-See the examples directory for additional examples, and consult
-https://rubydoc.info/gems/functions_framework for full reference documentation.
+ *  See the `examples` directory for additional examples
+ *  Consult https://rubydoc.info/gems/functions_framework for full reference
+    documentation.
