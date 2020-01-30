@@ -25,7 +25,51 @@ require "functions_framework/version"
 # Functions Framework is an open source framework for writing lightweight,
 # portable Ruby functions that run in a serverless environment. For general
 # information about the Functions Framework, see
-# https://github.com/GoogleCloudPlatform/functions-framework
+# https://github.com/GoogleCloudPlatform/functions-framework.
+# To get started with the functions framework for Ruby, see
+# https://github.com/GoogleCloudPlatform/functions-framework-ruby for basic
+# examples.
+#
+# ## Inside the FunctionsFramework module
+#
+# The FunctionsFramework module includes the main entry points for the
+# functions framework. Use the {FunctionsFramework.http},
+# {FunctionsFramework.event}, or {FunctionsFramework.cloud_event} methods to
+# define functions. To serve functions via a web service, invoke the
+# `functions-framework` executable, or use the {FunctionsFramework.start} or
+# {FunctionsFramework.run} methods.
+#
+# ## Internal modules
+#
+# Here is a roadmap to the internal modules in the Ruby functions framework.
+#
+#  *  {FunctionsFramework::CloudEvents} provides an implementation of the
+#     [CloudEvents](https://cloudevents.io) specification. In particular, if
+#     you define an event function, you will receive the event as a
+#     {FunctionsFramework::CloudEvents::Event} object.
+#  *  {FunctionsFramework::CLI} is the implementation of the
+#     `functions-framework` executable. Most apps will not need to interact
+#     with this class directly.
+#  *  {FunctionsFramework::Function} is the internal representation of a
+#     function, indicating the type of function (http or cloud event), the
+#     name of the function, and the block of code implementing it. Most apps
+#     do not need to interact with this class directly.
+#  *  {FunctionsFramework::Registry} looks up functions by name. When you
+#     define a set of named functions, they are added to a registry, and when
+#     you start a server and specify the target function by name, it is looked
+#     up from the registry. Most apps do not need to interact with this class
+#     directly.
+#  *  {FunctionsFramework::Server} is a web server that makes a function
+#     available via HTTP. It wraps the Puma web server and runs a specific
+#     {FunctionsFramework::Function}. Many apps can simply run the
+#     `functions-framework` executable to spin up a server. However, if you
+#     need closer control over your execution environment, you can use the
+#     {FunctionsFramework::Server} class to run a server. Note that, in most
+#     cases, it is easier to use the {FunctionsFramework.start} or
+#     {FunctionsFramework.run} wrapper methods rather than instantiate a
+#     {FunctionsFramework::Server} class directly.
+#  *  {FunctionsFramework::Testing} provides helpers that are useful when
+#     writing unit tests for functions.
 #
 module FunctionsFramework
   @global_registry = Registry.new
