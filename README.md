@@ -1,4 +1,4 @@
-# Functions Framework
+# Functions Framework [![Documentation](https://img.shields.io/badge/docs-FunctionsFramework-red.svg)](https://googleapis.dev/ruby/google-api-client/latest/Google/Apis.html) [![Gem Version](https://badge.fury.io/rb/functions_framework.svg)](https://badge.fury.io/rb/functions_framework)
 
 An open source framework for writing lightweight, portable Ruby functions that
 run in a serverless environment. Functions written to this Framework will run
