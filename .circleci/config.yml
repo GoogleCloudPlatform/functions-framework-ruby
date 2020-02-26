@@ -31,20 +31,14 @@ commands:
     steps:
       - checkout
       - run:
-          name: Bundle
-          command: "gem install --no-document bundler && bundle install --jobs=3 --retry=3"
-      - run:
           name: CI
-          command: "bundle exec toys ci"
+          command: "gem install --no-document toys && toys ci"
   run-test:
     steps:
       - checkout
       - run:
-          name: Bundle
-          command: "gem install --no-document bundler && bundle install --jobs=3 --retry=3"
-      - run:
           name: Test
-          command: "bundle exec toys test"
+          command: "gem install --no-document toys && toys test"
   run-release:
     steps:
       - checkout

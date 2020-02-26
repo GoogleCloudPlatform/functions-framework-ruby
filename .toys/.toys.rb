@@ -14,14 +14,15 @@
 
 expand :clean, paths: ["pkg", "doc", ".yardoc", "tmp", "examples/*/vendor"]
 
-expand :minitest, libs: ["lib", "test"]
+expand :minitest, libs: ["lib", "test"], bundler: true
 
-expand :rubocop
+expand :rubocop, bundler: true
 
 expand :yardoc do |t|
   t.generate_output_flag = true
   t.fail_on_warning = true
   t.fail_on_undocumented_objects = true
+  t.use_bundler
 end
 
 expand :gem_build

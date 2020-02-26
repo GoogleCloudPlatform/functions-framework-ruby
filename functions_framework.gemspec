@@ -48,6 +48,6 @@ require "functions_framework/version"
   spec.add_development_dependency "minitest-focus", "~> 1.1"
   spec.add_development_dependency "minitest-rg", "~> 5.2"
   spec.add_development_dependency "redcarpet", "~> 3.5"
-  spec.add_development_dependency "toys", "~> 0.9.3"
+  spec.add_development_dependency "toys", "~> 0.10.0"
   spec.add_development_dependency "yard", "~> 0.9.24"
 end
