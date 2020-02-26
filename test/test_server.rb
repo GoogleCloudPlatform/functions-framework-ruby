@@ -26,6 +26,7 @@ describe FunctionsFramework::Server do
     end
   }
   let(:port) { 8077 }
+  let(:server_url) { "http://127.0.0.1:#{port}" }
   let(:quiet_logger) {
     logger = ::Logger.new ::STDOUT
     logger.level = ::Logger::ERROR
@@ -43,6 +44,23 @@ describe FunctionsFramework::Server do
   }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
+
+  def query_server_with_retry
+    begin
+      server.start
+      last_error = nil
+      retry_count.times do
+        begin
+          return yield
+        rescue ::SystemCallError => e
+          last_error = e
+        end
+      end
+      raise last_error
+    ensure
+      server.stop.wait_until_stopped timeout: 10
+    end
+  end
 
   it "supports configuration in a constructor block" do
     server = FunctionsFramework::Server.new function do |config|
@@ -63,24 +81,36 @@ describe FunctionsFramework::Server do
     end
   end
 
-  it "handles requests" do
-    begin
-      server.start
-      success = false
-      retry_count.times do
-        response = ::Net::HTTP.post \
-          URI("http://127.0.0.1:#{port}/"), "Hello, world!", {"Content-Type" => "text/plain"}
-        if response.code == "200"
-          success = true
-          assert_equal "Received: \"Hello, world!\"", response.body
-          break
-        end
-        sleep retry_interval
-      end
-      assert success, "Failed to connect to the server"
-    ensure
-      server.stop.wait_until_stopped timeout: 10
+  it "handles post requests" do
+    response = query_server_with_retry do
+      ::Net::HTTP.post URI(server_url), "Hello, world!", {"Content-Type" => "text/plain"}
     end
+    assert_equal "200", response.code
+    assert_equal "Received: \"Hello, world!\"", response.body
+  end
+
+  it "handles get requests" do
+    response = query_server_with_retry do
+      ::Net::HTTP.get_response URI(server_url)
+    end
+    assert_equal "200", response.code
+    assert_equal "Received: \"\"", response.body
+  end
+
+  it "refuses favicon requests" do
+    response = query_server_with_retry do
+      ::Net::HTTP.get_response URI("#{server_url}/favicon.ico")
+    end
+    assert_equal "404", response.code
+    assert_equal "Not found", response.body
+  end
+
+  it "refuses robots requests" do
+    response = query_server_with_retry do
+      ::Net::HTTP.get_response URI("#{server_url}/robots.txt")
+    end
+    assert_equal "404", response.code
+    assert_equal "Not found", response.body
   end
 
   describe "::Config" do
