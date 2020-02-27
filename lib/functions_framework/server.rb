@@ -315,8 +315,15 @@ module FunctionsFramework
 
     ## @private
     class AppBase
+      BLACKLISTED_PATHS = ["/favicon.ico", "/robots.txt"].freeze
+
       def initialize config
         @config = config
+      end
+
+      def blacklisted_path? env
+        path = env[::Rack::SCRIPT_NAME].to_s + env[::Rack::PATH_INFO].to_s
+        BLACKLISTED_PATHS.include? path
       end
 
       def interpret_response response
@@ -338,6 +345,10 @@ module FunctionsFramework
           error = error_message e
           string_response error, "text/plain", 500
         end
+      end
+
+      def notfound_response
+        string_response "Not found", "text/plain", 404
       end
 
       def string_response string, content_type, status
@@ -373,6 +384,7 @@ module FunctionsFramework
       end
 
       def call env
+        return notfound_response if blacklisted_path? env
         response =
           begin
             logger = env["rack.logger"] = @config.logger
@@ -395,6 +407,7 @@ module FunctionsFramework
       end
 
       def call env
+        return notfound_response if blacklisted_path? env
         logger = env["rack.logger"] = @config.logger
         event =
           begin
