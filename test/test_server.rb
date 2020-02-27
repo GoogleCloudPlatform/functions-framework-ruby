@@ -83,7 +83,7 @@ describe FunctionsFramework::Server do
 
   it "handles post requests" do
     response = query_server_with_retry do
-      ::Net::HTTP.post URI(server_url), "Hello, world!", {"Content-Type" => "text/plain"}
+      ::Net::HTTP.post URI("#{server_url}/"), "Hello, world!", {"Content-Type" => "text/plain"}
     end
     assert_equal "200", response.code
     assert_equal "Received: \"Hello, world!\"", response.body
@@ -91,7 +91,7 @@ describe FunctionsFramework::Server do
 
   it "handles get requests" do
     response = query_server_with_retry do
-      ::Net::HTTP.get_response URI(server_url)
+      ::Net::HTTP.get_response URI("#{server_url}/")
     end
     assert_equal "200", response.code
     assert_equal "Received: \"\"", response.body
