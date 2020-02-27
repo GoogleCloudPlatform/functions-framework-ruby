@@ -145,7 +145,7 @@ module FunctionsFramework
     def make_post_request url, data, headers = []
       env = Testing.build_standard_env URI(url), headers
       env[::Rack::REQUEST_METHOD] = ::Rack::POST
-      env[::Rack::INPUT_STREAM] = ::StringIO.new data
+      env[::Rack::RACK_INPUT] = ::StringIO.new data
       ::Rack::Request.new env
     end
 
