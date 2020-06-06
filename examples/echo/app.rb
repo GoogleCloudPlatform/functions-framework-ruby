@@ -22,6 +22,6 @@ FunctionsFramework.http "http-sample" do |request|
 end
 
 # Create a simple CloudEvents function called "event-sample"
-FunctionsFramework.event "event-sample" do |data, context|
-  FunctionsFramework.logger.info "I received #{data.inspect} in an event of type #{context.type}"
+FunctionsFramework.cloud_event "event-sample" do |event|
+  FunctionsFramework.logger.info "I received #{event.data.inspect} in an event of type #{event.type}"
 end

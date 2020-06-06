@@ -159,8 +159,8 @@ Change `app.rb` to read:
 # app.rb
 require "functions_framework"
 
-FunctionsFramework.event("my-handler") do |data, context|
-  FunctionsFramework.logger.info "I received #{data.inspect}"
+FunctionsFramework.cloud_event("my-handler") do |event|
+  FunctionsFramework.logger.info "I received #{event.inspect}"
 end
 ```
 
