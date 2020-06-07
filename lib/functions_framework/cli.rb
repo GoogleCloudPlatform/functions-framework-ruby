@@ -18,7 +18,7 @@ require "functions_framework"
 
 module FunctionsFramework
   ##
-  # Implementation of the functions-framework executable.
+  # Implementation of the functions-framework-ruby executable.
   #
   class CLI
     ##

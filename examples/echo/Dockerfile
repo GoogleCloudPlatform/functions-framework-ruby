@@ -7,4 +7,4 @@ RUN gem install --no-document bundler \
     && bundle config --local without "development test" \
     && bundle install
 
-ENTRYPOINT ["bundle", "exec", "functions-framework"]
+ENTRYPOINT ["bundle", "exec", "functions-framework-ruby"]

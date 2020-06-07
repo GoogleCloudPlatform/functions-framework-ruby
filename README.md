@@ -96,7 +96,7 @@ running your "hello" function:
 ```sh
 bundle install
 # ...installs the functions_framework gem and other dependencies
-bundle exec functions-framework --target hello
+bundle exec functions-framework-ruby --target hello
 # ...starts the web server in the foreground
 ```
 
@@ -127,7 +127,7 @@ RUN gem install --no-document bundler \
     && bundle config --local frozen true \
     && bundle install
 
-ENTRYPOINT ["bundle", "exec", "functions-framework"]
+ENTRYPOINT ["bundle", "exec", "functions-framework-ruby"]
 CMD ["--target", "hello"]
 ```
 
@@ -168,7 +168,7 @@ Start up the framework with this new function:
 
 ```sh
 bundle install
-bundle exec functions-framework --target my-handler
+bundle exec functions-framework-ruby --target my-handler
 ```
 
 In a separate shell, you can send a CloudEvent to this function using curl:
@@ -189,7 +189,7 @@ log message from the web server.
 ### Configuring the Functions Framework
 
 The Ruby Functions Framework recognizes the standard command line arguments to
-the `functions-framework` executable. Each argument also corresponds to an
+the `functions-framework-ruby` executable. Each argument also corresponds to an
 environment variable. If you specify both, the environment variable will be
 ignored.
 
@@ -203,12 +203,12 @@ Note: the flag `--signature-type` and corresponding environment variable
 `FUNCTION_SIGNATURE_TYPE` are not used by the Ruby Function Framework, because
 you specify the signature type when defining the function in the source.
 
-The Ruby `functions-framework` executable also recognizes several additional
+The Ruby `functions-framework-ruby` executable also recognizes some additional
 flags that can be used to control logging verbosity, binding, and other
 parameters. For details, see the online help:
 
 ```sh
-functions-framework --help
+functions-framework-ruby --help
 ```
 
 ## For more information
