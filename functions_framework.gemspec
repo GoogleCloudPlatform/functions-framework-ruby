@@ -36,7 +36,7 @@ require "functions_framework/version"
                ["LICENSE", ".yardopts"]
   spec.require_paths = ["lib"]
   spec.bindir = "bin"
-  spec.executables = ["functions-framework"]
+  spec.executables = ["functions-framework", "functions-framework-ruby"]
 
   spec.required_ruby_version = ">= 2.4.0"
 

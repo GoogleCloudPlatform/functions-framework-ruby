@@ -83,9 +83,9 @@ tool "server" do
     ::Dir.chdir context_directory
     bin_path =
       if use_release
-        "functions-framework"
+        "functions-framework-ruby"
       else
-        "vendor/functions_framework/bin/functions-framework"
+        "vendor/functions_framework/bin/functions-framework-ruby"
       end
     exec ["bundle", "install"]
     exec ["bundle", "exec", bin_path, "--target", target, "--port", port.to_s, "--detailed-errors"]

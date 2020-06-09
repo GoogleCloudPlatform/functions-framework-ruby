@@ -36,8 +36,8 @@ require "functions_framework/version"
 # functions framework. Use the {FunctionsFramework.http},
 # {FunctionsFramework.event}, or {FunctionsFramework.cloud_event} methods to
 # define functions. To serve functions via a web service, invoke the
-# `functions-framework` executable, or use the {FunctionsFramework.start} or
-# {FunctionsFramework.run} methods.
+# `functions-framework-ruby` executable, or use the {FunctionsFramework.start}
+# or {FunctionsFramework.run} methods.
 #
 # ## Internal modules
 #
@@ -48,7 +48,7 @@ require "functions_framework/version"
 #     you define an event function, you will receive the event as a
 #     {FunctionsFramework::CloudEvents::Event} object.
 #  *  {FunctionsFramework::CLI} is the implementation of the
-#     `functions-framework` executable. Most apps will not need to interact
+#     `functions-framework-ruby` executable. Most apps will not need to interact
 #     with this class directly.
 #  *  {FunctionsFramework::Function} is the internal representation of a
 #     function, indicating the type of function (http or cloud event), the
@@ -62,7 +62,7 @@ require "functions_framework/version"
 #  *  {FunctionsFramework::Server} is a web server that makes a function
 #     available via HTTP. It wraps the Puma web server and runs a specific
 #     {FunctionsFramework::Function}. Many apps can simply run the
-#     `functions-framework` executable to spin up a server. However, if you
+#     `functions-framework-ruby` executable to spin up a server. However, if you
 #     need closer control over your execution environment, you can use the
 #     {FunctionsFramework::Server} class to run a server. Note that, in most
 #     cases, it is easier to use the {FunctionsFramework.start} or
