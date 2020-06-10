@@ -76,31 +76,10 @@ module FunctionsFramework
     end
 
     ##
-    # Add a CloudEvent function to the registry.
+    # This is an obsolete interface that defines an event function taking two
+    # arguments (data and context) rather than one.
     #
-    # You must provide a name for the function, and a block that implemets the
-    # function. The block should take two arguments: the event _data_ and the
-    # event _context_. Any return value is ignored.
-    #
-    # The event data argument will be one of the following types:
-    #  *  A `String` (with encoding `ASCII-8BIT`) if the data is in the form of
-    #     binary data. You may choose to perform additional interpretation of
-    #     the binary data using information in the content type provided by the
-    #     context argument.
-    #  *  Any data type that can be represented in JSON (i.e. `String`,
-    #     `Integer`, `Array`, `Hash`, `true`, `false`, or `nil`) if the event
-    #     came with a JSON payload. The content type may also be set in the
-    #     context if the data is a String.
-    #
-    # The context argument will be of type {FunctionsFramework::CloudEvents::Event},
-    # and will contain CloudEvents context attributes such as `id` and `type`.
-    #
-    # See also {#add_cloud_event} which creates a function that takes a single
-    # argument of type {FunctionsFramework::CloudEvents::Event}.
-    #
-    # @param name [String] The function name
-    # @param block [Proc] The function code as a proc
-    # @return [self]
+    # @deprecated Use {Registry#add_cloud_event} instead.
     #
     def add_event name, &block
       name = name.to_s
@@ -117,9 +96,6 @@ module FunctionsFramework
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take _one_ argument: the event object of type
     # {FunctionsFramework::CloudEvents::Event}. Any return value is ignored.
-    #
-    # See also {#add_event} which creates a function that takes data and
-    # context as separate arguments.
     #
     # @param name [String] The function name
     # @param block [Proc] The function code as a proc

@@ -54,11 +54,9 @@ module FunctionsFramework
     #
     #  *  A `:http` type function takes a `Rack::Request` argument, and returns
     #     a Rack response type. See {FunctionsFramework::Registry.add_http}.
-    #  *  A `:event` or `:cloud_event` type function takes a
+    #  *  A `:cloud_event` type function takes a
     #     {FunctionsFramework::CloudEvents::Event} argument, and does not
     #     return a value. See {FunctionsFramework::Registry.add_cloud_event}.
-    #     Note that for an `:event` type function, the passed event argument is
-    #     split into two arguments when passed to the underlying block.
     #
     # @param argument [Rack::Request,FunctionsFramework::CloudEvents::Event]
     # @return [Object]
