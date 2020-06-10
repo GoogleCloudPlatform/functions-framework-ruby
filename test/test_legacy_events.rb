@@ -29,7 +29,7 @@ describe FunctionsFramework::LegacyEvents do
     event = load_legacy_event "legacy_pubsub.json"
     assert_equal "1.0", event.spec_version
     assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
-    assert_equal "google.pubsub.topic.publish.v1", event.type
+    assert_equal "google.cloud.pubsub.topic.v1.publish", event.type
     assert_equal "2020-05-18T12:13:19+00:00", event.time.rfc3339
     assert_equal "value1", event.data["attributes"]["attribute1"]
   end
@@ -39,7 +39,7 @@ describe FunctionsFramework::LegacyEvents do
     assert_equal "1.0", event.spec_version
     assert_equal "//storage.googleapis.com/projects/_/buckets/sample-bucket/objects/MyFile#1588778055917163",
                  event.source_string
-    assert_equal "google.storage.object.change.v1", event.type
+    assert_equal "google.cloud.storage.object.v1.change", event.type
     assert_equal "2020-05-18T09:07:51+00:00", event.time.rfc3339
     assert_equal "sample-bucket", event.data["bucket"]
   end
@@ -48,7 +48,7 @@ describe FunctionsFramework::LegacyEvents do
     event = load_legacy_event "pubsub_text.json"
     assert_equal "1.0", event.spec_version
     assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
-    assert_equal "google.pubsub.topic.publish.v1", event.type
+    assert_equal "google.cloud.pubsub.topic.v1.publish", event.type
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "attr1-value", event.data["attributes"]["attr1"]
   end
@@ -57,7 +57,7 @@ describe FunctionsFramework::LegacyEvents do
     event = load_legacy_event "pubsub_binary.json"
     assert_equal "1.0", event.spec_version
     assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
-    assert_equal "google.pubsub.topic.publish.v1", event.type
+    assert_equal "google.cloud.pubsub.topic.v1.publish", event.type
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "AQIDBA==", event.data["data"]
   end
@@ -66,7 +66,7 @@ describe FunctionsFramework::LegacyEvents do
     event = load_legacy_event "storage.json"
     assert_equal "1.0", event.spec_version
     assert_equal "//storage.googleapis.com/projects/_/buckets/some-bucket/objects/Test.cs", event.source_string
-    assert_equal "google.storage.object.finalize.v1", event.type
+    assert_equal "google.cloud.storage.object.v1.finalize", event.type
     assert_equal "2020-04-23T07:38:57+00:00", event.time.rfc3339
     assert_equal "some-bucket", event.data["bucket"]
   end
@@ -77,7 +77,7 @@ describe FunctionsFramework::LegacyEvents do
     assert_equal \
       "//firestore.googleapis.com/projects/project-id/databases/(default)/documents/gcf-test/2Vm2mI1d0wIaK2Waj5to",
       event.source_string
-    assert_equal "google.firestore.document.write.v1", event.type
+    assert_equal "google.cloud.firestore.document.v1.write", event.type
     assert_equal "2020-04-23T12:00:27+00:00", event.time.rfc3339
     assert_equal "bar", event.data["value"]["fields"]["foo"]["stringValue"]
   end

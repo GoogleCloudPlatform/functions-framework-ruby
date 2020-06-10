@@ -50,13 +50,14 @@ module FunctionsFramework
       def decode_storage input
         context = input["context"]
         return nil unless context
-        return nil unless context["eventType"]&.start_with? "google.storage."
+        type_match = /^google\.storage\.(\w+)\.(\w+)$/.match context["eventType"]
+        return nil unless type_match
         resource = context["resource"]
         return nil unless resource && resource["service"] && resource["name"]
         return nil unless resource["type"] == "storage#object"
         CloudEvents::Event.new id:           ::SecureRandom.uuid,
                                source:       "//#{resource['service']}/#{resource['name']}",
-                               type:         "#{context['eventType']}.v1",
+                               type:         "google.cloud.storage.#{type_match[1]}.v1.#{type_match[2]}",
                                spec_version: "1.0",
                                data:         input["data"],
                                time:         context["timestamp"]
@@ -65,13 +66,14 @@ module FunctionsFramework
       def decode_pubsub input
         context = input["context"]
         return nil unless context
-        return nil unless context["eventType"]&.start_with? "google.pubsub."
+        type_match = /^google\.pubsub\.(\w+)\.(\w+)$/.match context["eventType"]
+        return nil unless type_match
         resource = context["resource"]
         return nil unless resource && resource["service"] && resource["name"]
         return nil unless resource["type"] == "type.googleapis.com/google.pubsub.v1.PubsubMessage"
         CloudEvents::Event.new id:           ::SecureRandom.uuid,
                                source:       "//#{resource['service']}/#{resource['name']}",
-                               type:         "#{context['eventType']}.v1",
+                               type:         "google.cloud.pubsub.#{type_match[1]}.v1.#{type_match[2]}",
                                spec_version: "1.0",
                                data:         input["data"],
                                time:         context["timestamp"]
@@ -79,11 +81,11 @@ module FunctionsFramework
 
       def decode_firestore input
         return nil unless input["resource"] && input["data"] && input["timestamp"]
-        pre, event_type = input["eventType"].to_s.split "providers/cloud.firestore/eventTypes/"
-        return nil unless pre == "" && event_type && !event_type.empty?
+        type_match = %r{^providers/cloud\.firestore/eventTypes/(\w+)\.(\w+)$}.match input["eventType"]
+        return nil unless type_match
         CloudEvents::Event.new id:           ::SecureRandom.uuid,
                                source:       "//firestore.googleapis.com/#{input['resource']}",
-                               type:         "google.firestore.#{event_type}.v1",
+                               type:         "google.cloud.firestore.#{type_match[1]}.v1.#{type_match[2]}",
                                spec_version: "1.0",
                                data:         input["data"],
                                time:         input["timestamp"]
@@ -91,11 +93,11 @@ module FunctionsFramework
 
       def decode_storage_legacy input
         return nil unless input["resource"] && input["data"] && input["timestamp"]
-        pre, event_type = input["eventType"].to_s.split "providers/cloud.storage/eventTypes/"
-        return nil unless pre == "" && event_type && !event_type.empty?
+        type_match = %r{^providers/cloud\.storage/eventTypes/(\w+)\.(\w+)$}.match input["eventType"]
+        return nil unless type_match
         CloudEvents::Event.new id:           ::SecureRandom.uuid,
                                source:       "//storage.googleapis.com/#{input['resource']}",
-                               type:         "google.storage.#{event_type}.v1",
+                               type:         "google.cloud.storage.#{type_match[1]}.v1.#{type_match[2]}",
                                spec_version: "1.0",
                                data:         input["data"],
                                time:         input["timestamp"]
@@ -103,11 +105,11 @@ module FunctionsFramework
 
       def decode_pubsub_legacy input
         return nil unless input["resource"] && input["data"] && input["timestamp"]
-        pre, event_type = input["eventType"].to_s.split "providers/cloud.pubsub/eventTypes/"
-        return nil unless pre == "" && event_type && !event_type.empty?
+        type_match = %r{^providers/cloud\.pubsub/eventTypes/(\w+)\.(\w+)$}.match input["eventType"]
+        return nil unless type_match
         CloudEvents::Event.new id:           ::SecureRandom.uuid,
                                source:       "//pubsub.googleapis.com/#{input['resource']}",
-                               type:         "google.pubsub.#{event_type}.v1",
+                               type:         "google.cloud.pubsub.#{type_match[1]}.v1.#{type_match[2]}",
                                spec_version: "1.0",
                                data:         input["data"],
                                time:         input["timestamp"]
