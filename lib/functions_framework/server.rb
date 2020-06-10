@@ -411,7 +411,9 @@ module FunctionsFramework
         logger = env["rack.logger"] = @config.logger
         event =
           begin
-            CloudEvents.decode_rack_env env
+            CloudEvents.decode_rack_env(env) ||
+              LegacyEvents.decode_rack_env(env) ||
+              raise("Unknown event type")
           rescue ::StandardError => e
             e
           end

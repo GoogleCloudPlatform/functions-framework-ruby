@@ -16,6 +16,7 @@ require "logger"
 
 require "functions_framework/cloud_events"
 require "functions_framework/function"
+require "functions_framework/legacy_events"
 require "functions_framework/registry"
 require "functions_framework/version"
 

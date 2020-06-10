@@ -63,7 +63,7 @@ describe FunctionsFramework::Testing do
       event = FunctionsFramework::Testing.make_cloud_event "Lorem Ipsum"
       assert_instance_of FunctionsFramework::CloudEvents::Event, event
       assert_equal "Lorem Ipsum", event.data
-      assert_match /^random-id/, event.id
+      assert_match %r{^random-id}, event.id
       assert_equal "com.example.test", event.type
       assert_equal "1.0", event.spec_version
       assert_nil event.data_content_type

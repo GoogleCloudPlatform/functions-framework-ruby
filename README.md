@@ -36,6 +36,8 @@ https://github.com/GoogleCloudPlatform/functions-framework
  *  Invoke functions in response to requests.
  *  Automatically unmarshal events conforming to the
     [CloudEvents](https://cloudevents.io) spec.
+ *  Automatically convert most legacy events from Google Cloud services such
+    as Cloud Pub/Sub and Cloud Storage, to CloudEvents.
  *  Spin up a local development server for quick testing.
  *  Integrate with standard Ruby libraries such as Rack and Minitest.
  *  Portable between serverless platforms.

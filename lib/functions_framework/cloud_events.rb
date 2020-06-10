@@ -78,10 +78,11 @@ module FunctionsFramework
       #     includes a single structured or binary event
       # @return [Array<FunctionsFramework::CloudEvents::Event>] if the request
       #     includes a batch of structured events
+      # @return [nil] if the request is not a CloudEvent.
       #
       def decode_rack_env env
         content_type_header = env["CONTENT_TYPE"]
-        raise "Missing content-type header" unless content_type_header
+        return nil unless content_type_header
         content_type = ContentType.new content_type_header
         if content_type.media_type == "application"
           case content_type.subtype_prefix

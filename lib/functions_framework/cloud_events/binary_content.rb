@@ -26,12 +26,15 @@ module FunctionsFramework
         # @param env [Hash] Rack environment hash
         # @param content_type [FunctionsFramework::CloudEvents::ContentType]
         #     the content type from the Rack environment
-        # @return [FunctionsFramework::CloudEvents::Event]
+        # @return [FunctionsFramework::CloudEvents::Event] if a CloudEvent
+        #     could be decoded from the Rack environment
+        # @return [nil] if the Rack environment does not indicate a CloudEvent
         #
         def decode_rack_env env, content_type
-          data = env["rack.input"]&.read
           spec_version = interpret_header env, "HTTP_CE_SPECVERSION"
+          return nil if spec_version.nil?
           raise "Unrecognized specversion: #{spec_version}" unless spec_version == "1.0"
+          data = env["rack.input"]&.read
           Event.new \
             id:                interpret_header(env, "HTTP_CE_ID"),
             source:            interpret_header(env, "HTTP_CE_SOURCE"),
