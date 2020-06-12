@@ -70,16 +70,9 @@ module FunctionsFramework
     #
     # @param path [String] File path to load
     #
-    def load_temporary path
-      registry = ::FunctionsFramework::Registry.new
-      old_registry = ::FunctionsFramework.global_registry
-      ::FunctionsFramework.global_registry = registry
-      begin
-        ::Kernel.load path
-        yield
-      ensure
-        ::FunctionsFramework.global_registry = old_registry
-      end
+    def load_temporary path, &block
+      path = ::File.expand_path path
+      Testing.load_for_testing path, &block
     end
 
     ##
@@ -180,7 +173,28 @@ module FunctionsFramework
 
     extend self
 
+    @testing_registries = {}
+    @mutex = ::Mutex.new
+
     class << self
+      ## @private
+      def load_for_testing path
+        old_registry = ::FunctionsFramework.global_registry
+        @mutex.synchronize do
+          if @testing_registries.key? path
+            ::FunctionsFramework.global_registry = @testing_registries[path]
+          else
+            new_registry = ::FunctionsFramework::Registry.new
+            ::FunctionsFramework.global_registry = new_registry
+            ::Kernel.load path
+            @testing_registries[path] = new_registry
+          end
+        end
+        yield
+      ensure
+        ::FunctionsFramework.global_registry = old_registry
+      end
+
       ## @private
       def interpret_response
         response =
