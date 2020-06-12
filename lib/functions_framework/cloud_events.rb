@@ -74,10 +74,8 @@ module FunctionsFramework
       # the request.
       #
       # @param env [Hash] The Rack environment
-      # @return [FunctionsFramework::CloudEvents::Event] if the request
-      #     includes a single structured or binary event
-      # @return [Array<FunctionsFramework::CloudEvents::Event>] if the request
-      #     includes a batch of structured events
+      # @return [Array<FunctionsFramework::CloudEvents::Event>] of one
+      #     or more events.
       # @return [nil] if the request is not a CloudEvent.
       #
       def decode_rack_env env
@@ -103,13 +101,13 @@ module FunctionsFramework
       # @param input [IO] An IO-like object providing the content
       # @param content_type [FunctionsFramework::CloudEvents::ContentType] the
       #     content type
-      # @return [FunctionsFramework::CloudEvents::Event]
+      # @return [Array<FunctionsFramework::CloudEvents::Event>]
       #
       def decode_structured_content input, content_type
         handlers = @structured_formats[content_type.subtype_format] || []
         handlers.reverse_each do |handler|
           event = handler.decode_structured_content input, content_type
-          return event if event
+          return [event] if event
         end
         raise "Unknown cloudevents format: #{content_type.subtype_format.inspect}"
       end

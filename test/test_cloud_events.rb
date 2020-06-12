@@ -49,7 +49,8 @@ describe FunctionsFramework::CloudEvents do
       "rack.input" => StringIO.new(my_json_struct_encoded),
       "CONTENT_TYPE" => "application/cloudevents+json"
     }
-    event = FunctionsFramework::CloudEvents.decode_rack_env env
+    events = FunctionsFramework::CloudEvents.decode_rack_env env
+    event = events[0]
     assert_equal my_id, event.id
     assert_equal my_source, event.source
     assert_equal my_type, event.type

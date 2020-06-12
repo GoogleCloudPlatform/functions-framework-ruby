@@ -409,7 +409,7 @@ module FunctionsFramework
       def call env
         return notfound_response if blacklisted_path? env
         logger = env["rack.logger"] = @config.logger
-        event =
+        events =
           begin
             CloudEvents.decode_rack_env(env) ||
               LegacyEvents.decode_rack_env(env) ||
@@ -418,10 +418,12 @@ module FunctionsFramework
             e
           end
         response =
-          if event.is_a? CloudEvents::Event
-            logger.info "FunctionsFramework: Handling CloudEvent"
+          if events.is_a? Array
             begin
-              @function.call event
+              events.each do |event|
+                logger.info "FunctionsFramework: Handling CloudEvent"
+                @function.call event
+              end
               "ok"
             rescue ::StandardError => e
               logger.warn e
