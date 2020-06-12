@@ -33,6 +33,7 @@ module FunctionsFramework
       @min_threads = nil
       @max_threads = nil
       @detailed_errors = nil
+      @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
     end
 
     ##
@@ -51,6 +52,11 @@ module FunctionsFramework
         op.on "-s", "--source SOURCE",
               "Set the source file to load (defaults to #{DEFAULT_SOURCE})" do |val|
           @source = val
+        end
+        op.on "--signature-type",
+              "Asserts that the function has the given signature type." \
+              " Supported values are 'http' and 'cloudevent'." do |val|
+          @signature_type = val
         end
         op.on "-p", "--port PORT", "Set the port to listen to (defaults to 8080)" do |val|
           @port = val.to_i
@@ -98,7 +104,7 @@ module FunctionsFramework
       FunctionsFramework.logger.info \
         "FunctionsFramework: Loading functions from #{@source.inspect}..."
       load @source
-      server = ::FunctionsFramework.start @target do |config|
+      server = ::FunctionsFramework.start @target, assert_signature_type: @signature_type do |config|
         config.rack_env = @env
         config.port = @port
         config.bind_addr = @bind
