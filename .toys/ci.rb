@@ -27,7 +27,12 @@ def handle_result result
 end
 
 def run
+  ::Dir.chdir context_directory
   exec_tool ["test"], name: "Tests"
   exec_tool ["rubocop"], name: "Style checker"
   exec_tool ["yardoc"], name: "Docs generation"
+  ::Dir.foreach("examples") do |dir|
+    next if dir =~ /^\.+$/
+    exec ["toys", "test"], name: "Tests for #{dir} example", chdir: ::File.join("examples", dir)
+  end
 end

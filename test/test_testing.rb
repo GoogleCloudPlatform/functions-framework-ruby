@@ -132,7 +132,7 @@ describe FunctionsFramework::Testing do
         _out, err = capture_subprocess_io do
           FunctionsFramework::Testing.call_event "simple-event", event
         end
-        assert_match /I received "Hello, world!" in an event of type event-type/, err
+        assert_match(/I received "Hello, world!" in an event of type event-type/, err)
       end
     end
   end
