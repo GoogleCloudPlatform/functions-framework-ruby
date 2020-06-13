@@ -34,7 +34,6 @@ module FunctionsFramework
       @max_threads = nil
       @detailed_errors = nil
       @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
-      @server = nil
     end
 
     ##

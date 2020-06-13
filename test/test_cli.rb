@@ -24,6 +24,7 @@ describe FunctionsFramework::CLI do
   let(:event_source) { File.join __dir__, "function_definitions", "simple_event.rb" }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
+  let(:port) { "8066" }
 
   def run_with_retry cli
     server = cli.start_server
@@ -57,7 +58,6 @@ describe FunctionsFramework::CLI do
   end
 
   it "runs an http server" do
-    port = "9901"
     args = [
       "--source", http_source,
       "--target", "simple-http",
@@ -73,7 +73,6 @@ describe FunctionsFramework::CLI do
   end
 
   it "succeeds the signature type check for an http server" do
-    port = "9902"
     args = [
       "--source", http_source,
       "--target", "simple-http",
@@ -87,7 +86,6 @@ describe FunctionsFramework::CLI do
   end
 
   it "fails the signature type check for an http server" do
-    port = "9903"
     args = [
       "--source", http_source,
       "--target", "simple-http",
@@ -104,7 +102,6 @@ describe FunctionsFramework::CLI do
   end
 
   it "succeeds the signature type check for an event server" do
-    port = "9904"
     args = [
       "--source", event_source,
       "--target", "simple-event",
@@ -118,7 +115,6 @@ describe FunctionsFramework::CLI do
   end
 
   it "fails the signature type check for an event server" do
-    port = "9905"
     args = [
       "--source", event_source,
       "--target", "simple-event",
