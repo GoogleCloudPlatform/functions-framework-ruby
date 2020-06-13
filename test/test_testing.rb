@@ -18,6 +18,8 @@ require "functions_framework/testing"
 
 describe FunctionsFramework::Testing do
   let(:registry) { FunctionsFramework::Registry.new }
+  let(:simple_http_path) { File.join __dir__, "function_definitions", "simple_http.rb" }
+  let(:simple_event_path) { File.join __dir__, "function_definitions", "simple_event.rb" }
 
   describe "#make_get_request" do
     it "creates a basic request" do
@@ -94,6 +96,44 @@ describe FunctionsFramework::Testing do
       assert_equal URI("my-schema"), event.data_schema
       assert_equal "my-subject", event.subject
       assert_equal cur_time, event.time
+    end
+  end
+
+  describe "#load_temporary" do
+    it "loads a definition file and caches it" do
+      registry = nil
+      FunctionsFramework::Testing.load_temporary simple_http_path do
+        registry = FunctionsFramework.global_registry
+        assert_equal ["simple-http"], registry.names
+      end
+      FunctionsFramework::Testing.load_temporary simple_http_path do
+        assert_same registry, FunctionsFramework.global_registry
+      end
+    end
+  end
+
+  describe "#call_http" do
+    it "calls an http function" do
+      FunctionsFramework::Testing.load_temporary simple_http_path do
+        request = FunctionsFramework::Testing.make_get_request "http://example.com/"
+        response = nil
+        capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_http "simple-http", request
+        end
+        assert_equal "I received a request: GET http://example.com/", response.body.join
+      end
+    end
+  end
+
+  describe "#call_event" do
+    it "calls an event function" do
+      FunctionsFramework::Testing.load_temporary simple_event_path do
+        event = FunctionsFramework::Testing.make_cloud_event "Hello, world!", type: "event-type"
+        _out, err = capture_subprocess_io do
+          FunctionsFramework::Testing.call_event "simple-event", event
+        end
+        assert_match /I received "Hello, world!" in an event of type event-type/, err
+      end
     end
   end
 end
