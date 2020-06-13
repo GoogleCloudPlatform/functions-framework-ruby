@@ -315,15 +315,15 @@ module FunctionsFramework
 
     ## @private
     class AppBase
-      BLACKLISTED_PATHS = ["/favicon.ico", "/robots.txt"].freeze
+      EXCLUDED_PATHS = ["/favicon.ico", "/robots.txt"].freeze
 
       def initialize config
         @config = config
       end
 
-      def blacklisted_path? env
+      def excluded_path? env
         path = env[::Rack::SCRIPT_NAME].to_s + env[::Rack::PATH_INFO].to_s
-        BLACKLISTED_PATHS.include? path
+        EXCLUDED_PATHS.include? path
       end
 
       def interpret_response response
@@ -384,7 +384,7 @@ module FunctionsFramework
       end
 
       def call env
-        return notfound_response if blacklisted_path? env
+        return notfound_response if excluded_path? env
         response =
           begin
             logger = env["rack.logger"] = @config.logger
@@ -407,7 +407,7 @@ module FunctionsFramework
       end
 
       def call env
-        return notfound_response if blacklisted_path? env
+        return notfound_response if excluded_path? env
         logger = env["rack.logger"] = @config.logger
         event =
           begin
