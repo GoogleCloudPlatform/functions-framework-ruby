@@ -93,7 +93,9 @@ module FunctionsFramework
     end
 
     ##
-    # Run the configured server.
+    # Run the configured server, and block until it stops.
+    # If a validation error occurs, print a message and exit.
+    #
     # @return [self]
     #
     def run
@@ -106,7 +108,15 @@ module FunctionsFramework
       self
     end
 
-    ## @private
+    ##
+    # Start the configured server and return the running server object.
+    # If a validation error occurs, raise an exception.
+    # This is used for testing the CLI.
+    #
+    # @return [FunctionsFramework::Server]
+    #
+    # @private
+    #
     def start_server
       ::ENV["FUNCTION_TARGET"] = @target
       ::ENV["FUNCTION_SOURCE"] = @source
@@ -132,6 +142,10 @@ module FunctionsFramework
 
     private
 
+    ##
+    # Print the given error message and exit.
+    # @param message [String]
+    #
     def error message
       warn message
       exit 1
