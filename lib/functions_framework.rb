@@ -176,15 +176,20 @@ module FunctionsFramework
     # Start the functions framework server in the background. The server will
     # look up the given target function name in the global registry.
     #
-    # @param target [String] The name of the function to run
+    # @param target [FunctionsFramework::Function,String] The function to run,
+    #     or the name of the function to look up in the global registry.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure the server.
     # @return [FunctionsFramework::Server]
     #
     def start target, &block
       require "functions_framework/server"
-      function = global_registry[target]
-      raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
+      if target.is_a? ::FunctionsFramework::Function
+        function = target
+      else
+        function = global_registry[target]
+        raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
+      end
       server = Server.new function, &block
       server.respond_to_signals
       server.start
@@ -194,7 +199,8 @@ module FunctionsFramework
     # Run the functions framework server and block until it stops. The server
     # will look up the given target function name in the global registry.
     #
-    # @param target [String] The name of the function to run
+    # @param target [FunctionsFramework::Function,String] The function to run,
+    #     or the name of the function to look up in the global registry.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure the server.
     # @return [self]
