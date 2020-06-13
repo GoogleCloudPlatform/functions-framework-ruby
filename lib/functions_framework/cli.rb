@@ -34,6 +34,7 @@ module FunctionsFramework
       @max_threads = nil
       @detailed_errors = nil
       @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
+      @server = nil
     end
 
     ##
@@ -53,7 +54,7 @@ module FunctionsFramework
               "Set the source file to load (defaults to #{DEFAULT_SOURCE})" do |val|
           @source = val
         end
-        op.on "--signature-type",
+        op.on "--signature-type TYPE",
               "Asserts that the function has the given signature type." \
               " Supported values are 'http' and 'cloudevent'." do |val|
           @signature_type = val
@@ -88,23 +89,39 @@ module FunctionsFramework
         end
       end
       option_parser.parse! argv
-      unless argv.empty?
-        warn "Unrecognized arguments: #{argv}"
-        puts op
-        exit 1
-      end
+      error "Unrecognized arguments: #{argv}\n#{op}" unless argv.empty?
       self
     end
 
     ##
-    # Run the configured server, and block until it stops.
+    # Run the configured server.
     # @return [self]
     #
     def run
-      FunctionsFramework.logger.info \
-        "FunctionsFramework: Loading functions from #{@source.inspect}..."
+      begin
+        server = start_server
+      rescue ::StandardError => e
+        error e.message
+      end
+      server.wait_until_stopped
+      self
+    end
+
+    ## @private
+    def start_server
+      ::ENV["FUNCTION_TARGET"] = @target
+      ::ENV["FUNCTION_SOURCE"] = @source
+      ::ENV["FUNCTION_SIGNATURE_TYPE"] = @signature_type
+      ::FunctionsFramework.logger.info "FunctionsFramework: Loading functions from #{@source.inspect}..."
       load @source
-      server = ::FunctionsFramework.start @target, assert_signature_type: @signature_type do |config|
+      function = ::FunctionsFramework.global_registry[@target]
+      raise "Undefined function: #{@target.inspect}" if function.nil?
+      unless @signature_type.nil? ||
+             @signature_type == "http" && function.type == :http ||
+             @signature_type == "cloudevent" && function.type == :cloud_event
+        raise "Function #{@target.inspect} does not match type #{@signature_type}"
+      end
+      ::FunctionsFramework.start function do |config|
         config.rack_env = @env
         config.port = @port
         config.bind_addr = @bind
@@ -112,8 +129,13 @@ module FunctionsFramework
         config.min_threads = @min_threads
         config.max_threads = @max_threads
       end
-      server.wait_until_stopped
-      self
+    end
+
+    private
+
+    def error message
+      warn message
+      exit 1
     end
   end
 end

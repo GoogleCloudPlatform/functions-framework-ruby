@@ -176,22 +176,19 @@ module FunctionsFramework
     # Start the functions framework server in the background. The server will
     # look up the given target function name in the global registry.
     #
-    # @param target [String] The name of the function to run
-    # @param assert_signature_type ["http","cloudevent",nil] Optional. If
-    #     present, asserts that the given target has the given signature type,
-    #     and raises ArgumentError if the type doesn't match.
+    # @param target [FunctionsFramework::Function,String] The function to run,
+    #     or the name of the function to look up in the global registry.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure the server.
     # @return [FunctionsFramework::Server]
     #
-    def start target, assert_signature_type: nil, &block
+    def start target, &block
       require "functions_framework/server"
-      function = global_registry[target]
-      raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
-      unless assert_signature_type.nil? ||
-             assert_signature_type == "http" && function.type == :http ||
-             assert_signature_type == "cloudevent" && function.type == :cloud_event
-        raise ::ArgumentError, "Function #{target.inspect} does not match type #{assert_signature_type}"
+      if target.is_a? ::FunctionsFramework::Function
+        function = target
+      else
+        function = global_registry[target]
+        raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       end
       server = Server.new function, &block
       server.respond_to_signals
@@ -202,7 +199,8 @@ module FunctionsFramework
     # Run the functions framework server and block until it stops. The server
     # will look up the given target function name in the global registry.
     #
-    # @param target [String] The name of the function to run
+    # @param target [FunctionsFramework::Function,String] The function to run,
+    #     or the name of the function to look up in the global registry.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure the server.
     # @return [self]
