@@ -14,6 +14,7 @@
 
 require "functions_framework/cloud_events/binary_content"
 require "functions_framework/cloud_events/content_type"
+require "functions_framework/cloud_events/errors"
 require "functions_framework/cloud_events/event"
 
 module FunctionsFramework
@@ -111,7 +112,7 @@ module FunctionsFramework
           event = handler.decode_structured_content input, content_type
           return event if event
         end
-        raise "Unknown cloudevents format: #{content_type.subtype_format.inspect}"
+        raise HttpContentError, "Unknown cloudevents format: #{content_type.subtype_format.inspect}"
       end
 
       ##
@@ -130,7 +131,7 @@ module FunctionsFramework
           events = handler.decode_batched_content input, content_type
           return events if events
         end
-        raise "Unknown cloudevents batch format: #{content_type.subtype_format.inspect}"
+        raise HttpContentError, "Unknown cloudevents batch format: #{content_type.subtype_format.inspect}"
       end
     end
   end

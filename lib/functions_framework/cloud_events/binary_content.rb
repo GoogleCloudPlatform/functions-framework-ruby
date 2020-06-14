@@ -33,7 +33,7 @@ module FunctionsFramework
         def decode_rack_env env, content_type
           spec_version = interpret_header env, "HTTP_CE_SPECVERSION"
           return nil if spec_version.nil?
-          raise "Unrecognized specversion: #{spec_version}" unless spec_version == "1.0"
+          raise SpecVersionError, "Unrecognized specversion: #{spec_version}" unless spec_version == "1.0"
           data = env["rack.input"]&.read
           Event.new \
             id:                interpret_header(env, "HTTP_CE_ID"),
