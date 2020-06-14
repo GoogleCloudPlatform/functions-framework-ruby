@@ -335,15 +335,13 @@ module FunctionsFramework
         when ::String
           string_response response, "text/plain", 200
         when ::Hash
-          json = ::JSON.dump response
-          string_response json, "application/json", 200
+          string_response ::JSON.dump(response), "application/json", 200
+        when CloudEvents::CloudEventsError
+          cloud_events_error_response response
         when ::StandardError
-          error = error_message response
-          string_response error, "text/plain", 500
+          error_response "#{response.class}: #{response.message}\n#{response.backtrace}\n"
         else
-          e = ::StandardError.new "Unexpected response type: #{response.class}"
-          error = error_message e
-          string_response error, "text/plain", 500
+          error_response "Unexpected response type: #{response.class}"
         end
       end
 
@@ -359,20 +357,15 @@ module FunctionsFramework
         [status, headers, [string]]
       end
 
-      def error_message error
-        if @config.show_error_details?
-          "#{error.class}: #{error.message}\n#{error.backtrace}\n"
-        else
-          "Unexpected internal error"
-        end
+      def cloud_events_error_response error
+        @config.logger.warn error
+        string_response "#{error.class}: #{error.message}", "text/plain", 400
       end
 
-      def usage_message error
-        if @config.show_error_details?
-          "Failed to decode CloudEvent: #{error.inspect}"
-        else
-          "Failed to decode CloudEvent"
-        end
+      def error_response message
+        @config.logger.error message
+        message = "Unexpected internal error" unless @config.show_error_details?
+        string_response message, "text/plain", 500
       end
     end
 
@@ -392,7 +385,6 @@ module FunctionsFramework
             logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
             @function.call request
           rescue ::StandardError => e
-            logger.warn e
             e
           end
         interpret_response response
@@ -409,29 +401,37 @@ module FunctionsFramework
       def call env
         return notfound_response if excluded_path? env
         logger = env["rack.logger"] = @config.logger
-        event =
-          begin
-            CloudEvents.decode_rack_env(env) ||
-              LegacyEvents.decode_rack_env(env) ||
-              raise("Unknown event type")
-          rescue ::StandardError => e
-            e
-          end
+        event = decode_event env
         response =
-          if event.is_a? CloudEvents::Event
-            logger.info "FunctionsFramework: Handling CloudEvent"
-            begin
-              @function.call event
-              "ok"
-            rescue ::StandardError => e
-              logger.warn e
-              e
-            end
+          case event
+          when CloudEvents::Event
+            handle_cloud_event event, logger
+          when ::Array
+            CloudEvents::HttpContentError.new "Batched CloudEvents are not supported"
+          when CloudEvents::CloudEventsError
+            event
           else
-            logger.warn e.inspect
-            string_response usage_message(e), "text/plain", 400
+            raise "Unexpected event type: #{event.class}"
           end
         interpret_response response
+      end
+
+      private
+
+      def decode_event env
+        CloudEvents.decode_rack_env(env) ||
+          LegacyEvents.decode_rack_env(env) ||
+          raise(CloudEvents::HttpContentError, "Unrecognized event format")
+      rescue CloudEvents::CloudEventsError => e
+        e
+      end
+
+      def handle_cloud_event event, logger
+        logger.info "FunctionsFramework: Handling CloudEvent"
+        @function.call event
+        "ok"
+      rescue ::StandardError => e
+        e
       end
     end
   end

@@ -27,14 +27,14 @@ describe FunctionsFramework::Server do
   }
   let(:event_function) {
     FunctionsFramework::Function.new "my-func", :cloud_event do |event|
-      FunctionsFramework.logger.error "Received: #{event.data.inspect}"
+      FunctionsFramework.logger.unknown "Received: #{event.data.inspect}"
     end
   }
   let(:port) { 8077 }
   let(:server_url) { "http://127.0.0.1:#{port}" }
   let(:quiet_logger) {
     logger = ::Logger.new ::STDOUT
-    logger.level = ::Logger::ERROR
+    logger.level = ::Logger::FATAL
     logger
   }
   let(:http_server) { make_basic_server http_function }
@@ -135,37 +135,64 @@ describe FunctionsFramework::Server do
 
   it "handles CloudEvents" do
     response = nil
-    event_structure = {
-      specversion: "1.0",
-      id: "123",
-      source: "my-source",
-      type: "my-type",
-      data: "Hello, world!"
-    }
-    event_json = JSON.dump event_structure
     _out, err = capture_subprocess_io do
       response = query_server_with_retry event_server do
+        event_structure = {
+          specversion: "1.0",
+          id: "123",
+          source: "my-source",
+          type: "my-type",
+          data: "Hello, world!"
+        }
+        event_json = JSON.dump event_structure
         ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/cloudevents+json"}
       end
     end
     refute_nil response
     assert_equal "200", response.code
     assert_equal "ok", response.body
+    assert_equal "text/plain", response["Content-Type"]
     assert_match(/Received: "Hello, world!"/, err)
+  end
+
+  it "errors on batch CloudEvents" do
+    response = query_server_with_retry event_server do
+      event1_structure = {
+        specversion: "1.0",
+        id: "123",
+        source: "my-source",
+        type: "my-type",
+        data: "Hello, world!"
+      }
+      event2_structure = {
+        specversion: "1.0",
+        id: "456",
+        source: "my-source",
+        type: "my-type",
+        data: "Goodbye, world!"
+      }
+      event_json = JSON.dump [event1_structure, event2_structure]
+      ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/cloudevents-batch+json"}
+    end
+    refute_nil response
+    assert_equal "400", response.code
+    assert_match(/Batched CloudEvents are not supported/, response.body)
+    assert_equal "text/plain", response["Content-Type"]
   end
 
   it "handles legacy events" do
     response = nil
-    file_path = File.join __dir__, "legacy_events_data", "legacy_pubsub.json"
-    event_json = IO.read file_path
     _out, err = capture_subprocess_io do
       response = query_server_with_retry event_server do
+        file_path = File.join __dir__, "legacy_events_data", "legacy_pubsub.json"
+        event_json = IO.read file_path
         ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/json"}
       end
     end
     refute_nil response
     assert_equal "200", response.code
     assert_equal "ok", response.body
+    assert_equal "text/plain", response["Content-Type"]
     assert_match(/VGhpcyBpcyBhIHNhbXBsZSBtZXNzYWdl/, err)
   end
 
@@ -188,6 +215,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "404", response.code
     assert_equal "Not found", response.body
+    assert_equal "text/plain", response["Content-Type"]
   end
 
   it "refuses robots requests" do
@@ -196,31 +224,30 @@ describe FunctionsFramework::Server do
     end
     assert_equal "404", response.code
     assert_equal "Not found", response.body
+    assert_equal "text/plain", response["Content-Type"]
   end
 
   it "reports badly formed CloudEvents" do
-    response = nil
-    json = '{"data":"Hello, world!"}'
-    capture_subprocess_io do
-      response = query_server_with_retry event_server do
-        ::Net::HTTP.post URI("#{server_url}/"), json, {"Content-Type" => "application/cloudevents+json"}
-      end
+    response = query_server_with_retry event_server do
+      ::Net::HTTP.post URI("#{server_url}/"),
+                        '{"specversion":"hello"}',
+                        {"Content-Type" => "application/cloudevents+json"}
     end
     refute_nil response
     assert_equal "400", response.code
-    assert_match(/Failed to decode CloudEvent/, response.body)
+    assert_match(/Unrecognized specversion/, response.body)
+    assert_equal "text/plain", response["Content-Type"]
   end
 
   it "reports unknown event types" do
-    response = nil
-    json = '{"data":"Hello, world!"}'
-    capture_subprocess_io do
-      response = query_server_with_retry event_server do
-        ::Net::HTTP.post URI("#{server_url}/"), json, {"Content-Type" => "application/json"}
-      end
+    response = query_server_with_retry event_server do
+      ::Net::HTTP.post URI("#{server_url}/"),
+                        '{"data":"Hello, world!"}',
+                        {"Content-Type" => "application/json"}
     end
     refute_nil response
     assert_equal "400", response.code
-    assert_match(/Unknown event type/, response.body)
+    assert_match(/Unrecognized event format/, response.body)
+    assert_equal "text/plain", response["Content-Type"]
   end
 end

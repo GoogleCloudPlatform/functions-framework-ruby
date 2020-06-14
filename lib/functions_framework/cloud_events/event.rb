@@ -218,58 +218,58 @@ module FunctionsFramework
       def interpret_string name, input, required = false
         case input
         when ::String
-          raise ::ArgumentError, "The #{name} field cannot be empty" if input.empty?
+          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
           input
         when nil
-          raise ::ArgumentError, "The #{name} field is required" if required
+          raise AttributeError, "The #{name} field is required" if required
           nil
         else
-          raise ::ArgumentError, "Illegal type for #{name} field: #{input.inspect}"
+          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
         end
       end
 
       def interpret_uri name, input, required = false
         case input
         when ::String
-          raise ::ArgumentError, "The #{name} field cannot be empty" if input.empty?
+          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
           [::URI.parse(input), input]
         when ::URI::Generic
           [input, input.to_s]
         when nil
-          raise ::ArgumentError, "The #{name} field is required" if required
+          raise AttributeError, "The #{name} field is required" if required
           [nil, nil]
         else
-          raise ::ArgumentError, "Illegal type for #{name} field: #{input.inspect}"
+          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
         end
       end
 
       def interpret_date_time name, input, required = false
         case input
         when ::String
-          raise ::ArgumentError, "The #{name} field cannot be empty" if input.empty?
+          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
           [::DateTime.rfc3339(input), input]
         when ::DateTime
           [input, input.rfc3339]
         when nil
-          raise ::ArgumentError, "The #{name} field is required" if required
+          raise AttributeError, "The #{name} field is required" if required
           [nil, nil]
         else
-          raise ::ArgumentError, "Illegal type for #{name} field: #{input.inspect}"
+          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
         end
       end
 
       def interpret_content_type name, input, required = false
         case input
         when ::String
-          raise ::ArgumentError, "The #{name} field cannot be empty" if input.empty?
+          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
           [ContentType.new(input), input]
         when ContentType
           [input, input.to_s]
         when nil
-          raise ::ArgumentError, "The #{name} field is required" if required
+          raise AttributeError, "The #{name} field is required" if required
           [nil, nil]
         else
-          raise ::ArgumentError, "Illegal type for #{name} field: #{input.inspect}"
+          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
         end
       end
     end

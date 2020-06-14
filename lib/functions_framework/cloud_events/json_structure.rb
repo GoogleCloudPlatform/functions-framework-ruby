@@ -70,7 +70,7 @@ module FunctionsFramework
               structure["data"]
             end
           spec_version = structure["specversion"]
-          raise "Unrecognized specversion: #{spec_version}" unless spec_version == "1.0"
+          raise SpecVersionError, "Unrecognized specversion: #{spec_version}" unless spec_version == "1.0"
           Event.new \
             id:                structure["id"],
             source:            structure["source"],

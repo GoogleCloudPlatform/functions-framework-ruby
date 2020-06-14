@@ -31,6 +31,7 @@ module FunctionsFramework
       #
       def decode_rack_env env
         content_type = CloudEvents::ContentType.new env["CONTENT_TYPE"]
+        return nil unless content_type.media_type == "application" && content_type.subtype_prefix == "json"
         charset = content_type.charset
         input = env["rack.input"]
         input = input.read if input.respond_to? :read
