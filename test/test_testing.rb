@@ -63,7 +63,7 @@ describe FunctionsFramework::Testing do
   describe "#make_cloud_event" do
     it "creates a default event" do
       event = FunctionsFramework::Testing.make_cloud_event "Lorem Ipsum"
-      assert_instance_of FunctionsFramework::CloudEvents::Event, event
+      assert_kind_of FunctionsFramework::CloudEvents::Event, event
       assert_equal "Lorem Ipsum", event.data
       assert_match %r{^random-id}, event.id
       assert_equal "com.example.test", event.type
@@ -81,17 +81,17 @@ describe FunctionsFramework::Testing do
         id: "id-123",
         source: "my-source",
         type: "my-type",
-        spec_version: "2.0",
+        spec_version: "1.1",
         data_content_type: "Text/Plain",
         data_schema: "my-schema",
         subject: "my-subject",
         time: cur_time
-      assert_instance_of FunctionsFramework::CloudEvents::Event, event
+      assert_kind_of FunctionsFramework::CloudEvents::Event, event
       assert_equal "Lorem Ipsum", event.data
       assert_equal "id-123", event.id
       assert_equal URI("my-source"), event.source
       assert_equal "my-type", event.type
-      assert_equal "2.0", event.spec_version
+      assert_equal "1.1", event.spec_version
       assert_equal "text/plain", event.data_content_type.canonical_string
       assert_equal URI("my-schema"), event.data_schema
       assert_equal "my-subject", event.subject

@@ -21,13 +21,14 @@ module FunctionsFramework
     end
 
     ##
-    # Errors indicating unsupported or incorrectly formatted HTTP content.
+    # Errors indicating unsupported or incorrectly formatted HTTP content or
+    # headers.
     #
     class HttpContentError < CloudEventsError
     end
 
     ##
-    # Errors indicating unsupported or incorrect spec versions.
+    # Errors indicating an unsupported or incorrect spec version.
     #
     class SpecVersionError < CloudEventsError
     end
