@@ -419,7 +419,7 @@ module FunctionsFramework
       private
 
       def decode_event env
-        CloudEvents.decode_rack_env(env) ||
+        CloudEvents::HttpBinding.default.decode_rack_env(env) ||
           LegacyEvents.decode_rack_env(env) ||
           raise(CloudEvents::HttpContentError, "Unrecognized event format")
       rescue CloudEvents::CloudEventsError => e

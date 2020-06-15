@@ -15,262 +15,64 @@
 require "date"
 require "uri"
 
+require "functions_framework/cloud_events/event/v1"
+
 module FunctionsFramework
   module CloudEvents
     ##
-    # A cloud event data type.
+    # CloudEvent object.
     #
-    # This object represents both the event data and the context attributes.
-    # It is immutable. The data and attribute values can be retrieved but not
-    # modified. To obtain an event with modifications, use the {#with} method
-    # to create a copy with the desired changes.
+    # An Event object represents a complete event, including both its data and
+    # its context attributes. The following are true of all event objects:
     #
-    # See https://github.com/cloudevents/spec/blob/master/spec.md for
-    # descriptions of the various attributes.
+    #  *  Event classes are defined within this module. For example, events
+    #     conforming to the CloudEvents 1.0 specification are of type
+    #     {FunctionsFramework::CloudEvents::Event::V1}.
+    #  *  All event classes include this module, so you can use
+    #     `is_a? FunctionsFramework::CloudEvents::Event` to test whether an
+    #     object is an event.
+    #  *  All event objects are immutable. Data and atribute values can be
+    #     retrieved but not modified. To "modify" an event, make a copy with
+    #     the desired changes. Generally, event classes will provide a helper
+    #     method for this purpose.
+    #  *  All event objects have a `spec_version` method that returns the
+    #     version of the CloudEvents spec implemented by that event. (Other
+    #     methods may be different, depending on the spec version.)
     #
-    class Event
-      ##
-      # Create a new cloud event object with the given data and attributes.
-      #
-      # @param id [String] The required `id` field
-      # @param source [String,URI] The required `source` field
-      # @param type [String] The required `type` field
-      # @param spec_version [String] The required `specversion` field
-      # @param data [String,Boolean,Integer,Array,Hash] The optional `data`
-      #     field
-      # @param data_content_type [String,FunctionsFramework::CloudEvents::ContentType]
-      #     The optional `datacontenttype` field
-      # @param data_schema [String,URI] The optional `dataschema` field
-      # @param subject [String] The optional `subject` field
-      # @param time [String,DateTime] The optional `time` field
-      #
-      def initialize \
-          id:,
-          source:,
-          type:,
-          spec_version:,
-          data: nil,
-          data_content_type: nil,
-          data_schema: nil,
-          subject: nil,
-          time: nil
-        @id = interpret_string "id", id, true
-        @source, @source_string = interpret_uri "source", source, true
-        @type = interpret_string "type", type, true
-        @spec_version = interpret_string "spec_version", spec_version, true
-        @data = data
-        @data_content_type, @data_content_type_string =
-          interpret_content_type "data_content_type", data_content_type
-        @data_schema, @data_schema_string = interpret_uri "data_schema", data_schema
-        @subject = interpret_string "subject", subject
-        @time, @time_string = interpret_date_time "time", time
-      end
-
-      ##
-      # Create and return a copy of this event with the given changes. See the
-      # constructor for the parameters that can be passed.
-      #
-      # @param changes [keywords] See {#initialize} for a list of arguments.
-      # @return [FunctionFramework::CloudEvents::Event]
-      #
-      def with **changes
-        params = {
-          id:                id,
-          source:            source,
-          type:              type,
-          spec_version:      spec_version,
-          data:              data,
-          data_content_type: data_content_type,
-          data_schema:       data_schema,
-          subject:           subject,
-          time:              time
-        }
-        params.merge! changes
-        Event.new(**params)
-      end
-
-      ##
-      # The `id` field
-      # @return [String]
-      #
-      attr_reader :id
-
-      ##
-      # The `source` field as a `URI` object
-      # @return [URI]
-      #
-      attr_reader :source
-
-      ##
-      # The string representation of the `source` field
-      # @return [String]
-      #
-      attr_reader :source_string
-
-      ##
-      # The `type` field
-      # @return [String]
-      #
-      attr_reader :type
-
-      ##
-      # The `specversion` field
-      # @return [String]
-      #
-      attr_reader :spec_version
-      alias specversion spec_version
-
-      ##
-      # The event-specific data, or `nil` if there is no data.
-      #
-      # Data may be one of the following types:
-      # * Binary data, represented by a `String` using `ASCII-8BIT` encoding
-      # * A string in some other encoding such as `UTF-8` or `US-ASCII`
-      # * Any JSON data type, such as String, boolean, Integer, Array, or Hash
-      #
-      # @return [Object]
-      #
-      attr_reader :data
-
-      ##
-      # The optional `datacontenttype` field as a
-      # {FunctionsFramework::CloudEvents::ContentType} object, or `nil` if the
-      # field is absent
-      #
-      # @return [FunctionsFramework::CloudEvents::ContentType,nil]
-      #
-      attr_reader :data_content_type
-      alias datacontenttype data_content_type
-
-      ##
-      # The string representation of the optional `datacontenttype` field, or
-      # `nil` if the field is absent
-      #
-      # @return [String,nil]
-      #
-      attr_reader :data_content_type_string
-      alias datacontenttype_string data_content_type_string
-
-      ##
-      # The optional `dataschema` field as a `URI` object, or `nil` if the
-      # field is absent
-      #
-      # @return [URI,nil]
-      #
-      attr_reader :data_schema
-      alias dataschema data_schema
-
-      ##
-      # The string representation of the optional `dataschema` field, or `nil`
-      # if the field is absent
-      #
-      # @return [String,nil]
-      #
-      attr_reader :data_schema_string
-      alias dataschema_string data_schema_string
-
-      ##
-      # The optional `subject` field, or `nil` if the field is absent
-      #
-      # @return [String,nil]
-      #
-      attr_reader :subject
-
-      ##
-      # The optional `time` field as a `DateTime` object, or `nil` if the field
-      # is absent
-      #
-      # @return [DateTime,nil]
-      #
-      attr_reader :time
-
-      ##
-      # The string representation of the optional `time` field, or `nil` if the
-      # field is absent
-      #
-      # @return [String,nil]
-      #
-      attr_reader :time_string
-
-      ## @private
-      def == other
-        other.is_a?(ContentType) &&
-          id == other.id &&
-          source == other.source &&
-          type == other.type &&
-          spec_version == other.spec_version &&
-          data_content_type == other.data_content_type &&
-          data_schema == other.data_schema &&
-          subject == other.subject &&
-          time == other.time &&
-          data == other.data
-      end
-      alias eql? ==
-
-      ## @private
-      def hash
-        @hash ||=
-          [id, source, type, spec_version, data_content_type, data_schema, subject, time, data].hash
-      end
-
-      private
-
-      def interpret_string name, input, required = false
-        case input
-        when ::String
-          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
-          input
-        when nil
-          raise AttributeError, "The #{name} field is required" if required
-          nil
-        else
-          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
+    # To create an event, you may either:
+    #
+    #  *  Construct an instance of the event class directly, for example by
+    #     calling {Event::V1.new} and passing a set of attributes.
+    #  *  Call {Event.create} and pass a spec version and a set of attributes.
+    #     This will choose the appropriate event class based on the version.
+    #  *  Decode an event from another representation. For example, use
+    #     {CloudEvents::JsonFormat} to decode an event from JSON, or use
+    #     {CloudEvents::HttpBinding} to decode an event from an HTTP request.
+    #
+    # See https://github.com/cloudevents/spec/blob/master/spec.md for more
+    # information about CloudEvents.
+    #
+    module Event
+      class << self
+        ##
+        # Create a new cloud event object with the given version. Generally,
+        # you must also pass additional keyword arguments providing the event's
+        # data and attributes. For example, if you pass `1.0` as the
+        # `spec_version`, the remaining keyword arguments will be passed
+        # through to the {Event::V1.new} constructor.
+        #
+        # @param spec_version [String] The required `specversion` field.
+        # @param kwargs [keywords] Additional parameters for the event.
+        #
+        def create spec_version:, **kwargs
+          case spec_version
+          when /^1(\.|$)/
+            V1.new spec_version: spec_version, **kwargs
+          else
+            raise SpecVersionError, "Unrecognized specversion: #{spec_version}"
+          end
         end
-      end
-
-      def interpret_uri name, input, required = false
-        case input
-        when ::String
-          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
-          [::URI.parse(input), input]
-        when ::URI::Generic
-          [input, input.to_s]
-        when nil
-          raise AttributeError, "The #{name} field is required" if required
-          [nil, nil]
-        else
-          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
-        end
-      end
-
-      def interpret_date_time name, input, required = false
-        case input
-        when ::String
-          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
-          [::DateTime.rfc3339(input), input]
-        when ::DateTime
-          [input, input.rfc3339]
-        when nil
-          raise AttributeError, "The #{name} field is required" if required
-          [nil, nil]
-        else
-          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
-        end
-      end
-
-      def interpret_content_type name, input, required = false
-        case input
-        when ::String
-          raise AttributeError, "The #{name} field cannot be empty" if input.empty?
-          [ContentType.new(input), input]
-        when ContentType
-          [input, input.to_s]
-        when nil
-          raise AttributeError, "The #{name} field is required" if required
-          [nil, nil]
-        else
-          raise AttributeError, "Illegal type for #{name} field: #{input.inspect}"
-        end
+        alias new create
       end
     end
   end
