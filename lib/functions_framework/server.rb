@@ -396,6 +396,8 @@ module FunctionsFramework
       def initialize function, config
         super config
         @function = function
+        @cloud_events = CloudEvents::HttpBinding.default
+        @legacy_events = LegacyEventConverter.new
       end
 
       def call env
@@ -419,8 +421,8 @@ module FunctionsFramework
       private
 
       def decode_event env
-        CloudEvents::HttpBinding.default.decode_rack_env(env) ||
-          LegacyEvents.decode_rack_env(env) ||
+        @cloud_events.decode_rack_env(env) ||
+          @legacy_events.decode_rack_env(env) ||
           raise(CloudEvents::HttpContentError, "Unrecognized event format")
       rescue CloudEvents::CloudEventsError => e
         e
