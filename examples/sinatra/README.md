@@ -1,14 +1,14 @@
-# Echo function example
+# Sinatra Function Example
 
-This example incudes an HTTP function that uses Sinatra to handle the request.
+This example includes an HTTP function that uses Sinatra to handle the request.
 It demonstrates how to use a web framework to assist you with writing HTTP
 functions.
 
-Note that while the Functions Framework and Google Cloud Functions _can_ be
-used to serve large applications and heavyweight web frameworks such as Ruby On
-Rails, it is not designed for those cases. If you are interested in serverless
-hosting of your large application, we recommend considering Google Cloud Run or
-Google App Engine.
+While the Functions Framework and Google Cloud Functions _can_ be used to serve
+large applications using heavyweight web frameworks such as Ruby On Rails, they
+are not designed primarily for those cases. If you are interested in serverless
+hosting for your large application, we recommend considering Google Cloud Run
+or Google App Engine.
 
 ## About the example
 
@@ -88,8 +88,11 @@ Again, use `toys request` to send example requests.
 
 ## Deploying to Cloud Run
 
-To deploy to Cloud Run, first create a project and enable billing. Then run the
-`toys run deploy` command:
+To deploy to Cloud Run, first create a project and enable billing. You will
+also need to install the [Google Cloud SDK](https://cloud.google.com/sdk) if
+you have not already done so.
+
+Then run the `toys run deploy` command:
 
 ```sh
 toys run deploy --project=[PROJECT NAME] 
@@ -106,5 +109,5 @@ the Cloud Run service. Use that hostname to send requests via the command
 `toys run request`. For example:
 
 ```sh
-toys run request echo-abcdefghij-uc.a.run.app --path=/hello/Sinatra
+toys run request sinatra-abcdefghij-uc.a.run.app --path=/hello/Sinatra
 ```
