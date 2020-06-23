@@ -9,8 +9,8 @@ or by the current local source of the Functions Framework.
 
 ## About the examples
 
-There are two example functions, an HTTP function called `http_sample` and a
-CloudEvents function called `event_sample`.
+There are two example functions, an HTTP function called `http_example` and a
+CloudEvents function called `event_example`.
 
 The HTTP function generates a simple message saying it received the request.
 It logs this message, and sends it as the response body.
@@ -52,12 +52,12 @@ toys test
 ### Running the examples locally
 
 To perform integration tests of the functions, start the server in a shell, and
-pass the name of the function to run (either `http_sample` or `event_sample`).
+pass the name of the function to run (either `http_example` or `event_example`).
 
 Here is how to serve the HTTP sample function:
 
 ```sh
-toys server http_sample
+toys server http_example
 ```
 
 Then, in a separate shell, you can send requests to it:
@@ -69,7 +69,7 @@ toys request
 To serve the event sample function:
 
 ```sh
-toys server event_sample
+toys server event_example
 ```
 
 Then, in a separate shell, you can send events to it:
@@ -95,7 +95,7 @@ Then you can run it in Docker by passing the function name to
 `toys image server`, as below:
 
 ```sh
-toys image server http_sample
+toys image server http_example
 ```
 
 Again, use `toys request` or `toys event` to send example requests.
@@ -107,7 +107,7 @@ To deploy to Cloud Run, first create a project and enable billing. Then run the
 example:
 
 ```sh
-toys run deploy http_sample --project=[PROJECT NAME] 
+toys run deploy http_example --project=[PROJECT NAME] 
 ```
 
 It may ask you for permission to enable the Cloud Build and Cloud Run APIs for

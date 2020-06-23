@@ -14,14 +14,14 @@
 
 require "functions_framework"
 
-# Create a simple HTTP function called "http_sample"
-FunctionsFramework.http "http_sample" do |request|
+# Create a simple HTTP function called "http_example"
+FunctionsFramework.http "http_example" do |request|
   message = "I received a request: #{request.request_method} #{request.url}"
   request.logger.info message
   message
 end
 
-# Create a simple CloudEvents function called "event_sample"
-FunctionsFramework.cloud_event "event_sample" do |event|
+# Create a simple CloudEvents function called "event_example"
+FunctionsFramework.cloud_event "event_example" do |event|
   FunctionsFramework.logger.info "I received #{event.data.inspect} in an event of type #{event.type}"
 end
