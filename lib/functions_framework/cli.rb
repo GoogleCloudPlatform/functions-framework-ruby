@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require "logger"
 require "optparse"
 
 require "functions_framework"
@@ -21,6 +22,12 @@ module FunctionsFramework
   # Implementation of the functions-framework-ruby executable.
   #
   class CLI
+    ##
+    # The default logging level, if not given in the environment variable.
+    # @return [Integer]
+    #
+    DEFAULT_LOGGING_LEVEL = ::Logger::Severity::INFO
+
     ##
     # Create a new CLI, setting arguments to their defaults.
     #
@@ -34,6 +41,7 @@ module FunctionsFramework
       @max_threads = nil
       @detailed_errors = nil
       @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
+      @logging_level = init_logging_level
     end
 
     ##
@@ -77,10 +85,10 @@ module FunctionsFramework
           @detailed_errors = val
         end
         op.on "-v", "--verbose", "Increase log verbosity" do
-          ::FunctionsFramework.logger.level -= 1
+          @logging_level -= 1
         end
         op.on "-q", "--quiet", "Decrease log verbosity" do
-          ::FunctionsFramework.logger.level += 1
+          @logging_level += 1
         end
         op.on "--help", "Display help" do
           puts op
@@ -118,6 +126,8 @@ module FunctionsFramework
     # @private
     #
     def start_server
+      ::FunctionsFramework.logger.level = @logging_level
+      ::FunctionsFramework.logger.info "FunctionsFramework v#{VERSION} server starting."
       ::ENV["FUNCTION_TARGET"] = @target
       ::ENV["FUNCTION_SOURCE"] = @source
       ::ENV["FUNCTION_SIGNATURE_TYPE"] = @signature_type
@@ -141,6 +151,13 @@ module FunctionsFramework
     end
 
     private
+
+    def init_logging_level
+      level_name = ::ENV["FUNCTION_LOGGING_LEVEL"].to_s.upcase.to_sym
+      ::Logger::Severity.const_get level_name
+    rescue ::NameError
+      DEFAULT_LOGGING_LEVEL
+    end
 
     ##
     # Print the given error message and exit.
