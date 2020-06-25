@@ -84,12 +84,13 @@ module FunctionsFramework
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
+      ce_data = convert_data context[:service], data
       CloudEvents::Event.new id:                context[:id],
                              source:            source,
                              type:              type,
                              spec_version:      "1.0",
                              data_content_type: "application/json",
-                             data:              data,
+                             data:              ce_data,
                              subject:           subject,
                              time:              context[:timestamp]
     end
@@ -101,6 +102,14 @@ module FunctionsFramework
         ["//#{service}/#{match[1]}", match[2]]
       else
         ["//#{service}/#{resource}", nil]
+      end
+    end
+
+    def convert_data service, data
+      if service == "pubsub.googleapis.com"
+        { "message" => data, "subscription" => nil }
+      else
+        data
       end
     end
 

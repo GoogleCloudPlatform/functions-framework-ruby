@@ -34,7 +34,10 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-18T12:13:19+00:00", event.time.rfc3339
-    assert_equal "value1", event.data["attributes"]["attribute1"]
+    assert_equal "value1", event.data["message"]["attributes"]["attribute1"]
+    assert_equal "VGhpcyBpcyBhIHNhbXBsZSBtZXNzYWdl", event.data["message"]["data"]
+    assert event.data.key? "subscription" # Exists but not yet set.
+    assert_nil event.data["subscription"]
   end
 
   it "converts legacy_storage_change.json" do
@@ -56,7 +59,10 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
-    assert_equal "attr1-value", event.data["attributes"]["attr1"]
+    assert_equal "attr1-value", event.data["message"]["attributes"]["attr1"]
+    assert_equal "dGVzdCBtZXNzYWdlIDM=", event.data["message"]["data"]
+    assert event.data.key? "subscription" # Exists but not yet set.
+    assert_nil event.data["subscription"]
   end
 
   it "converts pubsub_binary.json" do
@@ -67,7 +73,9 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
-    assert_equal "AQIDBA==", event.data["data"]
+    assert_equal "AQIDBA==", event.data["message"]["data"]
+    assert event.data.key? "subscription" # Exists but not yet set.
+    assert_nil event.data["subscription"]
   end
 
   it "converts storage.json" do
