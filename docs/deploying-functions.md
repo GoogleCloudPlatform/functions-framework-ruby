@@ -30,12 +30,21 @@ Google Cloud Functions is Google's scalable pay-as-you-go Functions-as-a-Service
 Functions Framework is designed especially for functions that can be hosted on
 Cloud Functions.
 
+You can run Ruby functions on Google Cloud Functions by selecting the `ruby26`
+runtime. This runtime uses a recent release of Ruby 2.6. Support for other
+versions of Ruby may be added in the future.
+
+> **Note:** Ruby support on Cloud Functions is currently in limited preview.
+> It is not yet suitable for production workloads, and support is best-effort
+> only. Access is currently limited to selected early-access users.
+
 ### Deploying and updating your function
 
 Before you can deploy to Cloud Functions, make sure your bundle, and in
 particular your `Gemfile.lock` file, is up to date. The easiest way to do this
 is to `bundle install` or `bundle update` and run your local tests prior to
-deploying.
+deploying. Cloud Functions will not accept your function unless an up-to-date
+`Gemfile.lock` is present.
 
 Choose a name for your function. This function name is how it will appear in the
 cloud console, and will also be part of the function's URL. (It's different from
@@ -125,6 +134,10 @@ gcloud builds submit --tag=gcr.io/$YOUR_PROJECT_ID/$YOUR_APP_NAME:$YOUR_BUILD_ID
 You must use your project ID, but you can choose an app name and build ID. The
 command may ask you for permission to enable the Cloud Build API for the project
 if it isn't already enabled.
+
+Because you provide your own Docker image when deploying to Cloud Run, you can
+use any version of Ruby supported by the Functions Framework, from 2.4 through
+2.7.
 
 ### Deploying an image to Cloud Run
 

@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.3.0 / 2020-06-26
+
+* Updated the CloudEvent data format for converted pubsub events to conform to Cloud Run's conversion.
+
 ### v0.2.1 / 2020-06-25
 
 * The `--signature-type` check recognizes the legacy `event` type.
