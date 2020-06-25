@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.2.1 / 2020-06-25
+
+* The `--signature-type` check recognizes the legacy `event` type.
+
 ### v0.2.0 / 2020-06-24
 
 Significant changes:
