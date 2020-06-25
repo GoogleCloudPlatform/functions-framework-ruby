@@ -114,6 +114,19 @@ describe FunctionsFramework::CLI do
     end
   end
 
+  it "succeeds the signature type check for a legacy event server" do
+    args = [
+      "--source", event_source,
+      "--target", "simple-event",
+      "--port", port,
+      "--signature-type", "event",
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    run_with_retry cli do
+    end
+  end
+
   it "fails the signature type check for an event server" do
     args = [
       "--source", event_source,
