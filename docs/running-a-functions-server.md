@@ -101,7 +101,7 @@ Command-line flag   | Environment variable       | Description
 `--port`            | `PORT`                     | The port on which the Functions Framework listens for requests. Default: `8080`.
 `--target`          | `FUNCTION_TARGET`          | The name of the exported function to be invoked in response to requests. Default: `function`.
 `--source`          | `FUNCTION_SOURCE`          | The path to the file containing your function. Default: `app.rb` (in the current working directory).
-`--signature-type`  | `FUNCTION_SIGNATURE_TYPE`  | Verifies that the function has the expected signature. Allowed values: `http` or `cloudevent`.
+`--signature-type`  | `FUNCTION_SIGNATURE_TYPE`  | Verifies that the function has the expected signature. Allowed values: `http`, `event`, or `cloudevent`.
 `--environment`     | `RACK_ENV`                 | Sets the Rack environment.
 `--bind`            | `FUNCTION_BIND_ADDR`       | Binds to the given address. Default: `0.0.0.0`.
 `--min-threads`     | `FUNCTION_MIN_THREADS`     | Sets the minimum thread pool size, overriding Puma's default.
