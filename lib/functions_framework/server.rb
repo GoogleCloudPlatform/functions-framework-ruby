@@ -212,7 +212,7 @@ module FunctionsFramework
       # @param bind_addr [String,nil]
       #
       def bind_addr= bind_addr
-        @bind_addr = bind_addr || ::ENV["BIND_ADDR"] || "0.0.0.0"
+        @bind_addr = bind_addr || ::ENV["FUNCTION_BIND_ADDR"] || "0.0.0.0"
       end
 
       ##
@@ -228,7 +228,7 @@ module FunctionsFramework
       # @param min_threads [Integer,nil]
       #
       def min_threads= min_threads
-        @min_threads = (min_threads || ::ENV["MIN_THREADS"])&.to_i
+        @min_threads = (min_threads || ::ENV["FUNCTION_MIN_THREADS"])&.to_i
       end
 
       ##
@@ -236,7 +236,7 @@ module FunctionsFramework
       # @param max_threads [Integer,nil]
       #
       def max_threads= max_threads
-        @max_threads = (max_threads || ::ENV["MAX_THREADS"])&.to_i
+        @max_threads = (max_threads || ::ENV["FUNCTION_MAX_THREADS"])&.to_i
       end
 
       ##
@@ -244,8 +244,12 @@ module FunctionsFramework
       # @param show_error_details [Boolean,nil]
       #
       def show_error_details= show_error_details
-        val = show_error_details.nil? ? ::ENV["DETAILED_ERRORS"] : show_error_details
-        @show_error_details = val ? true : false
+        @show_error_details =
+          if show_error_details.nil?
+            !::ENV["FUNCTION_DETAILED_ERRORS"].to_s.empty?
+          else
+            show_error_details ? true : false
+          end
       end
 
       ##

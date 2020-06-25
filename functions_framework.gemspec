@@ -33,6 +33,7 @@ require "functions_framework/version"
   spec.files = ::Dir.glob("lib/**/*.rb") +
                ::Dir.glob("bin/*") +
                ::Dir.glob("*.md") +
+               ::Dir.glob("docs/*.md") +
                ["LICENSE", ".yardopts"]
   spec.require_paths = ["lib"]
   spec.bindir = "bin"
