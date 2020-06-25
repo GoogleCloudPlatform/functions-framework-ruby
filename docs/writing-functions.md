@@ -156,7 +156,7 @@ the [CloudEvents spec](https://github.com/cloudevents/spec/blob/v1.0/spec.md).
 Some Google Cloud services send events in a legacy event format that was defined
 prior to CloudEvents. The Functions Framework will convert these legacy events
 to an equivalent CloudEvents type, so your function will always receive a
-CloudEvent when it is sent an event from Google Cloud.
+CloudEvent object when it is sent an event from Google Cloud.
 
 ## Error handling
 
@@ -188,9 +188,10 @@ end
 
 A Functions Framework based "project" or "application" is a typical Ruby
 application. It should include a `Gemfile` that specifies the gem dependencies
-(including the `functions_framework` gem itself), and at least one Ruby source
-file that defines functions. It can also include additional Ruby files defining
-classes and methods that assist in the function implementation.
+(including the `functions_framework` gem itself), and any other dependencies
+needed by the function. It must include at least one Ruby source file that
+defines functions, and can also include additional Ruby files defining classes
+and methods that assist in the function implementation.
 
 The "entrypoint" to the project, also called the "source", is a Ruby file. It
 can define any number of functions (with distinct names), although it is often
@@ -221,7 +222,7 @@ A simple project might look like this:
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.2"
+gem "functions_framework", "~> 0.3"
 ```
 
 ```ruby
