@@ -30,7 +30,9 @@ module FunctionsFramework
     def initialize name, type, &block
       @name = name
       @type = type
-      @block = block
+      @execution_context_class = Class.new do
+        define_method :call, &block
+      end
     end
 
     ##
@@ -42,11 +44,6 @@ module FunctionsFramework
     # @return [Symbol] The function type
     #
     attr_reader :type
-
-    ##
-    # @return [Proc] The function code as a proc
-    #
-    attr_reader :block
 
     ##
     # Call the function. You must pass an argument appropriate to the type
@@ -62,11 +59,12 @@ module FunctionsFramework
     # @return [Object]
     #
     def call argument
+      execution_context = @execution_context_class.new
       case type
       when :event
-        block.call argument.data, argument
+        execution_context.call argument.data, argument
       else
-        block.call argument
+        execution_context.call argument
       end
     end
   end

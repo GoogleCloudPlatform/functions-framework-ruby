@@ -14,7 +14,7 @@
 
 require "functions_framework"
 
-# Create a simple CloudEvents function called "event-sample"
-FunctionsFramework.cloud_event "simple-event" do |event|
+# Create a simple CloudEvents function called "simple_event"
+FunctionsFramework.cloud_event "simple_event" do |event|
   FunctionsFramework.logger.info "I received #{event.data.inspect} in an event of type #{event.type}"
 end

@@ -14,9 +14,8 @@
 
 require "functions_framework"
 
-# Create a simple HTTP function called "simple_http"
-FunctionsFramework.http "simple_http" do |request|
-  message = "I received a request: #{request.request_method} #{request.url}"
-  request.logger.info message
-  message
+# Create an http function that uses return
+FunctionsFramework.http "return_http" do |request|
+  return "I received a GET request: #{request.url}" if request.request_method == "GET"
+  "I received a #{request.request_method} request."
 end

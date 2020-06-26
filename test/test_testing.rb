@@ -20,6 +20,7 @@ describe FunctionsFramework::Testing do
   let(:registry) { FunctionsFramework::Registry.new }
   let(:simple_http_path) { File.join __dir__, "function_definitions", "simple_http.rb" }
   let(:simple_event_path) { File.join __dir__, "function_definitions", "simple_event.rb" }
+  let(:return_http_path) { File.join __dir__, "function_definitions", "return_http.rb" }
 
   describe "#make_get_request" do
     it "creates a basic request" do
@@ -104,7 +105,7 @@ describe FunctionsFramework::Testing do
       registry = nil
       FunctionsFramework::Testing.load_temporary simple_http_path do
         registry = FunctionsFramework.global_registry
-        assert_equal ["simple-http"], registry.names
+        assert_equal ["simple_http"], registry.names
       end
       FunctionsFramework::Testing.load_temporary simple_http_path do
         assert_same registry, FunctionsFramework.global_registry
@@ -118,9 +119,20 @@ describe FunctionsFramework::Testing do
         request = FunctionsFramework::Testing.make_get_request "http://example.com/"
         response = nil
         capture_subprocess_io do
-          response = FunctionsFramework::Testing.call_http "simple-http", request
+          response = FunctionsFramework::Testing.call_http "simple_http", request
         end
         assert_equal "I received a request: GET http://example.com/", response.body.join
+      end
+    end
+
+    it "calls an http function that has a return" do
+      FunctionsFramework::Testing.load_temporary return_http_path do
+        request = FunctionsFramework::Testing.make_get_request "http://example.com/"
+        response = nil
+        capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_http "return_http", request
+        end
+        assert_equal "I received a GET request: http://example.com/", response.body.join
       end
     end
   end
@@ -130,7 +142,7 @@ describe FunctionsFramework::Testing do
       FunctionsFramework::Testing.load_temporary simple_event_path do
         event = FunctionsFramework::Testing.make_cloud_event "Hello, world!", type: "event-type"
         _out, err = capture_subprocess_io do
-          FunctionsFramework::Testing.call_event "simple-event", event
+          FunctionsFramework::Testing.call_event "simple_event", event
         end
         assert_match(/I received "Hello, world!" in an event of type event-type/, err)
       end
