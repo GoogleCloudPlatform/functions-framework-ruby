@@ -17,8 +17,9 @@ require "ostruct"
 
 describe FunctionsFramework::Function do
   it "represents an http function" do
+    tester = self
     function = FunctionsFramework::Function.new "my_func", :http do |request|
-      assert_equal "the-request", request
+      tester.assert_equal "the-request", request
       "hello"
     end
     assert_equal "my_func", function.name
@@ -39,9 +40,10 @@ describe FunctionsFramework::Function do
   end
 
   it "defines an event function" do
+    tester = self
     function = FunctionsFramework::Function.new "my_func", :event do |data, context|
-      assert_equal "the-data", data
-      assert_equal "the-id", context.id
+      tester.assert_equal "the-data", data
+      tester.assert_equal "the-id", context.id
       "ok"
     end
     assert_equal "my_func", function.name
@@ -51,8 +53,9 @@ describe FunctionsFramework::Function do
   end
 
   it "defines a cloud_event function" do
+    tester = self
     function = FunctionsFramework::Function.new "my_func", :cloud_event do |event|
-      assert_equal "the-event", event
+      tester.assert_equal "the-event", event
       "ok"
     end
     assert_equal "my_func", function.name

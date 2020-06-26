@@ -24,8 +24,9 @@ describe FunctionsFramework::Registry do
   end
 
   it "defines an http function" do
+    tester = self
     registry.add_http "my-func" do |request|
-      assert_equal "the-request", request
+      tester.assert_equal "the-request", request
       "hello"
     end
     assert_equal ["my-func"], registry.names
@@ -37,9 +38,10 @@ describe FunctionsFramework::Registry do
   end
 
   it "defines an event function" do
+    tester = self
     registry.add_event "my-func" do |data, context|
-      assert_equal "the-data", data
-      assert_equal "the-id", context.id
+      tester.assert_equal "the-data", data
+      tester.assert_equal "the-id", context.id
       "ok"
     end
     assert_equal ["my-func"], registry.names
@@ -51,8 +53,9 @@ describe FunctionsFramework::Registry do
   end
 
   it "defines a cloud_event function" do
+    tester = self
     registry.add_cloud_event "my-func" do |event|
-      assert_equal "the-event", event
+      tester.assert_equal "the-event", event
       "ok"
     end
     assert_equal ["my-func"], registry.names

@@ -30,7 +30,8 @@ module FunctionsFramework
     def initialize name, type, &block
       @name = name
       @type = type
-      @callable = lambda(&block)
+      @execution_context_class = Class.new
+      @execution_context_class.define_method :call, &block
     end
 
     ##
@@ -42,11 +43,6 @@ module FunctionsFramework
     # @return [Symbol] The function type
     #
     attr_reader :type
-
-    ##
-    # @return [Proc] The function code as a lambda Proc
-    #
-    attr_reader :callable
 
     ##
     # Call the function. You must pass an argument appropriate to the type
@@ -62,11 +58,12 @@ module FunctionsFramework
     # @return [Object]
     #
     def call argument
+      execution_context = @execution_context_class.new
       case type
       when :event
-        callable.call argument.data, argument
+        execution_context.call argument.data, argument
       else
-        callable.call argument
+        execution_context.call argument
       end
     end
   end
