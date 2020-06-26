@@ -30,8 +30,9 @@ module FunctionsFramework
     def initialize name, type, &block
       @name = name
       @type = type
-      @execution_context_class = Class.new
-      @execution_context_class.define_method :call, &block
+      @execution_context_class = Class.new do
+        define_method :call, &block
+      end
     end
 
     ##
