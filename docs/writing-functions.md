@@ -43,7 +43,7 @@ now cover these in a bit more detail.
 
 An HTTP function is passed a request, which is an object of type
 [Rack::Request](https://rubydoc.info/gems/rack/Rack/Request). This object
-provides methods methods for obtaining request information such as the method,
+provides methods for obtaining request information such as the method,
 path, query parameters, body content, and headers. You can also obtain the raw
 Rack environment using the `env` method. The following example includes some
 request information in the response:
