@@ -92,7 +92,7 @@ bundle exec functions-framework-ruby --target hello
 In a separate shell, you can send requests to this function using curl:
 
 ```sh
-curl https://localhost:8080
+curl http://localhost:8080
 # Output: Hello, world!
 ```
 
