@@ -22,6 +22,7 @@ require "functions_framework/cli"
 describe FunctionsFramework::CLI do
   let(:http_source) { File.join __dir__, "function_definitions", "simple_http.rb" }
   let(:event_source) { File.join __dir__, "function_definitions", "simple_event.rb" }
+  let(:http_return_source) { File.join __dir__, "function_definitions", "return_http.rb" }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
   let(:port) { "8066" }
@@ -60,7 +61,7 @@ describe FunctionsFramework::CLI do
   it "runs an http server" do
     args = [
       "--source", http_source,
-      "--target", "simple-http",
+      "--target", "simple_http",
       "--port", port,
       "-q"
     ]
@@ -72,10 +73,25 @@ describe FunctionsFramework::CLI do
     assert_equal "I received a request: GET http://127.0.0.1:#{port}/", response.body
   end
 
+  it "runs an http server with a function that includes a return" do
+    args = [
+      "--source", http_return_source,
+      "--target", "return_http",
+      "--port", port,
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    response = run_with_retry cli do
+      Net::HTTP.get_response URI("http://127.0.0.1:#{port}/")
+    end
+    assert_equal "200", response.code
+    assert_equal "I received a GET request: http://127.0.0.1:#{port}/", response.body
+  end
+
   it "succeeds the signature type check for an http server" do
     args = [
       "--source", http_source,
-      "--target", "simple-http",
+      "--target", "simple_http",
       "--port", port,
       "--signature-type", "http",
       "-q"
@@ -88,7 +104,7 @@ describe FunctionsFramework::CLI do
   it "fails the signature type check for an http server" do
     args = [
       "--source", http_source,
-      "--target", "simple-http",
+      "--target", "simple_http",
       "--port", port,
       "--signature-type", "cloudevent",
       "-q"
@@ -98,13 +114,13 @@ describe FunctionsFramework::CLI do
       run_with_retry cli do
       end
     end
-    assert_match(/Function "simple-http" does not match type cloudevent/, error.message)
+    assert_match(/Function "simple_http" does not match type cloudevent/, error.message)
   end
 
   it "succeeds the signature type check for an event server" do
     args = [
       "--source", event_source,
-      "--target", "simple-event",
+      "--target", "simple_event",
       "--port", port,
       "--signature-type", "cloudevent",
       "-q"
@@ -117,7 +133,7 @@ describe FunctionsFramework::CLI do
   it "succeeds the signature type check for a legacy event server" do
     args = [
       "--source", event_source,
-      "--target", "simple-event",
+      "--target", "simple_event",
       "--port", port,
       "--signature-type", "event",
       "-q"
@@ -130,7 +146,7 @@ describe FunctionsFramework::CLI do
   it "fails the signature type check for an event server" do
     args = [
       "--source", event_source,
-      "--target", "simple-event",
+      "--target", "simple_event",
       "--port", port,
       "--signature-type", "http",
       "-q"
@@ -140,6 +156,6 @@ describe FunctionsFramework::CLI do
       run_with_retry cli do
       end
     end
-    assert_match(/Function "simple-event" does not match type http/, error.message)
+    assert_match(/Function "simple_event" does not match type http/, error.message)
   end
 end

@@ -17,34 +17,45 @@ require "ostruct"
 
 describe FunctionsFramework::Function do
   it "represents an http function" do
-    function = FunctionsFramework::Function.new "my-func", :http do |request|
+    function = FunctionsFramework::Function.new "my_func", :http do |request|
       assert_equal "the-request", request
       "hello"
     end
-    assert_equal "my-func", function.name
+    assert_equal "my_func", function.name
+    assert_equal :http, function.type
+    response = function.call "the-request"
+    assert_equal "hello", response
+  end
+
+  it "represents an http function with a return statement" do
+    function = FunctionsFramework::Function.new "my_func", :http do |request|
+      return "hello" if request == "the-request"
+      "goodbye"
+    end
+    assert_equal "my_func", function.name
     assert_equal :http, function.type
     response = function.call "the-request"
     assert_equal "hello", response
   end
 
   it "defines an event function" do
-    function = FunctionsFramework::Function.new "my-func", :event do |data, context|
+    function = FunctionsFramework::Function.new "my_func", :event do |data, context|
       assert_equal "the-data", data
       assert_equal "the-id", context.id
       "ok"
     end
-    assert_equal "my-func", function.name
+    assert_equal "my_func", function.name
     assert_equal :event, function.type
     event = OpenStruct.new data: "the-data", id: "the-id"
     function.call event
   end
 
   it "defines a cloud_event function" do
-    function = FunctionsFramework::Function.new "my-func", :cloud_event do |event|
+    function = FunctionsFramework::Function.new "my_func", :cloud_event do |event|
       assert_equal "the-event", event
       "ok"
     end
-    assert_equal "my-func", function.name
+    assert_equal "my_func", function.name
     assert_equal :cloud_event, function.type
     function.call "the-event"
   end

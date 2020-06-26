@@ -30,7 +30,7 @@ module FunctionsFramework
     def initialize name, type, &block
       @name = name
       @type = type
-      @block = block
+      @callable = lambda(&block)
     end
 
     ##
@@ -44,9 +44,9 @@ module FunctionsFramework
     attr_reader :type
 
     ##
-    # @return [Proc] The function code as a proc
+    # @return [Proc] The function code as a lambda Proc
     #
-    attr_reader :block
+    attr_reader :callable
 
     ##
     # Call the function. You must pass an argument appropriate to the type
@@ -64,9 +64,9 @@ module FunctionsFramework
     def call argument
       case type
       when :event
-        block.call argument.data, argument
+        callable.call argument.data, argument
       else
-        block.call argument
+        callable.call argument
       end
     end
   end
