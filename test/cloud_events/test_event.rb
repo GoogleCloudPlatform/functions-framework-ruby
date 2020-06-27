@@ -19,6 +19,15 @@ describe FunctionsFramework::CloudEvents::Event do
   let(:my_source) { "/my_source" }
   let(:my_type) { "my_type" }
 
+  it "recognizes spec version 0" do
+    event = FunctionsFramework::CloudEvents::Event.create \
+      id: my_id,
+      source: my_source,
+      type: my_type,
+      spec_version: "0.3"
+    assert_instance_of FunctionsFramework::CloudEvents::Event::V0, event
+  end
+
   it "recognizes spec version 1" do
     event = FunctionsFramework::CloudEvents::Event.create \
       id: my_id,

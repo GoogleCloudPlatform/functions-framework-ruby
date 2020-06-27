@@ -17,7 +17,7 @@ module FunctionsFramework
     ##
     # Base class for all CloudEvents errors.
     #
-    class CloudEventsError < ::RuntimeError
+    class CloudEventsError < ::StandardError
     end
 
     ##

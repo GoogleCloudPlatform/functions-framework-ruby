@@ -23,11 +23,13 @@ module FunctionsFramework
   # CloudEvents implementation.
   #
   # This is a Ruby implementation of the [CloudEvents](https://cloudevents.io)
-  # [1.0 specification](https://github.com/cloudevents/spec/blob/master/spec.md).
+  # specification. It supports both
+  # [CloudEvents 0.3](https://github.com/cloudevents/spec/blob/v0.3/spec.md) and
+  # [CloudEvents 1.0](https://github.com/cloudevents/spec/blob/v1.0/spec.md).
   #
   module CloudEvents
     # @private
-    SUPPORTED_SPEC_VERSIONS = ["1.0"].freeze
+    SUPPORTED_SPEC_VERSIONS = ["0.3", "1.0"].freeze
 
     class << self
       ##

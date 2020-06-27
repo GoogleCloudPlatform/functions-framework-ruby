@@ -20,7 +20,9 @@ module FunctionsFramework
     ##
     # An implementation of JSON format and JSON batch format.
     #
-    # See https://github.com/cloudevents/spec/blob/master/json-format.md
+    # Supports the CloudEvents 0.3 and CloudEvents 1.0 variants of this format.
+    # See https://github.com/cloudevents/spec/blob/v0.3/json-format.md and
+    # https://github.com/cloudevents/spec/blob/v1.0/json-format.md.
     #
     class JsonFormat
       ##
@@ -78,34 +80,39 @@ module FunctionsFramework
 
       ##
       # Decode a single event from a hash data structure with keys and types
-      # conforming to the JSON event format.
+      # conforming to the JSON envelope.
       #
       # @param structure [Hash] An input hash.
       # @return [FunctionsFramework::CloudEvents::Event]
       #
       def decode_hash_structure structure
-        if structure.key? "data_base64"
-          structure = structure.dup
-          structure["data"] = ::Base64.decode64 structure.delete "data_base64"
+        spec_version = structure["specversion"].to_s
+        case spec_version
+        when "0.3"
+          decode_hash_structure_v0 structure
+        when /^1(\.|$)/
+          decode_hash_structure_v1 structure
+        else
+          raise SpecVersionError, "Unrecognized specversion: #{spec_version}"
         end
-        Event.create spec_version: structure["specversion"], attributes: structure
       end
 
       ##
       # Encode a single event to a hash data structure with keys and types
-      # conforming to the JSON event format.
+      # conforming to the JSON envelope.
       #
       # @param event [FunctionsFramework::CloudEvents::Event] An input event.
       # @return [String] The hash structure.
       #
       def encode_hash_structure event
-        structure = event.to_h
-        data = structure["data"]
-        if data.is_a?(::String) && data.encoding == ::Encoding::ASCII_8BIT
-          structure.delete "data"
-          structure["data_base64"] = ::Base64.encode64 data
+        case event
+        when Event::V0
+          encode_hash_structure_v0 event
+        when Event::V1
+          encode_hash_structure_v1 event
+        else
+          raise SpecVersionError, "Unrecognized specversion: #{event.spec_version}"
         end
-        structure
       end
 
       private
@@ -116,6 +123,50 @@ module FunctionsFramework
           result[key] = hash[key]
         end
         result
+      end
+
+      def decode_hash_structure_v0 structure
+        data = structure["data"]
+        content_type = structure["datacontenttype"]
+        if data.is_a?(::String) && content_type.is_a?(::String)
+          content_type = ContentType.new content_type
+          if content_type.subtype == "json" || content_type.subtype_format == "json"
+            structure = structure.dup
+            structure["data"] = ::JSON.parse data rescue data
+            structure["datacontenttype"] = content_type
+          end
+        end
+        Event::V0.new attributes: structure
+      end
+
+      def decode_hash_structure_v1 structure
+        if structure.key? "data_base64"
+          structure = structure.dup
+          structure["data"] = ::Base64.decode64 structure.delete "data_base64"
+        end
+        Event::V1.new attributes: structure
+      end
+
+      def encode_hash_structure_v0 event
+        structure = event.to_h
+        data = event.data
+        content_type = event.data_content_type
+        if data.is_a?(::String) && !content_type.nil?
+          if content_type.subtype == "json" || content_type.subtype_format == "json"
+            structure["data"] = ::JSON.parse data rescue data
+          end
+        end
+        structure
+      end
+
+      def encode_hash_structure_v1 event
+        structure = event.to_h
+        data = structure["data"]
+        if data.is_a?(::String) && data.encoding == ::Encoding::ASCII_8BIT
+          structure.delete "data"
+          structure["data_base64"] = ::Base64.encode64 data
+        end
+        structure
       end
     end
   end

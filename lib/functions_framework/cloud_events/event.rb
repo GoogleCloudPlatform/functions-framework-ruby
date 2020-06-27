@@ -15,15 +15,15 @@
 require "date"
 require "uri"
 
+require "functions_framework/cloud_events/event/field_interpreter"
+require "functions_framework/cloud_events/event/v0"
 require "functions_framework/cloud_events/event/v1"
 
 module FunctionsFramework
   module CloudEvents
     ##
-    # CloudEvent object.
-    #
-    # An Event object represents a complete event, including both its data and
-    # its context attributes. The following are true of all event objects:
+    # An Event object represents a complete CloudEvent, including both data and
+    # context attributes. The following are true of all event objects:
     #
     #  *  Event classes are defined within this module. For example, events
     #     conforming to the CloudEvents 1.0 specification are of type
@@ -49,8 +49,11 @@ module FunctionsFramework
     #     {CloudEvents::JsonFormat} to decode an event from JSON, or use
     #     {CloudEvents::HttpBinding} to decode an event from an HTTP request.
     #
-    # See https://github.com/cloudevents/spec/blob/master/spec.md for more
-    # information about CloudEvents.
+    # See https://github.com/cloudevents/spec for more information about
+    # CloudEvents. The documentation for the individual event classes
+    # {FunctionsFramework::CloudEvents::Event::V0} and
+    # {FunctionsFramework::CloudEvents::Event::V1} also include links to their
+    # respective specifications.
     #
     module Event
       class << self
@@ -66,6 +69,8 @@ module FunctionsFramework
         #
         def create spec_version:, **kwargs
           case spec_version
+          when "0.3"
+            V0.new spec_version: spec_version, **kwargs
           when /^1(\.|$)/
             V1.new spec_version: spec_version, **kwargs
           else

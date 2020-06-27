@@ -30,7 +30,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "legacy_pubsub.json"
     assert_equal "1.0", event.spec_version
     assert_equal "1215011316659232", event.id
-    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
+    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-18T12:13:19+00:00", event.time.rfc3339
@@ -44,7 +44,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "legacy_storage_change.json"
     assert_equal "1.0", event.spec_version
     assert_equal "1200401551653202", event.id
-    assert_equal "//storage.googleapis.com/projects/_/buckets/sample-bucket", event.source_string
+    assert_equal "//storage.googleapis.com/projects/_/buckets/sample-bucket", event.source.to_s
     assert_equal "google.cloud.storage.object.v1.finalized", event.type
     assert_equal "objects/MyFile", event.subject
     assert_equal "2020-05-18T09:07:51+00:00", event.time.rfc3339
@@ -55,7 +55,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "pubsub_text.json"
     assert_equal "1.0", event.spec_version
     assert_equal "1144231683168617", event.id
-    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
+    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
@@ -69,7 +69,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "pubsub_binary.json"
     assert_equal "1.0", event.spec_version
     assert_equal "1144231683168617", event.id
-    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source_string
+    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
     assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
@@ -82,7 +82,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "storage.json"
     assert_equal "1.0", event.spec_version
     assert_equal "1147091835525187", event.id
-    assert_equal "//storage.googleapis.com/projects/_/buckets/some-bucket", event.source_string
+    assert_equal "//storage.googleapis.com/projects/_/buckets/some-bucket", event.source.to_s
     assert_equal "google.cloud.storage.object.v1.finalized", event.type
     assert_equal "objects/Test.cs", event.subject
     assert_equal "2020-04-23T07:38:57+00:00", event.time.rfc3339
@@ -95,7 +95,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "7b8f1804-d38b-4b68-b37d-e2fb5d12d5a0-0", event.id
     assert_equal \
       "//firestore.googleapis.com/projects/project-id/databases/(default)/documents/gcf-test/2Vm2mI1d0wIaK2Waj5to",
-      event.source_string
+      event.source.to_s
     assert_equal "google.cloud.firestore.document.v1.written", event.type
     assert_nil event.subject
     assert_equal "2020-04-23T12:00:27+00:00", event.time.rfc3339
@@ -108,7 +108,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "9babded5-e5f2-41af-a46a-06ba6bd84739-0", event.id
     assert_equal \
       "//firestore.googleapis.com/projects/project-id/databases/(default)/documents/gcf-test/IH75dRdeYJKd4uuQiqch",
-      event.source_string
+      event.source.to_s
     assert_equal "google.cloud.firestore.document.v1.written", event.type
     assert_nil event.subject
     assert_equal "2020-04-23T14:25:05+00:00", event.time.rfc3339
@@ -119,7 +119,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "firebase-auth1.json"
     assert_equal "1.0", event.spec_version
     assert_equal "4423b4fa-c39b-4f79-b338-977a018e9b55", event.id
-    assert_equal "//firebase.googleapis.com/projects/my-project-id", event.source_string
+    assert_equal "//firebase.googleapis.com/projects/my-project-id", event.source.to_s
     assert_equal "google.firebase.auth.user.v1.created", event.type
     assert_nil event.subject
     assert_equal "2020-05-26T10:42:27+00:00", event.time.rfc3339
@@ -130,7 +130,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "firebase-auth2.json"
     assert_equal "1.0", event.spec_version
     assert_equal "5fd71bdc-4955-421f-9fc3-552ac3abead8", event.id
-    assert_equal "//firebase.googleapis.com/projects/my-project-id", event.source_string
+    assert_equal "//firebase.googleapis.com/projects/my-project-id", event.source.to_s
     assert_equal "google.firebase.auth.user.v1.deleted", event.type
     assert_nil event.subject
     assert_equal "2020-05-26T10:47:14+00:00", event.time.rfc3339
@@ -141,7 +141,7 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "firebase-db1.json"
     assert_equal "1.0", event.spec_version
     assert_equal "/SnHth9OSlzK1Puj85kk4tDbF90=", event.id
-    assert_equal "//firebase.googleapis.com/projects/_/instances/my-project-id/refs/gcf-test/xyz", event.source_string
+    assert_equal "//firebase.googleapis.com/projects/_/instances/my-project-id/refs/gcf-test/xyz", event.source.to_s
     assert_equal "google.firebase.database.document.v1.written", event.type
     assert_nil event.subject
     assert_equal "2020-05-21T11:15:34+00:00", event.time.rfc3339
