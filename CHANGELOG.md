@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.3.1 / 2020-06-27
+
+* Fixed crash when using "return" directly in a function block.
+* Added a more flexible request generation helper in the testing module.
+* Fixed several typos in the documentation.
+
 ### v0.3.0 / 2020-06-26
 
 * Updated the CloudEvent data format for converted pubsub events to conform to Cloud Run's conversion.
