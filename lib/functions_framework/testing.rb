@@ -87,7 +87,7 @@ module FunctionsFramework
       function = ::FunctionsFramework.global_registry[name]
       case function&.type
       when :http
-        Testing.interpret_response { function.call request }
+        Testing.interpret_response { function.execution_context.call request }
       when nil
         raise "Unknown function name #{name}"
       else
@@ -97,7 +97,7 @@ module FunctionsFramework
 
     ##
     # Call the given event function for testing. The underlying function must
-    # be of type `:event` or `:cloud_event`.
+    # be of type :cloud_event`.
     #
     # @param name [String] The name of the function to call
     # @param event [FunctionsFramework::CloudEvets::Event] The event to send
@@ -106,8 +106,8 @@ module FunctionsFramework
     def call_event name, event
       function = ::FunctionsFramework.global_registry[name]
       case function&.type
-      when :event, :cloud_event
-        function.call event
+      when :cloud_event
+        function.execution_context.call event
         nil
       when nil
         raise "Unknown function name #{name}"

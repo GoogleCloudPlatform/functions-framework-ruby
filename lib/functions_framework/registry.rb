@@ -76,21 +76,6 @@ module FunctionsFramework
     end
 
     ##
-    # This is an obsolete interface that defines an event function taking two
-    # arguments (data and context) rather than one.
-    #
-    # @deprecated Use {Registry#add_cloud_event} instead.
-    #
-    def add_event name, &block
-      name = name.to_s
-      synchronize do
-        raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
-        @functions[name] = Function.new name, :event, &block
-      end
-      self
-    end
-
-    ##
     # Add a CloudEvent function to the registry.
     #
     # You must provide a name for the function, and a block that implemets the

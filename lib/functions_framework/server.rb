@@ -47,7 +47,7 @@ module FunctionsFramework
         case function.type
         when :http
           HttpApp.new function, @config
-        when :event, :cloud_event
+        when :cloud_event
           EventApp.new function, @config
         else
           raise "Unrecognized function type: #{function.type}"
@@ -384,10 +384,11 @@ module FunctionsFramework
         return notfound_response if excluded_path? env
         response =
           begin
-            logger = env["rack.logger"] = @config.logger
+            logger = env["rack.logger"] ||= @config.logger
             request = ::Rack::Request.new env
             logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
-            @function.call request
+            execution_context = @function.execution_context logger: logger
+            execution_context.call request
           rescue ::StandardError => e
             e
           end
@@ -406,7 +407,7 @@ module FunctionsFramework
 
       def call env
         return notfound_response if excluded_path? env
-        logger = env["rack.logger"] = @config.logger
+        logger = env["rack.logger"] ||= @config.logger
         event = decode_event env
         response =
           case event
@@ -434,7 +435,8 @@ module FunctionsFramework
 
       def handle_cloud_event event, logger
         logger.info "FunctionsFramework: Handling CloudEvent"
-        @function.call event
+        execution_context = @function.execution_context logger: logger
+        execution_context.call event
         "ok"
       rescue ::StandardError => e
         e

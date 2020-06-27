@@ -15,6 +15,7 @@
 require "logger"
 
 require "functions_framework/cloud_events"
+require "functions_framework/execution_context"
 require "functions_framework/function"
 require "functions_framework/legacy_event_converter"
 require "functions_framework/registry"
@@ -136,17 +137,6 @@ module FunctionsFramework
     #
     def http name = DEFAULT_TARGET, &block
       global_registry.add_http name, &block
-      self
-    end
-
-    ##
-    # This is an obsolete interface that defines an event function taking two
-    # arguments (data and context) rather than one.
-    #
-    # @deprecated Use {FunctionsFramework.cloud_event} instead.
-    #
-    def event name = DEFAULT_TARGET, &block
-      global_registry.add_event name, &block
       self
     end
 

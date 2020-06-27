@@ -20,60 +20,45 @@ describe FunctionsFramework::Registry do
 
   it "starts out empty" do
     assert_empty registry.names
-    assert_nil registry["my-func"]
+    assert_nil registry["my_func"]
   end
 
   it "defines an http function" do
     tester = self
-    registry.add_http "my-func" do |request|
+    registry.add_http "my_func" do |request|
       tester.assert_equal "the-request", request
       "hello"
     end
-    assert_equal ["my-func"], registry.names
-    function = registry["my-func"]
-    assert_equal "my-func", function.name
+    assert_equal ["my_func"], registry.names
+    function = registry["my_func"]
+    assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.call "the-request"
+    response = function.execution_context.call "the-request"
     assert_equal "hello", response
-  end
-
-  it "defines an event function" do
-    tester = self
-    registry.add_event "my-func" do |data, context|
-      tester.assert_equal "the-data", data
-      tester.assert_equal "the-id", context.id
-      "ok"
-    end
-    assert_equal ["my-func"], registry.names
-    function = registry["my-func"]
-    assert_equal "my-func", function.name
-    assert_equal :event, function.type
-    event = OpenStruct.new data: "the-data", id: "the-id"
-    function.call event
   end
 
   it "defines a cloud_event function" do
     tester = self
-    registry.add_cloud_event "my-func" do |event|
+    registry.add_cloud_event "my_func" do |event|
       tester.assert_equal "the-event", event
       "ok"
     end
-    assert_equal ["my-func"], registry.names
-    function = registry["my-func"]
-    assert_equal "my-func", function.name
+    assert_equal ["my_func"], registry.names
+    function = registry["my_func"]
+    assert_equal "my_func", function.name
     assert_equal :cloud_event, function.type
-    function.call "the-event"
+    function.execution_context.call "the-event"
   end
 
   it "defines multiple functions" do
     registry.add_http "func2" do |request|
       "hello"
     end
-    registry.add_event "func1" do |data, context|
+    registry.add_cloud_event "func1" do |event|
       "ok"
     end
     assert_equal ["func1", "func2"], registry.names
-    assert_equal :event, registry["func1"].type
+    assert_equal :cloud_event, registry["func1"].type
     assert_equal :http, registry["func2"].type
   end
 end
