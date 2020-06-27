@@ -22,6 +22,47 @@ describe FunctionsFramework::Testing do
   let(:simple_event_path) { File.join __dir__, "function_definitions", "simple_event.rb" }
   let(:return_http_path) { File.join __dir__, "function_definitions", "return_http.rb" }
 
+  describe "#make_request" do
+    it "creates a PUT request" do
+      request = FunctionsFramework::Testing.make_request "http://example.com/", method: "PUT", body: "The Body"
+      assert_instance_of Rack::Request, request
+      assert request.put?
+      assert_equal "http://example.com/", request.url
+      assert_equal "The Body", request.body.read
+    end
+
+    it "creates a GET request by default" do
+      request = FunctionsFramework::Testing.make_request "http://example.com/"
+      assert_instance_of Rack::Request, request
+      assert request.get?
+      assert_equal "http://example.com/", request.url
+    end
+
+    it "handles string headers" do
+      headers = ["X-Hello-World: Hello Ruby", "X-Another-Language: Elixir"]
+      request = FunctionsFramework::Testing.make_request "http://example.com/", headers: headers
+      assert_instance_of Rack::Request, request
+      assert_equal "Hello Ruby", request.get_header("HTTP_X_HELLO_WORLD")
+      assert_equal "Elixir", request.get_header("HTTP_X_ANOTHER_LANGUAGE")
+    end
+
+    it "handles hash headers" do
+      headers = { "X-Hello-World" => "Hello Ruby", "X-Another-Language" => "Elixir" }
+      request = FunctionsFramework::Testing.make_request "http://example.com/", headers: headers
+      assert_instance_of Rack::Request, request
+      assert_equal "Hello Ruby", request.get_header("HTTP_X_HELLO_WORLD")
+      assert_equal "Elixir", request.get_header("HTTP_X_ANOTHER_LANGUAGE")
+    end
+
+    it "handles mixed array headers" do
+      headers = [["X-Hello-World", "Hello Ruby"], "X-Another-Language: Elixir"]
+      request = FunctionsFramework::Testing.make_request "http://example.com/", headers: headers
+      assert_instance_of Rack::Request, request
+      assert_equal "Hello Ruby", request.get_header("HTTP_X_HELLO_WORLD")
+      assert_equal "Elixir", request.get_header("HTTP_X_ANOTHER_LANGUAGE")
+    end
+  end
+
   describe "#make_get_request" do
     it "creates a basic request" do
       request = FunctionsFramework::Testing.make_get_request "http://example.com/"
