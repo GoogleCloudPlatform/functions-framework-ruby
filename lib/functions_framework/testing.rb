@@ -117,29 +117,51 @@ module FunctionsFramework
     end
 
     ##
+    # Make a Rack request, for passing to a function test.
+    #
+    # @param url [URI,String] The URL to get, including query params.
+    # @param method [String] The HTTP method (defaults to "GET").
+    # @param body [String] The HTTP body, if any.
+    # @param headers [Array,Hash] HTTP headers. May be given as a hash (of
+    #     header names mapped to values), an array of strings (where each
+    #     string is of the form `Header-Name: Header value`), or an array of
+    #     two-element string arrays.
+    # @return [Rack::Request]
+    #
+    def make_request url, method: ::Rack::GET, body: nil, headers: []
+      env = Testing.build_standard_env URI(url), headers
+      env[::Rack::REQUEST_METHOD] = method
+      env[::Rack::RACK_INPUT] = ::StringIO.new body if body
+      ::Rack::Request.new env
+    end
+
+    ##
     # Make a simple GET request, for passing to a function test.
     #
     # @param url [URI,String] The URL to get.
+    # @param headers [Array,Hash] HTTP headers. May be given as a hash (of
+    #     header names mapped to values), an array of strings (where each
+    #     string is of the form `Header-Name: Header value`), or an array of
+    #     two-element string arrays.
     # @return [Rack::Request]
     #
     def make_get_request url, headers = []
-      env = Testing.build_standard_env URI(url), headers
-      env[::Rack::REQUEST_METHOD] = ::Rack::GET
-      ::Rack::Request.new env
+      make_request url, headers: headers
     end
 
     ##
     # Make a simple POST request, for passing to a function test.
     #
     # @param url [URI,String] The URL to post to.
-    # @param data [String] The body to post.
+    # @param body [String] The body to post.
+    # @param headers [Array,Hash] HTTP headers. May be given as a hash (of
+    #     header names mapped to values), an array of strings (where each
+    #     string is of the form `Header-Name: Header value`), or an array of
+    #     two-element string arrays.
     # @return [Rack::Request]
     #
-    def make_post_request url, data, headers = []
-      env = Testing.build_standard_env URI(url), headers
-      env[::Rack::REQUEST_METHOD] = ::Rack::POST
-      env[::Rack::RACK_INPUT] = ::StringIO.new data
-      ::Rack::Request.new env
+    def make_post_request url, body, headers = []
+      make_request url, method: ::Rack::POST, body: body, headers: headers
     end
 
     ##
@@ -245,7 +267,11 @@ module FunctionsFramework
           ::Rack::RACK_ERRORS     => ::StringIO.new
         }
         headers.each do |header|
-          name, value = header.split ":"
+          if header.is_a? String
+            name, value = header.split ":"
+          elsif header.is_a? Array
+            name, value = header
+          end
           next unless name && value
           name = name.strip.upcase.tr "-", "_"
           name = "HTTP_#{name}" unless ["CONTENT_TYPE", "CONTENT_LENGTH"].include? name
