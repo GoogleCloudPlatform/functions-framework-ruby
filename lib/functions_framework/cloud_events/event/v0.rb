@@ -19,13 +19,13 @@ module FunctionsFramework
   module CloudEvents
     module Event
       ##
-      # A CloudEvents V1 data type.
+      # A CloudEvents V0 data type.
       #
       # This object represents a complete CloudEvent, including the event data
       # and context attributes. It supports the standard required and optional
-      # attributes defined in CloudEvents V1.0, and arbitrary extension
+      # attributes defined in CloudEvents V0.3, and arbitrary extension
       # attributes. All attribute values can be obtained (in their string form)
-      # via the {Event::V1#[]} method. Additionally, standard attributes have
+      # via the {Event::V0#[]} method. Additionally, standard attributes have
       # their own accessor methods that may return typed objects (such as
       # `DateTime` for the `time` attribute).
       #
@@ -33,10 +33,10 @@ module FunctionsFramework
       # retrieved but not modified. To obtain an event with modifications, use
       # the {#with} method to create a copy with the desired changes.
       #
-      # See https://github.com/cloudevents/spec/blob/v1.0/spec.md for
+      # See https://github.com/cloudevents/spec/blob/v0.3/spec.md for
       # descriptions of the standard attributes.
       #
-      class V1
+      class V0
         include Event
 
         ##
@@ -56,11 +56,14 @@ module FunctionsFramework
         #  *  **:type** [`String`] - _required_ - The event `type` field.
         #  *  **:data** [`Object`] - _optional_ - The data associated with the
         #     event (i.e. the `data` field.)
+        #  *  **:data_content_encoding** (or **:datacontentencoding**)
+        #     [`String`] - _optional_ - The content-encoding for the data (i.e.
+        #     the `datacontentencoding` field.)
         #  *  **:data_content_type** (or **:datacontenttype**) [`String`,
         #     {ContentType}] - _optional_ - The content-type for the data, if
         #     the data is a string (i.e. the event `datacontenttype` field.)
-        #  *  **:data_schema** (or **:dataschema**) [`String`, `URI`] -
-        #     _optional_ - The event `dataschema` field.
+        #  *  **:schema_url** (or **:schemaurl**) [`String`, `URI`] -
+        #     _optional_ - The event `schemaurl` field.
         #  *  **:subject** [`String`] - _optional_ - The event `subject` field.
         #  *  **:time** [`String`, `DateTime`, `Time`] - _optional_ - The
         #     event `time` field.
@@ -74,13 +77,14 @@ module FunctionsFramework
         #
         def initialize attributes: nil, **args
           interpreter = FieldInterpreter.new attributes || args
-          @spec_version = interpreter.spec_version ["specversion", "spec_version"], accept: /^1(\.|$)/
+          @spec_version = interpreter.spec_version ["specversion", "spec_version"], accept: /^0\.3$/
           @id = interpreter.string ["id"], required: true
           @source = interpreter.uri ["source"], required: true
           @type = interpreter.string ["type"], required: true
           @data = interpreter.object ["data"], allow_nil: true
+          @data_content_encoding = interpreter.string ["datacontentencoding", "data_content_encoding"]
           @data_content_type = interpreter.content_type ["datacontenttype", "data_content_type"]
-          @data_schema = interpreter.uri ["dataschema", "data_schema"]
+          @schema_url = interpreter.uri ["schemaurl", "schema_url"]
           @subject = interpreter.string ["subject"]
           @time = interpreter.rfc3339_date_time ["time"]
           @attributes = interpreter.finish_attributes
@@ -97,7 +101,7 @@ module FunctionsFramework
         #
         def with **changes
           attributes = @attributes.merge changes
-          V1.new attributes: attributes
+          V0.new attributes: attributes
         end
 
         ##
@@ -174,6 +178,15 @@ module FunctionsFramework
         attr_reader :data
 
         ##
+        # The optional `datacontentencoding` field as a `String` object, or
+        # `nil` if the field is absent.
+        #
+        # @return [String,nil]
+        #
+        attr_reader :data_content_encoding
+        alias datacontentencoding data_content_encoding
+
+        ##
         # The optional `datacontenttype` field as a
         # {FunctionsFramework::CloudEvents::ContentType} object, or `nil` if
         # the field is absent.
@@ -184,13 +197,13 @@ module FunctionsFramework
         alias datacontenttype data_content_type
 
         ##
-        # The optional `dataschema` field as a `URI` object, or `nil` if the
+        # The optional `schemaurl` field as a `URI` object, or `nil` if the
         # field is absent.
         #
         # @return [URI,nil]
         #
-        attr_reader :data_schema
-        alias dataschema data_schema
+        attr_reader :schema_url
+        alias schemaurl schema_url
 
         ##
         # The optional `subject` field, or `nil` if the field is absent.

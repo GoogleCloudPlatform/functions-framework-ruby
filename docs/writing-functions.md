@@ -148,15 +148,20 @@ FunctionsFramework.cloud_event("hello") do |event|
 end
 ```
 
-The event parameter is a
-[CloudEvents V1 Event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/CloudEvents/Event/V1)
-object. You can find detailed information about the fields of a CloudEvent from
-the [CloudEvents spec](https://github.com/cloudevents/spec/blob/v1.0/spec.md).
+The event parameter will be either a
+[CloudEvents V0.3 Event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/CloudEvents/Event/V0)
+object ([see spec](https://github.com/cloudevents/spec/blob/v0.3/spec.md)) or a
+[CloudEvents V1.0 Event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/CloudEvents/Event/V1)
+object ([see spec](https://github.com/cloudevents/spec/blob/v1.0/spec.md)).
 
 Some Google Cloud services send events in a legacy event format that was defined
 prior to CloudEvents. The Functions Framework will convert these legacy events
-to an equivalent CloudEvents type, so your function will always receive a
-CloudEvent object when it is sent an event from Google Cloud.
+to an equivalent CloudEvents V1 type, so your function will always receive a
+CloudEvent object when it is sent an event from Google Cloud. The precise
+mapping between legacy events and CloudEvents is not specified in detail here,
+but in general, the _data_ from the legacy event will be mapped to the `data`
+field in the CloudEvent, and the _context_ from the legacy event will be mapped
+to equivalent CloudEvent attributes.
 
 ## Error handling
 

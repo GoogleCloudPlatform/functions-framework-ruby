@@ -24,7 +24,9 @@ module FunctionsFramework
     # It supports binary (i.e. header-based) HTTP content, as well as structured
     # (body-based) content that can delegate to formatters such as JSON.
     #
-    # See https://github.com/cloudevents/spec/blob/master/http-protocol-binding.md
+    # Supports the CloudEvents 0.3 and CloudEvents 1.0 variants of this format.
+    # See https://github.com/cloudevents/spec/blob/v0.3/http-transport-binding.md
+    # and https://github.com/cloudevents/spec/blob/v1.0/http-protocol-binding.md.
     #
     class HttpBinding
       ##
