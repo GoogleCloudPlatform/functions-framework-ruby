@@ -23,14 +23,14 @@ module FunctionsFramework
     # Create a new function definition.
     #
     # @param name [String] The function name
-    # @param type [Symbol] The type of function. Valid types are
-    #     `:http`, `:event`, and `:cloud_event`.
+    # @param type [Symbol] The type of function. Valid types are `:http` and
+    #     `:cloud_event`.
     # @param block [Proc] The function code as a proc
     #
     def initialize name, type, &block
       @name = name
       @type = type
-      @execution_context_class = Class.new do
+      @execution_context_class = Class.new ExecutionContext do
         define_method :call, &block
       end
     end
@@ -46,8 +46,11 @@ module FunctionsFramework
     attr_reader :type
 
     ##
-    # Call the function. You must pass an argument appropriate to the type
-    # of function.
+    # Create an execution context.
+    #
+    # The returned execution context has a `#call` method that can be invoked
+    # to call the function. You must pass an argument to `#call` appropriate to
+    # the type of function:
     #
     #  *  A `:http` type function takes a `Rack::Request` argument, and returns
     #     a Rack response type. See {FunctionsFramework::Registry.add_http}.
@@ -55,17 +58,11 @@ module FunctionsFramework
     #     {FunctionsFramework::CloudEvents::Event} argument, and does not
     #     return a value. See {FunctionsFramework::Registry.add_cloud_event}.
     #
-    # @param argument [Rack::Request,FunctionsFramework::CloudEvents::Event]
-    # @return [Object]
+    # @param logger [::Logger] The logger for use by function executions.
+    # @return [FunctionsFramework::ExecutionContext]
     #
-    def call argument
-      execution_context = @execution_context_class.new
-      case type
-      when :event
-        execution_context.call argument.data, argument
-      else
-        execution_context.call argument
-      end
+    def execution_context logger: nil
+      @execution_context_class.new self, logger: logger
     end
   end
 end

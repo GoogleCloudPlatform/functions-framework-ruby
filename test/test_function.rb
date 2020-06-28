@@ -20,11 +20,12 @@ describe FunctionsFramework::Function do
     tester = self
     function = FunctionsFramework::Function.new "my_func", :http do |request|
       tester.assert_equal "the-request", request
+      tester.assert_equal "my_func", function_name
       "hello"
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.call "the-request"
+    response = function.execution_context.call "the-request"
     assert_equal "hello", response
   end
 
@@ -35,31 +36,19 @@ describe FunctionsFramework::Function do
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.call "the-request"
+    response = function.execution_context.call "the-request"
     assert_equal "hello", response
-  end
-
-  it "defines an event function" do
-    tester = self
-    function = FunctionsFramework::Function.new "my_func", :event do |data, context|
-      tester.assert_equal "the-data", data
-      tester.assert_equal "the-id", context.id
-      "ok"
-    end
-    assert_equal "my_func", function.name
-    assert_equal :event, function.type
-    event = OpenStruct.new data: "the-data", id: "the-id"
-    function.call event
   end
 
   it "defines a cloud_event function" do
     tester = self
-    function = FunctionsFramework::Function.new "my_func", :cloud_event do |event|
+    function = FunctionsFramework::Function.new "my_event_func", :cloud_event do |event|
       tester.assert_equal "the-event", event
+      tester.assert_equal "my_event_func", function_name
       "ok"
     end
-    assert_equal "my_func", function.name
+    assert_equal "my_event_func", function.name
     assert_equal :cloud_event, function.type
-    function.call "the-event"
+    function.execution_context.call "the-event"
   end
 end
