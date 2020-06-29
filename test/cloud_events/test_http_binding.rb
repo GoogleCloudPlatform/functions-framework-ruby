@@ -20,6 +20,8 @@ describe FunctionsFramework::CloudEvents::HttpBinding do
   let(:my_source_string) { "/my_source" }
   let(:my_source) { URI.parse my_source_string }
   let(:my_type) { "my_type" }
+  let(:weird_type) { "¡Hola!\n100% 😀 " }
+  let(:encoded_weird_type) { "%C2%A1Hola!%0A100%25%20%F0%9F%98%80%20" }
   let(:spec_version) { "1.0" }
   let(:my_simple_data) { "12345" }
   let(:my_content_type_string) { "text/plain; charset=us-ascii" }
@@ -45,6 +47,26 @@ describe FunctionsFramework::CloudEvents::HttpBinding do
   }
   let(:my_json_struct_encoded) { JSON.dump my_json_struct }
   let(:my_json_batch_encoded) { JSON.dump [my_json_struct] }
+
+  it "percent-encodes an ascii string" do
+    str = http_binding.percent_encode my_simple_data
+    assert_equal my_simple_data, str
+  end
+
+  it "percent-decodes an ascii string" do
+    str = http_binding.percent_decode my_simple_data
+    assert_equal my_simple_data, str
+  end
+
+  it "percent-encodes a string with special characters" do
+    str = http_binding.percent_encode weird_type
+    assert_equal encoded_weird_type, str
+  end
+
+  it "percent-decodes a string with special characters" do
+    str = http_binding.percent_decode encoded_weird_type
+    assert_equal weird_type, str
+  end
 
   it "decodes a structured rack env and re-encodes as batch" do
     env = {
@@ -176,5 +198,36 @@ describe FunctionsFramework::CloudEvents::HttpBinding do
     }
     assert_equal expected_headers, headers
     assert_equal my_simple_data, body
+  end
+
+  it "encodes and decodes binary, with non-ascii header characters" do
+    event = FunctionsFramework::CloudEvents::Event.create \
+      spec_version: spec_version,
+      id: my_id,
+      source: my_source,
+      type: weird_type,
+      data: my_simple_data,
+      data_content_type: my_content_type_string
+    headers, body = http_binding.encode_binary_content event
+    expected_headers = {
+      "CE-id" => my_id,
+      "CE-source" => my_source_string,
+      "CE-type" => encoded_weird_type,
+      "CE-specversion" => spec_version,
+      "Content-Type" => my_content_type_string
+    }
+    assert_equal expected_headers, headers
+    assert_equal my_simple_data, body
+
+    env = {
+      "rack.input" => StringIO.new(body),
+      "CONTENT_TYPE" => my_content_type_string,
+      "HTTP_CE_ID" => my_id,
+      "HTTP_CE_SOURCE" => my_source_string,
+      "HTTP_CE_TYPE" => encoded_weird_type,
+      "HTTP_CE_SPECVERSION" => spec_version
+    }
+    reconstituted_event = http_binding.decode_rack_env env
+    assert_equal event, reconstituted_event
   end
 end
