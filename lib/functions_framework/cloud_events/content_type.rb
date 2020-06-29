@@ -151,7 +151,7 @@ module FunctionsFramework
 
       def consume_token str, downcase: false, error_message: nil
         match = /^([\w!#\$%&'\*\+\.\^`\{\|\}-]+)(.*)$/.match str
-        raise ParseError.new error_message || "Expected token" unless match
+        raise ParseError, error_message || "Expected token" unless match
         token = match[1]
         token.downcase! if downcase
         str = consume_comments match[2].strip
@@ -159,7 +159,7 @@ module FunctionsFramework
       end
 
       def consume_special str, expected, error_message: nil
-        raise ParseError.new error_message || "Expected #{expected.inspect}" unless str.start_with? expected
+        raise ParseError, error_message || "Expected #{expected.inspect}" unless str.start_with? expected
         consume_comments str[1..-1].strip
       end
 
@@ -171,12 +171,12 @@ module FunctionsFramework
           char = str[index]
           case char
           when nil
-            raise ParseError.new error_message || "Quoted-string never finished"
+            raise ParseError, error_message || "Quoted-string never finished"
           when "\""
             break
           when "\\"
             char = str[index + 1]
-            raise ParseError.new error_message || "Quoted-string never finished" unless char
+            raise ParseError, error_message || "Quoted-string never finished" unless char
             arr << char
             index += 2
           else
