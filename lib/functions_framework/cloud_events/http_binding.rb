@@ -103,7 +103,7 @@ module FunctionsFramework
         content_type = ContentType.new content_type_header if content_type_header
         input = env["rack.input"]
         if input && content_type&.media_type == "application"
-          case content_type.subtype_prefix
+          case content_type.subtype_base
           when "cloudevents"
             input.set_encoding content_type.charset if content_type.charset
             return decode_structured_content input.read, content_type.subtype_format, **format_args

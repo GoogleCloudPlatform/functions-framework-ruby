@@ -23,29 +23,31 @@ module FunctionsFramework
     # Case-insensitive fields, such as media_type and subtype, are normalized
     # to lower case.
     #
+    # If parsing fails, this class will try to get as much information as it
+    # can, and fill the rest with defaults as recommended in RFC 2045 sec 5.2.
+    # In case of a parsing error, the {#error_message} field will be set.
+    #
     class ContentType
       ##
-      # Parse the given header value
+      # Parse the given header value.
       #
       # @param string [String] Content-Type header value in RFC 2045 format
       #
       def initialize string
         @string = string
-        # TODO: This handles simple cases but is not RFC-822 compliant.
-        sections = string.to_s.split ";"
-        media_type, subtype = sections.shift.split "/"
-        subtype_prefix, subtype_format = subtype.split "+"
-        @media_type = media_type.strip.downcase
-        @subtype = subtype.strip.downcase
-        @subtype_prefix = subtype_prefix.strip.downcase
-        @subtype_format = subtype_format&.strip&.downcase
-        @params = initialize_params sections
+        @media_type = "text"
+        @subtype_base = @subtype = "plain"
+        @subtype_format = nil
+        @params = []
+        @charset = "us-ascii"
+        @error_message = nil
+        parse consume_comments string.strip
         @canonical_string = "#{@media_type}/#{@subtype}" +
                             @params.map { |k, v| "; #{k}=#{v}" }.join
       end
 
       ##
-      # The original header content string
+      # The original header content string.
       # @return [String]
       #
       attr_reader :string
@@ -66,7 +68,7 @@ module FunctionsFramework
 
       ##
       # The entire content subtype (which could include an extension delimited
-      # by a plus sign)
+      # by a plus sign).
       # @return [String]
       #
       attr_reader :subtype
@@ -75,7 +77,7 @@ module FunctionsFramework
       # The portion of the content subtype before any plus sign.
       # @return [String]
       #
-      attr_reader :subtype_prefix
+      attr_reader :subtype_base
 
       ##
       # The portion of the content subtype after any plus sign, or nil if there
@@ -92,6 +94,18 @@ module FunctionsFramework
       attr_reader :params
 
       ##
+      # The charset, defaulting to "us-ascii" if none is explicitly set.
+      # @return [String]
+      #
+      attr_reader :charset
+
+      ##
+      # The error message when parsing, or `nil` if there was no error message.
+      # @return [String,nil]
+      #
+      attr_reader :error_message
+
+      ##
       # An array of values for the given parameter name
       # @param key [String]
       # @return [Array<String>]
@@ -99,15 +113,6 @@ module FunctionsFramework
       def param_values key
         key = key.downcase
         @params.inject([]) { |a, (k, v)| key == k ? a << v : a }
-      end
-
-      ##
-      # The first value of the "charset" parameter, or nil if there is no
-      # charset.
-      # @return [String,nil]
-      #
-      def charset
-        param_values("charset").first
       end
 
       ## @private
@@ -121,18 +126,90 @@ module FunctionsFramework
         canonical_string.hash
       end
 
+      ## @private
+      class ParseError < ::StandardError
+      end
+
       private
 
-      def initialize_params sections
-        params = sections.map do |s|
-          k, v = s.split "="
-          [k.strip.downcase, v.strip]
+      def parse str
+        @media_type, str = consume_token str, downcase: true, error_message: "Failed to parse media type"
+        str = consume_special str, "/"
+        @subtype, str = consume_token str, downcase: true, error_message: "Failed to parse subtype"
+        @subtype_base, @subtype_format = @subtype.split "+", 2
+        until str.empty?
+          str = consume_special str, ";"
+          name, str = consume_token str, downcase: true, error_message: "Faled to parse attribute name"
+          str = consume_special str, "=", error_message: "Failed to find value for attribute #{name}"
+          val, str = consume_token_or_quoted str, error_message: "Failed to parse value for attribute #{name}"
+          @params << [name, val]
+          @charset = val if name == "charset"
         end
-        params.sort! do |(k1, v1), (k2, v2)|
-          a = k1 <=> k2
-          a.zero? ? v1 <=> v2 : a
+      rescue ParseError => e
+        @error_message = e.message
+      end
+
+      def consume_token str, downcase: false, error_message: nil
+        match = /^([\w!#\$%&'\*\+\.\^`\{\|\}-]+)(.*)$/.match str
+        raise ParseError, error_message || "Expected token" unless match
+        token = match[1]
+        token.downcase! if downcase
+        str = consume_comments match[2].strip
+        [token, str]
+      end
+
+      def consume_special str, expected, error_message: nil
+        raise ParseError, error_message || "Expected #{expected.inspect}" unless str.start_with? expected
+        consume_comments str[1..-1].strip
+      end
+
+      def consume_token_or_quoted str, error_message: nil
+        return consume_token str unless str.start_with? '"'
+        arr = []
+        index = 1
+        loop do
+          char = str[index]
+          case char
+          when nil
+            raise ParseError, error_message || "Quoted-string never finished"
+          when "\""
+            break
+          when "\\"
+            char = str[index + 1]
+            raise ParseError, error_message || "Quoted-string never finished" unless char
+            arr << char
+            index += 2
+          else
+            arr << char
+            index += 1
+          end
         end
-        params
+        index += 1
+        str = consume_comments str[index..-1].strip
+        [arr.join, str]
+      end
+
+      def consume_comments str
+        return str unless str.start_with? "("
+        index = 1
+        loop do
+          char = str[index]
+          case char
+          when nil
+            raise ParseError, "Comment never finished"
+          when ")"
+            break
+          when "\\"
+            index += 2
+          when "("
+            str = consume_comments str[index..-1]
+            index = 0
+          else
+            index += 1
+          end
+        end
+        index += 1
+        consume_comments str[index..-1].strip
       end
     end
   end
