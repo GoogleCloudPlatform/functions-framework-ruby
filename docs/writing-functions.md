@@ -30,7 +30,7 @@ that returns a simple message in the HTTP response body:
 ```ruby
 require "functions_framework"
 
-FunctionsFramework.http("hello") do |request|
+FunctionsFramework.http "hello" do |request|
   # Return the response body.
   "Hello, world!\n"
 end
@@ -51,7 +51,7 @@ request information in the response:
 ```ruby
 require "functions_framework"
 
-FunctionsFramework.http("request_info") do |request|
+FunctionsFramework.http "request_info_example" do |request|
   # Include some request info in the response body.
   "Received #{request.method} from #{request.url}!\n"
 end
@@ -66,7 +66,7 @@ hosting environment.
 ```ruby
 require "functions_framework"
 
-FunctionsFramework.http("logging_example") do |request|
+FunctionsFramework.http "logging_example" do |request|
   # Log some request info.
   request.logger.info "I received #{request.method} from #{request.url}!"
   # A simple response body.
@@ -106,10 +106,19 @@ framework such as Ruby on Rails, you may want to consider a solution such as
 Google Cloud Run that is tailored to larger applications. However, a lightweight
 framework such as Sinatra is sometimes useful when writing HTTP functions.
 
-It is easy to connect an HTTP function to a Sinatra app. Write the Sinatra app
-using the "modular" Sinatra interface (i.e. subclass `Sinatra::Base`), and then
-simply run the Sinatra app as a Rack handler from the function. Here is a basic
-example:
+It is easy to connect an HTTP function to a Sinatra app. First, declare the
+dependency on Sinatra in your `Gemfile`:
+
+```ruby
+# Gemfile
+source "https://rubygems.org"
+gem "functions_framework", "~> 0.4"
+gem "sinatra", "~> 2.0"
+```
+
+Write the Sinatra app using the "modular" Sinatra interface (i.e. subclass
+`Sinatra::Base`), and then run the Sinatra app directly as a Rack handler from
+the function. Here is a basic example:
 
 ```ruby
 require "functions_framework"
@@ -143,7 +152,7 @@ information about it:
 ```ruby
 require "functions_framework"
 
-FunctionsFramework.cloud_event("hello") do |event|
+FunctionsFramework.cloud_event "hello" do |event|
   FunctionsFramework.logger.info "I received an event of type #{event.type}!"
 end
 ```
@@ -180,7 +189,7 @@ HTTP response yourself. For example:
 ```ruby
 require "functions_framework"
 
-FunctionsFramework.http("error_reporter") do |request|
+FunctionsFramework.http "error_reporter" do |request|
   begin
     raise "whoops!"
   rescue RuntimeError => e
@@ -227,7 +236,7 @@ A simple project might look like this:
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.3"
+gem "functions_framework", "~> 0.4"
 ```
 
 ```ruby
@@ -235,7 +244,7 @@ gem "functions_framework", "~> 0.3"
 require "functions_framework"
 require_relative "lib/hello"
 
-FunctionsFramework.http("hello") do |request|
+FunctionsFramework.http "hello" do |request|
   Hello.new(request).build_response
 end
 ```
@@ -243,7 +252,7 @@ end
 ```ruby
 # lib/hello.rb
 class Hello
-  def initialize(request)
+  def initialize request
     @request = request
   end
 

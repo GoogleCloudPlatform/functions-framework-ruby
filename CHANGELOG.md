@@ -1,5 +1,16 @@
 # Changelog
 
+### v0.4.0 / 2020-06-29
+
+* Dropped the legacy and largely unsupported `:event` function type. All event functions should be of type `:cloud_event`.
+* Define the object context for function execution, and include an extensible context helper.
+* Support for CloudEvents with specversion 0.3.
+* CloudEvents now correct percent-encodes/decodes binary headers.
+* CloudEvents now includes more robust RFC 2045 parsing of the Content-Type header.
+* The CloudEventsError class now properly subclasses StandardError instead of RuntimeError.
+* Removed redundant `_string` accessors from event classes since raw forms are already available via `[]`.
+* A variety of corrections to event-related class documentation.
+
 ### v0.3.1 / 2020-06-27
 
 * Fixed crash when using "return" directly in a function block.
@@ -12,7 +23,7 @@
 
 ### v0.2.1 / 2020-06-25
 
-* The `--signature-type` check recognizes the legacy `event` type.
+* The `--signature-type` check recognizes the legacy `event` type for `:cloud_event` functions.
 
 ### v0.2.0 / 2020-06-24
 
