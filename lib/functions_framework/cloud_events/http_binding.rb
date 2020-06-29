@@ -179,7 +179,7 @@ module FunctionsFramework
           match = /^HTTP_CE_(\w+)$/.match key
           next unless match
           attr_name = match[1].downcase
-          attributes[attr_name] = value unless omit_names.include? attr_name
+          attributes[attr_name] = percent_decode value unless omit_names.include? attr_name
         end
         Event.create spec_version: spec_version, attributes: attributes
       end
@@ -250,7 +250,7 @@ module FunctionsFramework
           elsif key == "datacontenttype"
             headers["Content-Type"] = value
           else
-            headers["CE-#{key}"] = value
+            headers["CE-#{key}"] = percent_encode value
           end
         end
         if body.is_a? ::String
@@ -266,6 +266,44 @@ module FunctionsFramework
           headers["Content-Type"] ||= "application/json; charset=#{body.encoding.name.downcase}"
         end
         [headers, body]
+      end
+
+      ##
+      # Decode a percent-encoded string to a UTF-8 string.
+      #
+      # @param str [String] Incoming ascii string from an HTTP header, with one
+      #     cycle of percent-encoding.
+      # @return [String] Resulting decoded string in UTF-8.
+      #
+      def percent_decode str
+        decoded_str = str.gsub(/%[0-9a-fA-F]{2}/) { |m| [m[1..-1].to_i(16)].pack "C" }
+        decoded_str.force_encoding ::Encoding::UTF_8
+      end
+
+      ##
+      # Transcode an arbitrarily-encoded string to UTF-8, then percent-encode
+      # non-printing and non-ascii characters to result in an ASCII string
+      # suitable for setting as an HTTP header value.
+      #
+      # @param str [String] Incoming arbitrary string that can be represented
+      #     in UTF-8.
+      # @return [String] Resulting encoded string in ASCII.
+      #
+      def percent_encode str
+        arr = []
+        utf_str = str.to_s.encode ::Encoding::UTF_8
+        utf_str.each_byte do |byte|
+          if byte >= 33 && byte <= 126 && byte != 37
+            arr << byte
+          else
+            hi = byte / 16
+            hi = hi > 9 ? 55 + hi : 48 + hi
+            lo = byte % 16
+            lo = lo > 9 ? 55 + lo : 48 + lo
+            arr << 37 << hi << lo
+          end
+        end
+        arr.pack "C*"
       end
     end
   end
