@@ -16,39 +16,68 @@ require "helper"
 require "ostruct"
 
 describe FunctionsFramework::Function do
-  it "represents an http function" do
+  it "represents an http function using a block" do
     tester = self
     function = FunctionsFramework::Function.new "my_func", :http do |request|
       tester.assert_equal "the-request", request
-      tester.assert_equal "my_func", function_name
+      tester.assert_equal "my_func", context[:function_name]
       "hello"
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.execution_context.call "the-request"
+    response = function.new_call.call "the-request"
     assert_equal "hello", response
   end
 
-  it "represents an http function with a return statement" do
+  it "represents an http function using a block with a return statement" do
     function = FunctionsFramework::Function.new "my_func", :http do |request|
       return "hello" if request == "the-request"
       "goodbye"
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.execution_context.call "the-request"
+    response = function.new_call.call "the-request"
     assert_equal "hello", response
   end
 
-  it "defines a cloud_event function" do
+  it "defines a cloud_event function using a block" do
     tester = self
     function = FunctionsFramework::Function.new "my_event_func", :cloud_event do |event|
       tester.assert_equal "the-event", event
-      tester.assert_equal "my_event_func", function_name
+      tester.assert_equal "my_event_func", context[:function_name]
       "ok"
     end
     assert_equal "my_event_func", function.name
     assert_equal :cloud_event, function.type
-    function.execution_context.call "the-event"
+    function.new_call.call "the-event"
+  end
+
+  it "represents an http function using an object" do
+    callable = Proc.new do |request|
+      assert_equal "the-request", request
+      "hello"
+    end
+    function = FunctionsFramework::Function.new "my_func", :http, callable
+    assert_equal "my_func", function.name
+    assert_equal :http, function.type
+    response = function.new_call.call "the-request"
+    assert_equal "hello", response
+  end
+
+  it "represents an http function using a class" do
+    class MyCallable
+      def initialize **_keywords
+      end
+
+      def call request
+        request == "the-request" ? "hello" : "whoops"
+      end
+    end
+
+    function = FunctionsFramework::Function.new "my_func", :http, MyCallable
+    assert_equal "my_func", function.name
+    assert_equal :http, function.type
+    response = function.new_call.call "the-request"
+    assert_equal "hello", response
   end
 end

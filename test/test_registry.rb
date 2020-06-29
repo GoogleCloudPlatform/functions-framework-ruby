@@ -33,7 +33,7 @@ describe FunctionsFramework::Registry do
     function = registry["my_func"]
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.execution_context.call "the-request"
+    response = function.new_call.call "the-request"
     assert_equal "hello", response
   end
 
@@ -47,7 +47,7 @@ describe FunctionsFramework::Registry do
     function = registry["my_func"]
     assert_equal "my_func", function.name
     assert_equal :cloud_event, function.type
-    function.execution_context.call "the-event"
+    function.new_call.call "the-event"
   end
 
   it "defines multiple functions" do

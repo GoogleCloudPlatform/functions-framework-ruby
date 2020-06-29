@@ -16,7 +16,33 @@ module FunctionsFramework
   ##
   # Representation of a function.
   #
-  # A function has a name, a type, and a code definition.
+  # A function has a name, a type, and an implementation.
+  #
+  # The implementation in general is an object that responds to the `call`
+  # method. For a function of type `:http`, the `call` method takes a single
+  # `Rack::Request` argument and returns one of various HTTP response types.
+  # See {FunctionsFramework::Registry.add_http}. For a function of type
+  # `:cloud_event`, the `call` method takes a single
+  # {FunctionsFramework::CloudEvents::Event CloudEvent} argument, and does not
+  # return a value. See {FunctionsFramework::Registry.add_cloud_event}.
+  #
+  # If a callable object is provided directly, its `call` method is invoked for
+  # every function execution. Note that this means it may be called multiple
+  # times concurrently in separate threads.
+  #
+  # Alternately, the implementation may be provided as a class that should be
+  # instantiated to produce a callable object. If a class is provided, it should
+  # either subclass {FunctionsFramework::Function::CallBase} or respond to the
+  # same constructor interface, i.e. accepting arbitrary keyword arguments. A
+  # separate callable object will be instantiated from this class for every
+  # function invocation, so each instance will be used for only one invocation.
+  #
+  # Finally, an implementation can be provided as a block. If a block is
+  # provided, it will be recast as a `call` method in an anonymous subclass of
+  # {FunctionsFramework::Function::CallBase}. Thus, providing a block is really
+  # just syntactic sugar for providing a class. (This means, for example, that
+  # the `return` keyword will work within the block because it is treated as a
+  # method.)
   #
   class Function
     ##
@@ -25,13 +51,23 @@ module FunctionsFramework
     # @param name [String] The function name
     # @param type [Symbol] The type of function. Valid types are `:http` and
     #     `:cloud_event`.
-    # @param block [Proc] The function code as a proc
+    # @param callable [Class,#call] A callable object or class.
+    # @param block [Proc] The function code as a block.
     #
-    def initialize name, type, &block
+    def initialize name, type, callable = nil, &block
       @name = name
       @type = type
-      @execution_context_class = Class.new ExecutionContext do
-        define_method :call, &block
+      @callable = @callable_class = nil
+      if callable.respond_to? :call
+        @callable = callable
+      elsif callable.is_a? ::Class
+        @callable_class = callable
+      elsif block_given?
+        @callable_class = ::Class.new CallBase do
+          define_method :call, &block
+        end
+      else
+        raise ::ArgumentError, "No callable given for function"
       end
     end
 
@@ -46,23 +82,48 @@ module FunctionsFramework
     attr_reader :type
 
     ##
-    # Create an execution context.
+    # Get a callable for performing a function invocation. This will either
+    # return the singleton callable object, or instantiate a new callable from
+    # the configured class.
     #
-    # The returned execution context has a `#call` method that can be invoked
-    # to call the function. You must pass an argument to `#call` appropriate to
-    # the type of function:
+    # @param logger [::Logger] The logger for use by function executions. This
+    #     may or may not be used by the callable.
+    # @return [#call]
     #
-    #  *  A `:http` type function takes a `Rack::Request` argument, and returns
-    #     a Rack response type. See {FunctionsFramework::Registry.add_http}.
-    #  *  A `:cloud_event` type function takes a
-    #     {FunctionsFramework::CloudEvents::Event} argument, and does not
-    #     return a value. See {FunctionsFramework::Registry.add_cloud_event}.
+    def new_call logger: nil
+      return @callable unless @callable.nil?
+      logger ||= FunctionsFramework.logger
+      @callable_class.new logger: logger, function_name: name, function_type: type
+    end
+
+    ##
+    # A base class for a callable object that provides calling context.
     #
-    # @param logger [::Logger] The logger for use by function executions.
-    # @return [FunctionsFramework::ExecutionContext]
+    # An object of this class is `self` while a function block is running.
     #
-    def execution_context logger: nil
-      @execution_context_class.new self, logger: logger
+    class CallBase
+      ##
+      # Create a callable object with the given context.
+      #
+      # @param context [keywords] A set of context arguments. See {#context} for
+      #     a list of keys that will generally be passed in. However,
+      #     implementations should be prepared to accept any abritrary keys.
+      #
+      def initialize **context
+        @context = context
+      end
+
+      ##
+      # A keyed hash of context information. Common context keys include:
+      #
+      #  *  **:logger** (`Logger`) A logger for use by this function call.
+      #  *  **:function_name** (`String`) The name of the running function.
+      #  *  **:function_type** (`Symbol`) The type of the running function,
+      #     either `:http` or `:cloud_event`.
+      #
+      # @return [Hash]
+      #
+      attr_reader :context
     end
   end
 end

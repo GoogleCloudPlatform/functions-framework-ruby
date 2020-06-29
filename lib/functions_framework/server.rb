@@ -387,8 +387,8 @@ module FunctionsFramework
             logger = env["rack.logger"] ||= @config.logger
             request = ::Rack::Request.new env
             logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
-            execution_context = @function.execution_context logger: logger
-            execution_context.call request
+            calling_context = @function.new_call logger: logger
+            calling_context.call request
           rescue ::StandardError => e
             e
           end
@@ -435,8 +435,8 @@ module FunctionsFramework
 
       def handle_cloud_event event, logger
         logger.info "FunctionsFramework: Handling CloudEvent"
-        execution_context = @function.execution_context logger: logger
-        execution_context.call event
+        calling_context = @function.new_call logger: logger
+        calling_context.call event
         "ok"
       rescue ::StandardError => e
         e

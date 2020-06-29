@@ -87,7 +87,7 @@ module FunctionsFramework
       function = ::FunctionsFramework.global_registry[name]
       case function&.type
       when :http
-        Testing.interpret_response { function.execution_context.call request }
+        Testing.interpret_response { function.new_call.call request }
       when nil
         raise "Unknown function name #{name}"
       else
@@ -107,7 +107,7 @@ module FunctionsFramework
       function = ::FunctionsFramework.global_registry[name]
       case function&.type
       when :cloud_event
-        function.execution_context.call event
+        function.new_call.call event
         nil
       when nil
         raise "Unknown function name #{name}"
