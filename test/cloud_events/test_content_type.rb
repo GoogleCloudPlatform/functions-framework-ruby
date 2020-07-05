@@ -76,6 +76,12 @@ describe FunctionsFramework::CloudEvents::ContentType do
     assert_equal "application/cloudevents+json; charset=utf-8", content_type.canonical_string
   end
 
+  it "produces canonical string with quoted values" do
+    header = "application/cloudevents+json; foo=\"utf-8 \"; bar=\"hi\" ;baz=\"hi\\\"\""
+    content_type = FunctionsFramework::CloudEvents::ContentType.new header
+    assert_equal "application/cloudevents+json; foo=\"utf-8 \"; bar=hi; baz=\"hi\\\"\"", content_type.canonical_string
+  end
+
   it "drops comments" do
     header = "application/json (JSON rulz); ((oh btw) Ruby \\( rocks) charset=utf-8 (and so does unicode)(srsly)"
     content_type = FunctionsFramework::CloudEvents::ContentType.new header

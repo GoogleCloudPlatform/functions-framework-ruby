@@ -43,7 +43,7 @@ module FunctionsFramework
         @error_message = nil
         parse consume_comments string.strip
         @canonical_string = "#{@media_type}/#{@subtype}" +
-                            @params.map { |k, v| "; #{k}=#{v}" }.join
+                            @params.map { |k, v| "; #{k}=#{maybe_quote v}" }.join
       end
 
       ##
@@ -210,6 +210,12 @@ module FunctionsFramework
         end
         index += 1
         consume_comments str[index..-1].strip
+      end
+
+      def maybe_quote str
+        return str if /^[\w!#\$%&'\*\+\.\^`\{\|\}-]+$/ =~ str
+        str = str.gsub("\\", "\\\\\\\\").gsub("\"", "\\\\\"")
+        "\"#{str}\""
       end
     end
   end
