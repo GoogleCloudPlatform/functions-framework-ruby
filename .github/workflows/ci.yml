@@ -1,0 +1,39 @@
+name: FunctionsFramework CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        ruby: [ "2.4", "2.5", "2.6", "2.7", "jruby" ]
+        include:
+          - os: ubuntu-latest
+            ruby: "2.7"
+            tool: ci
+          - os: macos-latest
+            ruby: "2.7"
+          - os: windows-latest
+            ruby: "2.7"
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        shell: bash
+        run: "bundle install && gem install --no-document toys"
+      - name: Run ${{ matrix.tool || 'test' }}
+        shell: bash
+        run: "toys ${{ matrix.tool || 'test' }} < /dev/null"
