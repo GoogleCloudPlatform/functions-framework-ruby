@@ -149,8 +149,12 @@ module FunctionsFramework
         ::Signal.trap "SIGINT" do
           Server.signal_enqueue "SIGINT", @config.logger, @server
         end
-        ::Signal.trap "SIGHUP" do
-          Server.signal_enqueue "SIGHUP", @config.logger, @server
+        begin
+          ::Signal.trap "SIGHUP" do
+            Server.signal_enqueue "SIGHUP", @config.logger, @server
+          end
+        rescue ::ArgumentError # rubocop:disable Lint/HandleExceptions
+          # Not available on all systems
         end
         @signals_installed = true
       end
