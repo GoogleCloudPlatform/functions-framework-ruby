@@ -105,6 +105,12 @@ to adapt it if you have an Anthos installation.
 
 ### Building an image for your function
 
+Before you can deploy to Cloud Run, make sure your bundle, and in
+particular your `Gemfile.lock` file, is up to date. The easiest way to do this
+is to `bundle install` or `bundle update` and run your local tests prior to
+deploying. The configuration used in the Dockerfile below will not accept your
+function unless an up-to-date `Gemfile.lock` is present.
+
 First, build a Docker image containing your function. Following is a simple
 Dockerfile that you can use as a starting point. Feel free to adjust it to the
 needs of your project:
@@ -165,7 +171,7 @@ deployed function.
 
 Note that our Dockerfile's entrypoint did not pass any source file or target
 name to the Functions Framework. If these are not specified, the Framework will
-use the source `.app.rb` and the target `function` by default. To use different
+use the source `./app.rb` and the target `function` by default. To use different
 values, you need to set the appropriate environment variables when deploying, as
 illustrated above with the `FUNCTION_SOURCE` and `FUNCTION_TARGET` variables.
 
