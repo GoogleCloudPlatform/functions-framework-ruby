@@ -32,10 +32,9 @@ module FunctionsFramework
       return nil unless content_type.media_type == "application" && content_type.subtype_base == "json"
       input = read_input_json env["rack.input"], content_type.charset
       return nil unless input
-      raw_context = input["context"] || input
-      context = normalized_context raw_context
+      context = normalized_context input
       return nil unless context
-      construct_cloud_event context, input["data"]
+      construct_cloud_event context, input["data"], content_type.charset
     end
 
     private
@@ -50,27 +49,27 @@ module FunctionsFramework
       nil
     end
 
-    def normalized_context raw_context
-      id = raw_context["eventId"]
-      return nil unless id
-      timestamp = raw_context["timestamp"]
-      return nil unless timestamp
-      type = raw_context["eventType"]
-      return nil unless type
-      service, resource = analyze_resource raw_context["resource"], type
-      return nil unless service && resource
+    def normalized_context input
+      raw_context = input["context"]
+      id = raw_context&.[]("eventId") || input["eventId"]
+      timestamp = raw_context&.[]("timestamp") || input["timestamp"]
+      type = raw_context&.[]("eventType") || input["eventType"]
+      service, resource = analyze_resource raw_context&.[]("resource") || input["resource"]
+      service ||= service_from_type type
+      return nil unless id && timestamp && type && service && resource
       { id: id, timestamp: timestamp, type: type, service: service, resource: resource }
     end
 
-    def analyze_resource raw_resource, type
+    def analyze_resource raw_resource
+      service = resource = nil
       case raw_resource
       when ::Hash
-        [raw_resource["service"], raw_resource["name"]]
+        service = raw_resource["service"]
+        resource = raw_resource["name"]
       when ::String
-        [service_from_type(type), raw_resource]
-      else
-        [nil, nil]
+        resource = raw_resource
       end
+      [service, resource]
     end
 
     def service_from_type type
@@ -80,16 +79,17 @@ module FunctionsFramework
       nil
     end
 
-    def construct_cloud_event context, data
+    def construct_cloud_event context, data, charset
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
       ce_data = convert_data context[:service], data
+      content_type = "application/json; charset=#{charset}"
       CloudEvents::Event.new id:                context[:id],
                              source:            source,
                              type:              type,
                              spec_version:      "1.0",
-                             data_content_type: "application/json",
+                             data_content_type: content_type,
                              data:              ce_data,
                              subject:           subject,
                              time:              context[:timestamp]
