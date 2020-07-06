@@ -105,6 +105,12 @@ to adapt it if you have an Anthos installation.
 
 ### Building an image for your function
 
+Before you can deploy to Cloud Run, make sure your bundle, and in
+particular your `Gemfile.lock` file, is up to date. The easiest way to do this
+is to `bundle install` or `bundle update` and run your local tests prior to
+deploying. The configuration used in the Dockerfile below will not accept your
+function unless an up-to-date `Gemfile.lock` is present.
+
 First, build a Docker image containing your function. Following is a simple
 Dockerfile that you can use as a starting point. Feel free to adjust it to the
 needs of your project:
