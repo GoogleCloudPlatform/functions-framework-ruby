@@ -165,7 +165,7 @@ deployed function.
 
 Note that our Dockerfile's entrypoint did not pass any source file or target
 name to the Functions Framework. If these are not specified, the Framework will
-use the source `.app.rb` and the target `function` by default. To use different
+use the source `app.rb` and the target `function` by default. To use different
 values, you need to set the appropriate environment variables when deploying, as
 illustrated above with the `FUNCTION_SOURCE` and `FUNCTION_TARGET` variables.
 
