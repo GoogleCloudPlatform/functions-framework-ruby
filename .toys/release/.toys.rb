@@ -16,6 +16,8 @@
 
 require "json"
 
+delegate_to ["release", "trigger"]
+
 mixin "release-tools" do
   on_include do
     include :exec, e: true unless include? :exec

@@ -1,5 +1,12 @@
 # Changelog
 
+### v0.4.1 / 2020-07-08
+
+* Fixed unsupported signal error on Windows.
+* Fixed several edge case errors in legacy event conversion.
+* Generated Content-Type headers now properly quote param values if needed.
+* Minor documentation updates.
+
 ### v0.4.0 / 2020-06-29
 
 * Dropped the legacy and largely unsupported `:event` function type. All event functions should be of type `:cloud_event`.
