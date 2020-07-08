@@ -100,7 +100,7 @@ module FunctionsFramework
     # be of type :cloud_event`.
     #
     # @param name [String] The name of the function to call
-    # @param event [FunctionsFramework::CloudEvets::Event] The event to send
+    # @param event [::CloudEvents::Event] The event to send
     # @return [nil]
     #
     def call_event name, event
@@ -174,23 +174,35 @@ module FunctionsFramework
     # @param source [String,URI] Event source (optional)
     # @param type [String] Event type (optional)
     # @param spec_version [String] Spec version (optional)
-    # @param data_content_type [String,FunctionsFramework::CloudEvents::ContentType]
+    # @param data_content_type [String,::CloudEvents::ContentType]
     #     Content type for the data (optional)
     # @param data_schema [String,URI] Data schema (optional)
     # @param subject [String] Subject (optional)
     # @param time [String,DateTime] Event timestamp (optional)
-    # @return [FunctionsFramework::CloudEvents::Event]
+    # @return [::CloudEvents::Event]
     #
     def make_cloud_event data,
-                         id: nil, source: nil, type: nil, spec_version: nil,
-                         data_content_type: nil, data_schema: nil, subject: nil, time: nil
+                         id: nil,
+                         source: nil,
+                         type: nil,
+                         spec_version: nil,
+                         data_content_type: nil,
+                         data_schema: nil,
+                         subject: nil,
+                         time: nil
       id ||= "random-id-#{rand 100_000_000}"
       source ||= "functions-framework-testing"
       type ||= "com.example.test"
       spec_version ||= "1.0"
-      CloudEvents::Event.new id: id, source: source, type: type, spec_version: spec_version,
-                             data_content_type: data_content_type, data_schema: data_schema,
-                             subject: subject, time: time, data: data
+      ::CloudEvents::Event.new id:                id,
+                               source:            source,
+                               type:              type,
+                               spec_version:      spec_version,
+                               data_content_type: data_content_type,
+                               data_schema:       data_schema,
+                               subject:           subject,
+                               time:              time,
+                               data:              data
     end
 
     extend self

@@ -40,6 +40,7 @@ require "functions_framework/version"
   spec.executables = ["functions-framework", "functions-framework-ruby"]
 
   spec.required_ruby_version = ">= 2.4.0"
+  spec.add_dependency "cloud_events", "~> 0.1"
   spec.add_dependency "puma", "~> 4.3"
   spec.add_dependency "rack", "~> 2.1"
 

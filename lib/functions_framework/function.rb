@@ -23,8 +23,9 @@ module FunctionsFramework
   # `Rack::Request` argument and returns one of various HTTP response types.
   # See {FunctionsFramework::Registry.add_http}. For a function of type
   # `:cloud_event`, the `call` method takes a single
-  # {FunctionsFramework::CloudEvents::Event CloudEvent} argument, and does not
-  # return a value. See {FunctionsFramework::Registry.add_cloud_event}.
+  # [CloudEvent](https://rubydoc.info/gems/cloud_events/CloudEvents/Event)
+  # argument, and does not return a value.
+  # See {FunctionsFramework::Registry.add_cloud_event}.
   #
   # If a callable object is provided directly, its `call` method is invoked for
   # every function execution. Note that this means it may be called multiple

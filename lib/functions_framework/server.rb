@@ -344,7 +344,7 @@ module FunctionsFramework
           string_response response, "text/plain", 200
         when ::Hash
           string_response ::JSON.dump(response), "application/json", 200
-        when CloudEvents::CloudEventsError
+        when ::CloudEvents::CloudEventsError
           cloud_events_error_response response
         when ::StandardError
           error_response "#{response.class}: #{response.message}\n#{response.backtrace}\n"
@@ -405,7 +405,7 @@ module FunctionsFramework
       def initialize function, config
         super config
         @function = function
-        @cloud_events = CloudEvents::HttpBinding.default
+        @cloud_events = ::CloudEvents::HttpBinding.default
         @legacy_events = LegacyEventConverter.new
       end
 
@@ -415,11 +415,11 @@ module FunctionsFramework
         event = decode_event env
         response =
           case event
-          when CloudEvents::Event
+          when ::CloudEvents::Event
             handle_cloud_event event, logger
           when ::Array
-            CloudEvents::HttpContentError.new "Batched CloudEvents are not supported"
-          when CloudEvents::CloudEventsError
+            ::CloudEvents::HttpContentError.new "Batched CloudEvents are not supported"
+          when ::CloudEvents::CloudEventsError
             event
           else
             raise "Unexpected event type: #{event.class}"
@@ -432,8 +432,8 @@ module FunctionsFramework
       def decode_event env
         @cloud_events.decode_rack_env(env) ||
           @legacy_events.decode_rack_env(env) ||
-          raise(CloudEvents::HttpContentError, "Unrecognized event format")
-      rescue CloudEvents::CloudEventsError => e
+          raise(::CloudEvents::HttpContentError, "Unrecognized event format")
+      rescue ::CloudEvents::CloudEventsError => e
         e
       end
 

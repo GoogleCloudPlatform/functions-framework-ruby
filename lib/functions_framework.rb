@@ -14,7 +14,8 @@
 
 require "logger"
 
-require "functions_framework/cloud_events"
+require "cloud_events"
+
 require "functions_framework/function"
 require "functions_framework/legacy_event_converter"
 require "functions_framework/registry"
@@ -44,10 +45,6 @@ require "functions_framework/version"
 #
 # Here is a roadmap to the internal modules in the Ruby functions framework.
 #
-#  *  {FunctionsFramework::CloudEvents} provides an implementation of the
-#     [CloudEvents](https://cloudevents.io) specification. In particular, if
-#     you define an event function, you will receive the event as a
-#     {FunctionsFramework::CloudEvents::Event} object.
 #  *  {FunctionsFramework::CLI} is the implementation of the
 #     `functions-framework-ruby` executable. Most apps will not need to interact
 #     with this class directly.
@@ -93,6 +90,12 @@ module FunctionsFramework
   # @return [String]
   #
   DEFAULT_SOURCE = "./app.rb".freeze
+
+  ##
+  # The CloudEvents implementation was extracted to become the official
+  # CloudEvents SDK. This alias is left here for backward compatibility.
+  #
+  CloudEvents = ::CloudEvents
 
   class << self
     ##
@@ -144,7 +147,8 @@ module FunctionsFramework
     #
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take one argument: the event object of type
-    # {FunctionsFramework::CloudEvents::Event}. Any return value is ignored.
+    # [`CloudEvents::Event`](https://rubydoc.info/gems/cloud_events/CloudEvents/Event).
+    # Any return value is ignored.
     #
     # ## Example
     #
