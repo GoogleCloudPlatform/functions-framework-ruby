@@ -158,9 +158,9 @@ end
 ```
 
 The event parameter will be either a
-[CloudEvents V0.3 Event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/CloudEvents/Event/V0)
+[CloudEvents V0.3 Event](https://rubydoc.info/gems/cloud_events/CloudEvents/Event/V0)
 object ([see spec](https://github.com/cloudevents/spec/blob/v0.3/spec.md)) or a
-[CloudEvents V1.0 Event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/CloudEvents/Event/V1)
+[CloudEvents V1.0 Event](https://rubydoc.info/gems/cloud_events/CloudEvents/Event/V1)
 object ([see spec](https://github.com/cloudevents/spec/blob/v1.0/spec.md)).
 
 Some Google Cloud services send events in a legacy event format that was defined

@@ -23,12 +23,11 @@ module FunctionsFramework
     # Decode an event from the given Rack environment hash.
     #
     # @param env [Hash] The Rack environment
-    # @return [FunctionsFramework::CloudEvents::Event] if the request could
-    #     be converted
+    # @return [::CloudEvents::Event] if the request could be converted
     # @return [nil] if the event format was not recognized.
     #
     def decode_rack_env env
-      content_type = CloudEvents::ContentType.new env["CONTENT_TYPE"]
+      content_type = ::CloudEvents::ContentType.new env["CONTENT_TYPE"]
       return nil unless content_type.media_type == "application" && content_type.subtype_base == "json"
       input = read_input_json env["rack.input"], content_type.charset
       return nil unless input
@@ -85,14 +84,14 @@ module FunctionsFramework
       return nil unless type && source
       ce_data = convert_data context[:service], data
       content_type = "application/json; charset=#{charset}"
-      CloudEvents::Event.new id:                context[:id],
-                             source:            source,
-                             type:              type,
-                             spec_version:      "1.0",
-                             data_content_type: content_type,
-                             data:              ce_data,
-                             subject:           subject,
-                             time:              context[:timestamp]
+      ::CloudEvents::Event.new id:                context[:id],
+                               source:            source,
+                               type:              type,
+                               spec_version:      "1.0",
+                               data_content_type: content_type,
+                               data:              ce_data,
+                               subject:           subject,
+                               time:              context[:timestamp]
     end
 
     def convert_source service, resource

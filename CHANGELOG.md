@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.5.0 / unreleased
+
+* Removed embedded CloudEvents classes and used the official CloudEvents SDK (which was extracted from this library). A `FunctionsFramework::CloudEvents` alias provides backward compatibility.
+
 ### v0.4.1 / 2020-07-08
 
 * Fixed unsupported signal error on Windows.
