@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <p>
+      <a href="https://googlecloudplatform.github.io/functions-framework-ruby/latest">Ruby Functions Framework documentation</a>
+    </p>
+  </body>
+  <script>
+    var version = "0.5.0";
+    if (window.location.href.includes("//googlecloudplatform.github.io/functions-framework-ruby/latest")) {
+      var loc = window.location.href.replace(
+        "//googlecloudplatform.github.io/functions-framework-ruby/latest",
+        "//googlecloudplatform.github.io/functions-framework-ruby/v" + version);
+      window.location.replace(loc);
+    } else {
+      window.location.replace("https://googlecloudplatform.github.io/functions-framework-ruby/latest");
+    }
+  </script>
+</html>
