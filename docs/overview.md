@@ -121,7 +121,7 @@ These guides provide additional getting-started information.
     [Google Cloud Run](https://cloud.google.com/run).
 
 The library reference documentation can be found at:
-https://rubydoc.info/gems/functions_framework
+https://googlecloudplatform.github.io/functions-framework-ruby
 
 Additional examples are available in the GitHub repository:
 https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/examples/

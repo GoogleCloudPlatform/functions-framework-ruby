@@ -80,7 +80,7 @@ module FunctionsFramework
     #
     # You must provide a name for the function, and a block that implemets the
     # function. The block should take _one_ argument: the event object of type
-    # [`CloudEvents::Event`](https://rubydoc.info/gems/cloud_events/CloudEvents/Event).
+    # [`CloudEvents::Event`](https://cloudevents.github.io/sdk-ruby/latest/CloudEvents/Event).
     # Any return value is ignored.
     #
     # @param name [String] The function name

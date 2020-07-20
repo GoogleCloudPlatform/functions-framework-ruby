@@ -17,10 +17,11 @@
 lib = File.expand_path "lib", __dir__
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include? lib
 require "functions_framework/version"
+version = ::FunctionsFramework::VERSION
 
 ::Gem::Specification.new do |spec|
   spec.name = "functions_framework"
-  spec.version = ::FunctionsFramework::VERSION
+  spec.version = version
   spec.authors = ["Daniel Azuma"]
   spec.email = ["dazuma@google.com"]
 
@@ -46,10 +47,9 @@ require "functions_framework/version"
 
   if spec.respond_to? :metadata
     spec.metadata["changelog_uri"] =
-      "https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/CHANGELOG.md"
+      "https://googlecloudplatform.github.io/functions-framework-ruby/v#{version}/file.CHANGELOG.html"
     spec.metadata["source_code_uri"] = "https://github.com/GoogleCloudPlatform/functions-framework-ruby"
     spec.metadata["bug_tracker_uri"] = "https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues"
-    spec.metadata["documentation_uri"] =
-      "https://rubydoc.info/gems/functions_framework/#{::FunctionsFramework::VERSION}"
+    spec.metadata["documentation_uri"] = "https://googlecloudplatform.github.io/functions-framework-ruby/v#{version}"
   end
 end
