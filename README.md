@@ -111,7 +111,7 @@ These guides provide additional getting-started information.
  *  **[Running a Functions Server](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.running-a-functions-server.html)**
     : How to use the `functions-framework-ruby` executable to run a local
     functions server.
- *  **[Deploying Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.deploying-functions.)**
+ *  **[Deploying Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.deploying-functions.html)**
     : How to deploy functions to
     [Google Cloud Functions](https://cloud.google.com/functions) or
     [Google Cloud Run](https://cloud.google.com/run).
