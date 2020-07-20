@@ -47,9 +47,9 @@ version = ::FunctionsFramework::VERSION
 
   if spec.respond_to? :metadata
     spec.metadata["changelog_uri"] =
-      "https://googlecloudplatform.github.io/functions-framework-ruby/#{version}/file.CHANGELOG.html"
+      "https://googlecloudplatform.github.io/functions-framework-ruby/v#{version}/file.CHANGELOG.html"
     spec.metadata["source_code_uri"] = "https://github.com/GoogleCloudPlatform/functions-framework-ruby"
     spec.metadata["bug_tracker_uri"] = "https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues"
-    spec.metadata["documentation_uri"] = "https://googlecloudplatform.github.io/functions-framework-ruby/#{version}"
+    spec.metadata["documentation_uri"] = "https://googlecloudplatform.github.io/functions-framework-ruby/v#{version}"
   end
 end
