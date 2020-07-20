@@ -17,12 +17,19 @@ jobs:
           ruby-version: ${{ env.ruby_version }}
       - name: Checkout repo
         uses: actions/checkout@v2
+      - name: Checkout gh-pages
+        uses: actions/checkout@v2
+        with:
+          ref: "gh-pages"
+          path: "tmp"
       - name: Install dependencies
         run: "bundle install && gem install --no-document toys"
       - name: Perform release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+          GIT_USER_NAME: ${{ secrets.GIT_USER_NAME }}
+          GIT_USER_EMAIL: ${{ secrets.GIT_USER_EMAIL }}
         run: |
-          toys release _remote --verbose \
+          toys release _remote --verbose --gh-pages-dir=tmp \
             --enable-releases="${{ secrets.ENABLE_RELEASES }}"
