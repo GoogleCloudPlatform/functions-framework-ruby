@@ -17,8 +17,8 @@ the output. You do not need to set up (or mock) an actual server.
 The Functions Framework provides utility methods that streamline the process of
 setting up functions and the environment for testing, constructing input
 parameters, and interpreting results. These are available in the
-{FunctionsFramework::Testing Testing module}. Generally, you can include this
-module in your Minitest test class or RSpec describe block.
+{FunctionsFramework::Testing} module. Generally, you can include this module in
+your Minitest test class or RSpec describe block.
 
 ```ruby
 require "minitest/autorun"
