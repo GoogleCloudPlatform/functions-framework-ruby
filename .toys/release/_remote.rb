@@ -21,9 +21,12 @@ long_desc \
   " intended to be called from within a Github Actions workflow, and may not" \
   " work if run locally, unless the environment is set up as expected."
 
+flag :enable_releases, accept: String, default: ::ENV["ENABLE_RELEASES"]
 flag :release_ref, accept: String, default: ::ENV["GITHUB_REF"]
 flag :api_key, accept: String, default: ::ENV["RUBYGEMS_API_KEY"]
-flag :enable_releases, accept: String, default: ::ENV["ENABLE_RELEASES"]
+flag :user_name, "--user-name=NAME", default: ::ENV["GIT_USER_NAME"]
+flag :user_email, "--user-email=EMAIL", default: ::ENV["GIT_USER_EMAIL"]
+flag :gh_pages_dir, "--gh-pages-dir=DIR", default: "tmp"
 
 include :exec, exit_on_nonzero_status: true
 include :fileutils
@@ -40,9 +43,14 @@ def run
   verify_github_checks
 
   build_gem version
+  build_docs version, gh_pages_dir
+  set_default_docs version, gh_pages_dir if version =~ /^\d+\.\d+\.\d+$/
+
   dry_run = /^t/i !~ enable_releases.to_s ? true : false
+  setup_git_config gh_pages_dir
   using_api_key api_key do
     push_gem version, dry_run: dry_run
+    push_docs version, gh_pages_dir, dry_run: dry_run
   end
 end
 
@@ -50,6 +58,13 @@ def parse_ref ref
   match = %r{^refs/tags/v(\d+\.\d+\.\d+(?:\.(?:\d+|[a-zA-Z][\w]*))*)$}.match ref
   error "Illegal release ref: #{ref}" unless match
   match[1]
+end
+
+def setup_git_config dir
+  cd dir do
+    exec ["git", "config", "user.email", user_email] if user_email
+    exec ["git", "config", "user.name", user_name] if user_name
+  end
 end
 
 def using_api_key key

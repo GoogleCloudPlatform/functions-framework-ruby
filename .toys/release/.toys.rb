@@ -128,6 +128,39 @@ mixin "release-tools" do
     end
   end
 
+  def build_docs version, dir
+    logger.info "Building functions_framework #{version} docs..."
+    rm_rf ".yardoc"
+    rm_rf "doc"
+    exec_separate_tool ["yardoc"]
+    rm_rf "#{dir}/v#{version}"
+    cp_r "doc", "#{dir}/v#{version}"
+  end
+
+  def set_default_docs version, dir
+    logger.info "Changing default docs version to #{version}..."
+    path = "#{dir}/404.html"
+    content = ::IO.read path
+    content.sub! %r{version = "[\w\.]+";}, "version = \"#{version}\";"
+    ::File.open path, "w" do |file|
+      file.write content
+    end
+  end
+
+  def push_docs version, dir, dry_run: false, git_remote: "origin"
+    logger.info "Pushing docs to gh-pages..."
+    cd dir do
+      exec ["git", "add", "."]
+      exec ["git", "commit", "-m", "Generate yardocs for version #{version}"]
+      if dry_run
+        puts "SUCCESS: Mock docs push for version #{version}.", :green, :bold
+      else
+        exec ["git", "push", git_remote, "gh-pages"]
+        puts "SUCCESS: Pushed docs for version #{version}.", :green, :bold
+      end
+    end
+  end
+
   def error message, *more_messages, warn_only: false
     puts message, :red, :bold
     more_messages.each { |m| puts(m) }
