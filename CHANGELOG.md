@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.5.1 / 2020-07-20
+
+* Updated some documentation links. No functional changes.
+
 ### v0.5.0 / 2020-07-09
 
 * Removed embedded CloudEvents classes and added the official CloudEvents SDK as a dependency. A `FunctionsFramework::CloudEvents` alias provides backward compatibility.
