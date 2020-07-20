@@ -17,9 +17,8 @@ the output. You do not need to set up (or mock) an actual server.
 The Functions Framework provides utility methods that streamline the process of
 setting up functions and the environment for testing, constructing input
 parameters, and interpreting results. These are available in the
-[Testing module](https://rubydoc.info/gems/functions_framework/FunctionsFramework/Testing).
-Generally, you can include this module in your Minitest test class or RSpec
-describe block.
+{FunctionsFramework::Testing Testing module}. Generally, you can include this
+module in your Minitest test class or RSpec describe block.
 
 ```ruby
 require "minitest/autorun"
@@ -45,10 +44,10 @@ end
 
 To test a function, you'll need to load the Ruby file that defines the function,
 and run the function to test its results. The Testing module provides a method
-[load_temporary](https://rubydoc.info/gems/functions_framework/FunctionsFramework/Testing#load_temporary-instance_method),
-which loads a Ruby file, defining functions but only for the scope of your test.
-This allows your test to coexist with tests for other functions, even functions
-with the same name from a different Ruby file.
+{FunctionsFramework::Testing#load_temporary}, which loads a Ruby file, defining
+functions but only for the scope of your test. This allows your test to coexist
+with tests for other functions, even functions with the same name from a
+different Ruby file.
 
 ```ruby
 require "minitest/autorun"
@@ -91,8 +90,8 @@ includes helper methods that you can use to create simple requests for many
 basic cases.
 
 When you have constructed an input request, use
-[call_http](https://rubydoc.info/gems/functions_framework/FunctionsFramework/Testing#call_http-instance_method)
-to call a named function, passing the request object. This method returns a
+{FunctionsFramework::Testing#call_http} to call a named function, passing the
+request object. This method returns a
 [Rack::Response](https://rubydoc.info/gems/rack/Rack/Response) that you can
 assert against.
 
@@ -142,8 +141,7 @@ end
 
 Testing a CloudEvent function works similarly. The `Testing` module provides
 methods to help construct example CloudEvent objects, which can then be passed
-to the method
-[call_event](https://rubydoc.info/gems/functions_framework/FunctionsFramework/Testing#call_event-instance_method).
+to the method {FunctionsFramework::Testing#call_event}.
 
 Unlike HTTP functions, event functions do not have a return value. Instead, you
 will need to test side effects. A common approach is to test logs by capturing

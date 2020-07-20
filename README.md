@@ -1,4 +1,4 @@
-# Functions Framework [![Documentation](https://img.shields.io/badge/docs-FunctionsFramework-red.svg)](https://rubydoc.info/gems/functions_framework/FunctionsFramework) [![Gem Version](https://badge.fury.io/rb/functions_framework.svg)](https://badge.fury.io/rb/functions_framework)
+# Functions Framework [![Documentation](https://img.shields.io/badge/docs-FunctionsFramework-red.svg)](https://googlecloudplatform.github.io/functions-framework-ruby/latest) [![Gem Version](https://badge.fury.io/rb/functions_framework.svg)](https://badge.fury.io/rb/functions_framework)
 
 An open source framework for writing lightweight, portable Ruby functions that
 run in a serverless environment. Functions written to this Framework will run
@@ -98,26 +98,26 @@ Stop the server with `CTRL+C`.
 
 These guides provide additional getting-started information.
 
- *  **[Writing Functions](https://rubydoc.info/gems/functions_framework/file/docs/writing-functions.md)**
+ *  **[Writing Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.writing-functions.html)**
     : How to write functions that respond to HTTP requests, industry-standard
     [CloudEvents](https://cloudevents.io), as well as events sent from Google
     Cloud services such as [Pub/Sub](https://cloud.google.com/pubsub) and
     [Storage](https://cloud.google.com/storage).
- *  **[Testing Functions](https://rubydoc.info/gems/functions_framework/file/docs/testing-functions.md)**
+ *  **[Testing Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.testing-functions.html)**
     : How to use the testing features of the Functions Framework to write local
     unit tests for your functions using standard Ruby testing frameworks such
     as [Minitest](https://github.com/seattlerb/minitest) and
     [RSpec](https://rspec.info/).
- *  **[Running a Functions Server](https://rubydoc.info/gems/functions_framework/file/docs/running-a-functions-server.md)**
+ *  **[Running a Functions Server](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.running-a-functions-server.html)**
     : How to use the `functions-framework-ruby` executable to run a local
     functions server.
- *  **[Deploying Functions](https://rubydoc.info/gems/functions_framework/file/docs/deploying-functions.md)**
+ *  **[Deploying Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.deploying-functions.)**
     : How to deploy functions to
     [Google Cloud Functions](https://cloud.google.com/functions) or
     [Google Cloud Run](https://cloud.google.com/run).
 
 The library reference documentation can be found at:
-https://rubydoc.info/gems/functions_framework
+https://googlecloudplatform.github.io/functions-framework-ruby
 
 Additional examples are available in the `examples` directory:
 https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/examples/
