@@ -110,7 +110,7 @@ describe FunctionsFramework::CLI do
       "-q"
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
-    error = assert_raises(RuntimeError) do
+    error = assert_raises RuntimeError do
       run_with_retry cli do
       end
     end
@@ -152,7 +152,7 @@ describe FunctionsFramework::CLI do
       "-q"
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
-    error = assert_raises(RuntimeError) do
+    error = assert_raises RuntimeError do
       run_with_retry cli do
       end
     end

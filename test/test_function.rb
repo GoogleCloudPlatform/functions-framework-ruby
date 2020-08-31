@@ -53,7 +53,7 @@ describe FunctionsFramework::Function do
   end
 
   it "represents an http function using an object" do
-    callable = Proc.new do |request|
+    callable = proc do |request|
       assert_equal "the-request", request
       "hello"
     end

@@ -2,14 +2,34 @@ inherit_gem:
   google-style: google-style.yml
 
 AllCops:
-  Exclude:
-    - "test/**/test_*.rb"
-    - "examples/**/test/**/test_*.rb"
-    - "**/.toys.rb"
+  Include:
+    - ".toys/**/*.rb"
+    - ".toys/**/.toys.rb"
+    - ".toys/**/.lib/**/*.rb"
+    - "examples/**/.toys.rb"
+    - "**/*.rb"
+    - "**/Gemfile"
+    - "*.gemspec"
 
+Metrics/BlockLength:
+  Exclude:
+    - ".toys/**/*.rb"
+    - "test/**/test_*.rb"
+    - "examples/**/.toys.rb"
+    - "examples/**/test/test_*.rb"
+    - "functions_framework.gemspec"
 Metrics/ClassLength:
   Max: 200
 Metrics/ModuleLength:
   Max: 200
+Naming/FileName:
+  Exclude:
+    - "examples/*/Gemfile"
+    - ".toys/**/*.rb"
+Style/BlockDelimiters:
+  Exclude:
+    - "test/**/test_*.rb"
+Style/IfUnlessModifier:
+  Enabled: false
 Style/ModuleFunction:
   Enabled: false

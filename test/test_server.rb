@@ -55,20 +55,18 @@ describe FunctionsFramework::Server do
   end
 
   def query_server_with_retry server
-    begin
-      server.start
-      last_error = nil
-      retry_count.times do
-        begin
-          return yield
-        rescue ::SystemCallError => e
-          last_error = e
-        end
+    server.start
+    last_error = nil
+    retry_count.times do
+      begin
+        return yield
+      rescue ::SystemCallError => e
+        last_error = e
       end
-      raise last_error
-    ensure
-      server.stop.wait_until_stopped timeout: 10
     end
+    raise last_error
+  ensure
+    server.stop.wait_until_stopped timeout: 10
   end
 
   it "supports configuration in a constructor block" do
@@ -92,7 +90,7 @@ describe FunctionsFramework::Server do
 
   it "handles post requests" do
     response = query_server_with_retry http_server do
-      ::Net::HTTP.post URI("#{server_url}/"), "Hello, world!", {"Content-Type" => "text/plain"}
+      ::Net::HTTP.post URI("#{server_url}/"), "Hello, world!", "Content-Type" => "text/plain"
     end
     assert_equal "200", response.code
     assert_equal "Received: \"Hello, world!\"", response.body
@@ -108,8 +106,8 @@ describe FunctionsFramework::Server do
   end
 
   it "interprets array responses" do
-    function = FunctionsFramework::Function.new "my-func", :http do |request|
-      ["200", {"Content-Type" => "text/plain"}, ["Hello, ", "Array!"]]
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
+      ["200", { "Content-Type" => "text/plain" }, ["Hello, ", "Array!"]]
     end
     server = make_basic_server function
     response = query_server_with_retry server do
@@ -121,8 +119,8 @@ describe FunctionsFramework::Server do
   end
 
   it "interprets hash responses" do
-    function = FunctionsFramework::Function.new "my-func", :http do |request|
-      {foo: "bar"}
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
+      { foo: "bar" }
     end
     server = make_basic_server function
     response = query_server_with_retry server do
@@ -139,13 +137,13 @@ describe FunctionsFramework::Server do
       response = query_server_with_retry event_server do
         event_structure = {
           specversion: "1.0",
-          id: "123",
-          source: "my-source",
-          type: "my-type",
-          data: "Hello, world!"
+          id:          "123",
+          source:      "my-source",
+          type:        "my-type",
+          data:        "Hello, world!"
         }
         event_json = JSON.dump event_structure
-        ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/cloudevents+json"}
+        ::Net::HTTP.post URI("#{server_url}/"), event_json, "Content-Type" => "application/cloudevents+json"
       end
     end
     refute_nil response
@@ -159,20 +157,20 @@ describe FunctionsFramework::Server do
     response = query_server_with_retry event_server do
       event1_structure = {
         specversion: "1.0",
-        id: "123",
-        source: "my-source",
-        type: "my-type",
-        data: "Hello, world!"
+        id:          "123",
+        source:      "my-source",
+        type:        "my-type",
+        data:        "Hello, world!"
       }
       event2_structure = {
         specversion: "1.0",
-        id: "456",
-        source: "my-source",
-        type: "my-type",
-        data: "Goodbye, world!"
+        id:          "456",
+        source:      "my-source",
+        type:        "my-type",
+        data:        "Goodbye, world!"
       }
       event_json = JSON.dump [event1_structure, event2_structure]
-      ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/cloudevents-batch+json"}
+      ::Net::HTTP.post URI("#{server_url}/"), event_json, "Content-Type" => "application/cloudevents-batch+json"
     end
     refute_nil response
     assert_equal "400", response.code
@@ -186,7 +184,7 @@ describe FunctionsFramework::Server do
       response = query_server_with_retry event_server do
         file_path = File.join __dir__, "legacy_events_data", "legacy_pubsub.json"
         event_json = IO.read file_path
-        ::Net::HTTP.post URI("#{server_url}/"), event_json, {"Content-Type" => "application/json"}
+        ::Net::HTTP.post URI("#{server_url}/"), event_json, "Content-Type" => "application/json"
       end
     end
     refute_nil response
@@ -197,7 +195,7 @@ describe FunctionsFramework::Server do
   end
 
   it "interprets exceptions" do
-    function = FunctionsFramework::Function.new "my-func", :http do |request|
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
       raise "Whoops!"
     end
     server = make_basic_server function
@@ -229,9 +227,8 @@ describe FunctionsFramework::Server do
 
   it "reports badly formed CloudEvents" do
     response = query_server_with_retry event_server do
-      ::Net::HTTP.post URI("#{server_url}/"),
-                        '{"specversion":"hello"}',
-                        {"Content-Type" => "application/cloudevents+json"}
+      ::Net::HTTP.post URI("#{server_url}/"), '{"specversion":"hello"}',
+                       "Content-Type" => "application/cloudevents+json"
     end
     refute_nil response
     assert_equal "400", response.code
@@ -241,9 +238,8 @@ describe FunctionsFramework::Server do
 
   it "reports unknown event types" do
     response = query_server_with_retry event_server do
-      ::Net::HTTP.post URI("#{server_url}/"),
-                        '{"data":"Hello, world!"}',
-                        {"Content-Type" => "application/json"}
+      ::Net::HTTP.post URI("#{server_url}/"), '{"data":"Hello, world!"}',
+                       "Content-Type" => "application/json"
     end
     refute_nil response
     assert_equal "400", response.code
