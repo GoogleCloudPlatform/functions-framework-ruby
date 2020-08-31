@@ -16,7 +16,7 @@ require "json"
 require "fileutils"
 
 mixin "shared" do
-  def vendor_framework do_vendor=true
+  def vendor_framework do_vendor = true
     ::Dir.chdir context_directory do
       ::FileUtils.rm_rf "vendor"
       if do_vendor
@@ -55,7 +55,9 @@ end
 tool "test" do
   desc "Run the app unit tests"
 
-  flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+  flag :use_release do
+    desc "Use the released functions_framework gem instead of the local source"
+  end
 
   include "shared"
   include :exec, e: true
@@ -71,9 +73,19 @@ end
 tool "server" do
   desc "Run the Functions Framework, serving the specified function"
 
-  flag :target, accept: ::String, default: "sinatra_example", desc: "The name of the function to serve (defaults to sinatra_example)"
-  flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-  flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+  flag :target do
+    accept ::String
+    default "sinatra_example"
+    desc "The name of the function to serve (defaults to sinatra_example)"
+  end
+  flag :port do
+    accept ::Integer
+    default 8080
+    desc "The port to listen on (defaults to 8080)"
+  end
+  flag :use_release do
+    desc "Use the released functions_framework gem instead of the local source"
+  end
 
   include "shared"
   include :exec, e: true
@@ -95,10 +107,22 @@ end
 tool "request" do
   desc "Send an HTTP request to a running Functions Framework"
 
-  flag :https, desc: "Send request using https"
-  flag :host, default: "localhost", desc: "The host to send request to (defaults to localhost)"
-  flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-  flag :path, default: "", desc: "URL path"
+  flag :https do
+    desc "Send request using https"
+  end
+  flag :host do
+    default "localhost"
+    desc "The host to send request to (defaults to localhost)"
+  end
+  flag :port do
+    accept ::Integer
+    default 8080
+    desc "The port to listen on (defaults to 8080)"
+  end
+  flag :path do
+    default ""
+    desc "URL path"
+  end
 
   include :exec, e: true
 
@@ -116,8 +140,13 @@ tool "image" do
   tool "build" do
     desc "Build the functions into a local Docker image"
 
-    flag :image, default: "functions-framework-sinatra-test", desc: "The Docker image name"
-    flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+    flag :image do
+      default "functions-framework-sinatra-test"
+      desc "The Docker image name"
+    end
+    flag :use_release do
+      desc "Use the released functions_framework gem instead of the local source"
+    end
 
     include "shared"
     include :exec, e: true
@@ -132,9 +161,20 @@ tool "image" do
   tool "server" do
     desc "Run the locally built Docker image"
 
-    flag :image, default: "functions-framework-sinatra-test", desc: "The Docker image name"
-    flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-    flag :target, accept: ::String, default: "sinatra_example", desc: "The name of the function to serve (defaults to sinatra_example)"
+    flag :image do
+      default "functions-framework-sinatra-test"
+      desc "The Docker image name"
+    end
+    flag :port do
+      accept ::Integer
+      default 8080
+      desc "The port to listen on (defaults to 8080)"
+    end
+    flag :target do
+      accept ::String
+      default "sinatra_example"
+      desc "The name of the function to serve (defaults to sinatra_example)"
+    end
 
     include :exec, e: true
 
@@ -152,11 +192,26 @@ tool "run" do
   tool "deploy" do
     desc "Deploy the functions to Cloud Run"
 
-    flag :project, accept: ::String, desc: "The project ID (defaults to the gcloud default project)"
-    flag :app_name, default: "sinatra", desc: 'Name of the Cloud Run app (defaults to "sinatra")'
-    flag :tag, accept: ::String, desc: "Docker tag used as a build ID (defaults to current timestamp)"
-    flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
-    flag :target, accept: ::String, default: "sinatra_example", desc: "The name of the function to serve (defaults to sinatra_example)"
+    flag :project do
+      accept ::String
+      desc "The project ID (defaults to the gcloud default project)"
+    end
+    flag :app_name do
+      default "sinatra"
+      desc 'Name of the Cloud Run app (defaults to "sinatra")'
+    end
+    flag :tag do
+      accept ::String
+      desc "Docker tag used as a build ID (defaults to current timestamp)"
+    end
+    flag :use_release do
+      desc "Use the released functions_framework gem instead of the local source"
+    end
+    flag :target do
+      accept ::String
+      default "sinatra_example"
+      desc "The name of the function to serve (defaults to sinatra_example)"
+    end
 
     include "shared"
     include :exec, e: true
@@ -180,13 +235,24 @@ tool "run" do
   tool "request" do
     desc "Send an HTTP request to a Functions Framework running in Cloud Run"
 
-    required_arg :host, desc: "The host to send request to"
-    flag :path, default: "", desc: "URL path"
+    required_arg :host do
+      desc "The host to send request to"
+    end
+    flag :path do
+      default ""
+      desc "URL path"
+    end
 
     include :exec, e: true
 
     def run
-      exit(cli.run(["request", "--https", "--host", host, "--port", "443", "--path", path], verbosity: verbosity))
+      command = [
+        "request", "--https",
+        "--host", host,
+        "--port", "443",
+        "--path", path
+      ]
+      exit(cli.run(command, verbosity: verbosity))
     end
   end
 end

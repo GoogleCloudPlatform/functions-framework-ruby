@@ -1,15 +1,13 @@
-name: FunctionsFramework CI
+name: "(presubmit)"
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
 
 jobs:
-  test:
+  tests:
+    if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -36,4 +34,5 @@ jobs:
         run: "bundle install && gem install --no-document toys"
       - name: Run ${{ matrix.tool || 'test' }}
         shell: bash
-        run: "toys ${{ matrix.tool || 'test' }} < /dev/null"
+        run: |
+          toys "${{ matrix.tool || 'test' }}" < /dev/null

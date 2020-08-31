@@ -107,7 +107,7 @@ describe FunctionsFramework::Testing do
       event = FunctionsFramework::Testing.make_cloud_event "Lorem Ipsum"
       assert_kind_of ::CloudEvents::Event, event
       assert_equal "Lorem Ipsum", event.data
-      assert_match %r{^random-id}, event.id
+      assert_match(/^random-id/, event.id)
       assert_equal "com.example.test", event.type
       assert_equal "1.0", event.spec_version
       assert_nil event.data_content_type
@@ -120,14 +120,14 @@ describe FunctionsFramework::Testing do
       cur_time = ::DateTime.now
       event = FunctionsFramework::Testing.make_cloud_event \
         "Lorem Ipsum",
-        id: "id-123",
-        source: "my-source",
-        type: "my-type",
-        spec_version: "1.1",
+        id:                "id-123",
+        source:            "my-source",
+        type:              "my-type",
+        spec_version:      "1.1",
         data_content_type: "Text/Plain",
-        data_schema: "my-schema",
-        subject: "my-subject",
-        time: cur_time
+        data_schema:       "my-schema",
+        subject:           "my-subject",
+        time:              cur_time
       assert_kind_of ::CloudEvents::Event, event
       assert_equal "Lorem Ipsum", event.data
       assert_equal "id-123", event.id

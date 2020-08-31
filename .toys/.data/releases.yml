@@ -1,0 +1,6 @@
+repo: GoogleCloudPlatform/functions-framework-ruby
+main_branch: master
+gems:
+  - name: functions_framework
+    docs_builder_tool: [yardoc]
+    enable_release_automation: false

@@ -16,7 +16,7 @@ require "json"
 require "fileutils"
 
 mixin "shared" do
-  def vendor_framework do_vendor=true
+  def vendor_framework do_vendor = true
     ::Dir.chdir context_directory do
       ::FileUtils.rm_rf "vendor"
       if do_vendor
@@ -55,7 +55,9 @@ end
 tool "test" do
   desc "Run the app unit tests"
 
-  flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+  flag :use_release do
+    desc "Use the released functions_framework gem instead of the local source"
+  end
 
   include "shared"
   include :exec, e: true
@@ -71,9 +73,18 @@ end
 tool "server" do
   desc "Run the Functions Framework, serving the specified function"
 
-  required_arg :target, accept: ::String, desc: "The name of the function to serve (required)"
-  flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-  flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+  required_arg :target do
+    accept ::String
+    desc "The name of the function to serve (required)"
+  end
+  flag :port do
+    accept ::Integer
+    default 8080
+    desc "The port to listen on (defaults to 8080)"
+  end
+  flag :use_release do
+    desc "Use the released functions_framework gem instead of the local source"
+  end
 
   include "shared"
   include :exec, e: true
@@ -95,9 +106,18 @@ end
 tool "request" do
   desc "Send an HTTP request to a running Functions Framework"
 
-  flag :https, desc: "Send request using https"
-  flag :host, default: "localhost", desc: "The host to send request to (defaults to localhost)"
-  flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
+  flag :https do
+    desc "Send request using https"
+  end
+  flag :host do
+    default "localhost"
+    desc "The host to send request to (defaults to localhost)"
+  end
+  flag :port do
+    accept ::Integer
+    default 8080
+    desc "The port to listen on (defaults to 8080)"
+  end
 
   include :exec, e: true
 
@@ -112,13 +132,35 @@ end
 tool "event" do
   desc "Send a CloudEvent to a running Functions Framework"
 
-  flag :https, desc: "Send request using https"
-  flag :host, default: "localhost", desc: "The host to send request to (defaults to localhost)"
-  flag :port, accept: Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-  flag :encoding, default: "json", accept: ["json", "binary"], desc: 'The CloudEvents encoding (options are "json" and "binary")'
-  flag :type, default: "com.example.test", desc: "The CloudEvents event type"
-  flag :source, default: "toys", desc: "The CloudEvents event source URI"
-  flag :payload, default: "Payload created #{::Time.now}", desc: "The CloudEvents event data"
+  flag :https do
+    desc "Send request using https"
+  end
+  flag :host do
+    default "localhost"
+    desc "The host to send request to (defaults to localhost)"
+  end
+  flag :port do
+    accept Integer
+    default 8080
+    desc "The port to listen on (defaults to 8080)"
+  end
+  flag :encoding do
+    default "json"
+    accept ["json", "binary"]
+    desc 'The CloudEvents encoding (options are "json" and "binary")'
+  end
+  flag :type do
+    default "com.example.test"
+    desc "The CloudEvents event type"
+  end
+  flag :source do
+    default "toys"
+    desc "The CloudEvents event source URI"
+  end
+  flag :payload do
+    default "Payload created #{::Time.now}"
+    desc "The CloudEvents event data"
+  end
 
   include :exec, e: true
 
@@ -127,16 +169,16 @@ tool "event" do
   end
 
   def create_random_id
-    rand(100000000).to_s
+    rand(100_000_000).to_s
   end
 
   def run_json
     struct = {
-      id: create_random_id,
-      source: source,
-      type: type,
+      id:          create_random_id,
+      source:      source,
+      type:        type,
       specversion: "1.0",
-      data: payload
+      data:        payload
     }
     puts "Sending JSON structured event with payload: #{payload.inspect}"
     scheme = https ? "https" : "http"
@@ -172,8 +214,13 @@ tool "image" do
   tool "build" do
     desc "Build the functions into a local Docker image"
 
-    flag :image, default: "functions-framework-echo-test", desc: "The Docker image name"
-    flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
+    flag :image do
+      default "functions-framework-echo-test"
+      desc "The Docker image name"
+    end
+    flag :use_release do
+      desc "Use the released functions_framework gem instead of the local source"
+    end
 
     include "shared"
     include :exec, e: true
@@ -188,9 +235,20 @@ tool "image" do
   tool "server" do
     desc "Run the locally built Docker image"
 
-    flag :image, default: "functions-framework-echo-test", desc: "The Docker image name"
-    flag :port, accept: ::Integer, default: 8080, desc: "The port to listen on (defaults to 8080)"
-    required_arg :target, accept: ::String, desc: "The name of the function to serve (required)"
+    flag :image do
+      default "functions-framework-echo-test"
+      desc "The Docker image name"
+    end
+    flag :port do
+      accept ::Integer
+      default 8080
+      desc "The port to listen on (defaults to 8080)"
+    end
+
+    required_arg :target do
+      accept ::String
+      desc "The name of the function to serve (required)"
+    end
 
     include :exec, e: true
 
@@ -208,11 +266,26 @@ tool "run" do
   tool "deploy" do
     desc "Deploy the functions to Cloud Run"
 
-    flag :project, accept: ::String, desc: "The project ID (defaults to the gcloud default project)"
-    flag :app_name, default: "echo", desc: 'Name of the Cloud Run app (defaults to "echo")'
-    flag :tag, accept: ::String, desc: "Docker tag used as a build ID (defaults to current timestamp)"
-    flag :use_release, desc: "Use the released functions_framework gem instead of the local source"
-    required_arg :target, accept: ::String, desc: "The name of the function to serve (required)"
+    flag :project do
+      accept ::String
+      desc "The project ID (defaults to the gcloud default project)"
+    end
+    flag :app_name do
+      default "echo"
+      desc 'Name of the Cloud Run app (defaults to "echo")'
+    end
+    flag :tag do
+      accept ::String
+      desc "Docker tag used as a build ID (defaults to current timestamp)"
+    end
+    flag :use_release do
+      desc "Use the released functions_framework gem instead of the local source"
+    end
+
+    required_arg :target do
+      accept ::String
+      desc "The name of the function to serve (required)"
+    end
 
     include "shared"
     include :exec, e: true
@@ -236,29 +309,60 @@ tool "run" do
   tool "request" do
     desc "Send an HTTP request to a Functions Framework running in Cloud Run"
 
-    required_arg :host, desc: "The host to send request to"
-  
+    required_arg :host do
+      desc "The host to send request to"
+    end
+
     include :exec, e: true
-  
+
     def run
-      exit(cli.run(["request", "--https", "--host", host, "--port", "443"], verbosity: verbosity))
+      command = [
+        "request", "--https",
+        "--host", host,
+        "--port", "443"
+      ]
+      exit(cli.run(command, verbosity: verbosity))
     end
   end
 
   tool "event" do
     desc "Send a CloudEvent to a Functions Framework running in cloud Run"
 
-    required_arg :host, desc: "The host to send request to"
-    flag :encoding, default: "json", accept: ["json", "binary"], desc: 'The CloudEvents encoding (options are "json" and "binary")'
-    flag :type, default: "com.example.test", desc: "The CloudEvents event type"
-    flag :source, default: "toys", desc: "The CloudEvents event source URI"
-    flag :payload, default: "Payload created #{::Time.now}", desc: "The CloudEvents event data"
-  
+    required_arg :host do
+      desc "The host to send request to"
+    end
+
+    flag :encoding do
+      default "json"
+      accept ["json", "binary"]
+      desc 'The CloudEvents encoding (options are "json" and "binary")'
+    end
+    flag :type do
+      default "com.example.test"
+      desc "The CloudEvents event type"
+    end
+    flag :source do
+      default "toys"
+      desc "The CloudEvents event source URI"
+    end
+    flag :payload do
+      default "Payload created #{::Time.now}"
+      desc "The CloudEvents event data"
+    end
+
     include :exec, e: true
-  
+
     def run
-      exit(cli.run(["event", "--https", "--host", host, "--port", "443", "--encoding", encoding,
-                    "--type", type, "--source", source, "--payload", payload], verbosity: verbosity))
+      command = [
+        "event", "--https",
+        "--host", host,
+        "--port", "443",
+        "--encoding", encoding,
+        "--type", type,
+        "--source", source,
+        "--payload", payload
+      ]
+      exit(cli.run(command, verbosity: verbosity))
     end
   end
 end

@@ -28,7 +28,7 @@ describe "http_example function" do
       end
       assert_equal 200, response.status
       assert_equal "I received a request: GET http://example.com:8080/", response.body.join
-      assert_match %r{I received a request: GET http:\/\/example\.com:8080}, err
+      assert_match %r{I received a request: GET http://example\.com:8080}, err
     end
   end
 end
@@ -42,7 +42,7 @@ describe "event_example function" do
       _out, err = capture_subprocess_io do
         call_event "event_example", event
       end
-      assert_match %r{I received "Hello, world!" in an event of type com\.example\.test}, err
+      assert_match(/I received "Hello, world!" in an event of type com\.example\.test/, err)
     end
   end
 end

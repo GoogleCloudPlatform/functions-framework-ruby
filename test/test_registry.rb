@@ -51,10 +51,10 @@ describe FunctionsFramework::Registry do
   end
 
   it "defines multiple functions" do
-    registry.add_http "func2" do |request|
+    registry.add_http "func2" do |_request|
       "hello"
     end
-    registry.add_cloud_event "func1" do |event|
+    registry.add_cloud_event "func1" do |_event|
       "ok"
     end
     assert_equal ["func1", "func2"], registry.names
