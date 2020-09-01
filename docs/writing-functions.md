@@ -28,6 +28,7 @@ an HTTP response. The following example defines an HTTP function named "hello"
 that returns a simple message in the HTTP response body:
 
 ```ruby
+# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "hello" do |request|
@@ -49,6 +50,7 @@ Rack environment using the `env` method. The following example includes some
 request information in the response:
 
 ```ruby
+# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "request_info_example" do |request|
@@ -64,6 +66,7 @@ Google Cloud Logs if your function is running on a Google Cloud serverless
 hosting environment.
 
 ```ruby
+# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "logging_example" do |request|
@@ -121,6 +124,7 @@ Write the Sinatra app using the "modular" Sinatra interface (i.e. subclass
 the function. Here is a basic example:
 
 ```ruby
+# app.rb
 require "functions_framework"
 require "sinatra/base"
 
@@ -150,6 +154,7 @@ The following is a simple event handler that receives an event and logs some
 information about it:
 
 ```ruby
+# app.rb
 require "functions_framework"
 
 FunctionsFramework.cloud_event "hello" do |event|
@@ -187,6 +192,7 @@ If you need more control over the error response, you can also construct the
 HTTP response yourself. For example:
 
 ```ruby
+# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "error_reporter" do |request|
@@ -208,12 +214,12 @@ defines functions, and can also include additional Ruby files defining classes
 and methods that assist in the function implementation.
 
 The "entrypoint" to the project, also called the "source", is a Ruby file. It
-can define any number of functions (with distinct names), although it is often
-good practice to create a separate Ruby file per function.
+can define any number of functions (with distinct names).
 
-By convention, the source file is often called `app.rb`, but you can give it
-any name. Projects can also have multiple source files that apply to different
-cases.
+By convention, the source file should generally be called `app.rb` and be
+located at the root of the project. The Functions Framework allows you to use a
+different name, but some hosting environments (such as Google Cloud Functions)
+require the name to be `app.rb`.
 
 A simple project might look like this:
 
