@@ -33,7 +33,8 @@ module FunctionsFramework
       return nil unless input
       context = normalized_context input
       return nil unless context
-      construct_cloud_event context, input["data"], content_type.charset
+      trace_parent = env["HTTP_X_CLOUD_TRACE_CONTEXT"]
+      construct_cloud_event context, input["data"], content_type.charset, trace_parent
     end
 
     private
@@ -78,20 +79,24 @@ module FunctionsFramework
       nil
     end
 
-    def construct_cloud_event context, data, charset
+    def construct_cloud_event context, data, charset, trace_parent
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
       ce_data = convert_data context[:service], data
       content_type = "application/json; charset=#{charset}"
-      ::CloudEvents::Event.new id:                context[:id],
-                               source:            source,
-                               type:              type,
-                               spec_version:      "1.0",
-                               data_content_type: content_type,
-                               data:              ce_data,
-                               subject:           subject,
-                               time:              context[:timestamp]
+      attributes = {
+        id:                context[:id],
+        source:            source,
+        type:              type,
+        spec_version:      "1.0",
+        data_content_type: content_type,
+        data:              ce_data,
+        subject:           subject,
+        time:              context[:timestamp]
+      }
+      attributes[:traceparent] = trace_parent if trace_parent
+      ::CloudEvents::Event.new(**attributes)
     end
 
     def convert_source service, resource

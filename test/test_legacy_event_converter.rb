@@ -17,10 +17,11 @@ require "helper"
 describe FunctionsFramework::LegacyEventConverter do
   let(:data_dir) { File.join __dir__, "legacy_events_data" }
 
-  def load_legacy_event filename
+  def load_legacy_event filename, trace_parent: nil
     path = File.join data_dir, filename
     File.open path do |io|
       env = { "rack.input" => io, "CONTENT_TYPE" => "application/json" }
+      env["HTTP_X_CLOUD_TRACE_CONTEXT"] = trace_parent if trace_parent
       converter = FunctionsFramework::LegacyEventConverter.new
       converter.decode_rack_env env
     end
@@ -146,5 +147,16 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_nil event.subject
     assert_equal "2020-05-21T11:15:34+00:00", event.time.rfc3339
     assert_equal "other", event.data["delta"]["grandchild"]
+  end
+
+  it "converts events with trace context" do
+    trace_parent = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+    event = load_legacy_event "storage.json", trace_parent: trace_parent
+    assert_equal trace_parent, event["traceparent"]
+  end
+
+  it "converts events without trace context" do
+    event = load_legacy_event "storage.json"
+    assert_nil event["traceparent"]
   end
 end
