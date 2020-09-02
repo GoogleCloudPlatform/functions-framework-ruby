@@ -47,33 +47,38 @@ deploying. Cloud Functions will not accept your function unless an up-to-date
 `Gemfile.lock` is present.
 
 Also, make sure your source file (which defines your function) is called
-`app.rb`. The Functions Framework lets you use a different source file, but
-Cloud Functions requires you to use `app.rb`.
+`app.rb`. The Functions Framework lets you choose a function source file, but
+Cloud Functions currently requires you to use `app.rb`.
 
-Choose a Cloud Functions name for your function. This name is how it will appear
-in the cloud console, and will also be part of the function's URL. (It is often,
-but not necessarily, the same as the name you used when writing your function--
-which Cloud Functions calls the "target".)
+Decide _which_ function in the source file to invoke, that is, the name that you
+used when writing the function. This is called the **target**. (Note that if you
+did not specify a name for the function, it defaults to the name `function`.)
+
+Choose a Cloud Functions **name** for your function. The **name** identifies
+this function deployment (e.g. in the cloud console) and is also part of the
+function's default URL. (Note: the **name** and the **target** do not have to
+be the same value.)
 
 Then, issue the gcloud command to deploy:
 
 ```sh
-gcloud functions deploy $YOUR_FUNCTION_NAME --project=$YOUR_PROJECT_ID \
-  --runtime=ruby26 --trigger-http --entry-point=$YOUR_FUNCTION_TARGET
+gcloud functions deploy $YOUR_FUNCTION_NAME \
+    --project=$YOUR_PROJECT_ID \
+    --runtime=ruby26 \
+    --trigger-http \
+    --entry-point=$YOUR_FUNCTION_TARGET
 ```
 
-`$YOUR_FUNCTION_NAME` should be the Cloud Functions name for your function, and
-is required. `$YOUR_FUNCTION_TARGET` is the "target", i.e. the name you used
-when writing your function. It can be omitted if it is the same as
-`$YOUR_FUNCTION_NAME`. Additionally, the project flag can be omitted if you've
-set it as the default using `gcloud config set project`.
+The `--entry-point=` flag can be omitted if the **target** has the same value
+as the **name**. Additionally, the `--project` flag can be omitted if you've
+set your default project using `gcloud config set project`.
 
 If your function handles events rather than HTTP requests, you'll need to
 replace `--trigger-http` with a different trigger. For details, see the
 [reference documentation](https://cloud.google.com/sdk/gcloud/reference/functions/deploy)
 for `gcloud functions deploy`.
 
-To update your deployment, just redeploy using the same function name.
+To update your deployment, just redeploy using the same function **name**.
 
 ### Configuring Cloud Functions deployments
 

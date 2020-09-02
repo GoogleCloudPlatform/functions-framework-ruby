@@ -28,7 +28,6 @@ an HTTP response. The following example defines an HTTP function named "hello"
 that returns a simple message in the HTTP response body:
 
 ```ruby
-# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "hello" do |request|
@@ -50,7 +49,6 @@ Rack environment using the `env` method. The following example includes some
 request information in the response:
 
 ```ruby
-# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "request_info_example" do |request|
@@ -66,7 +64,6 @@ Google Cloud Logs if your function is running on a Google Cloud serverless
 hosting environment.
 
 ```ruby
-# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "logging_example" do |request|
@@ -113,7 +110,6 @@ It is easy to connect an HTTP function to a Sinatra app. First, declare the
 dependency on Sinatra in your `Gemfile`:
 
 ```ruby
-# Gemfile
 source "https://rubygems.org"
 gem "functions_framework", "~> 0.5"
 gem "sinatra", "~> 2.0"
@@ -124,7 +120,6 @@ Write the Sinatra app using the "modular" Sinatra interface (i.e. subclass
 the function. Here is a basic example:
 
 ```ruby
-# app.rb
 require "functions_framework"
 require "sinatra/base"
 
@@ -154,7 +149,6 @@ The following is a simple event handler that receives an event and logs some
 information about it:
 
 ```ruby
-# app.rb
 require "functions_framework"
 
 FunctionsFramework.cloud_event "hello" do |event|
@@ -192,7 +186,6 @@ If you need more control over the error response, you can also construct the
 HTTP response yourself. For example:
 
 ```ruby
-# app.rb
 require "functions_framework"
 
 FunctionsFramework.http "error_reporter" do |request|
@@ -213,15 +206,14 @@ needed by the function. It must include at least one Ruby source file that
 defines functions, and can also include additional Ruby files defining classes
 and methods that assist in the function implementation.
 
-The "entrypoint" to the project, also called the "source", is a Ruby file. It
-can define any number of functions (with distinct names).
+By convention, the "main" Ruby file that defines functions should be called
+`app.rb` and be located at the root of the project. The path to this file is
+sometimes known as the **function source**. The Functions Framework allows you
+to specify an arbitrary source, but suome hosting environments (such as Google
+Cloud Functions) require it to be `./app.rb`.
 
-By convention, the source file should generally be called `app.rb` and be
-located at the root of the project. The Functions Framework allows you to use a
-different name, but some hosting environments (such as Google Cloud Functions)
-require the name to be `app.rb`.
-
-A simple project might look like this:
+A source file can define any number of functions (with distinct names). Each of
+the names is known as a **function target**.
 
 ```
 (project directory)
