@@ -147,7 +147,6 @@ def create_performer_instance
                                    git_user_email:   git_user_email,
                                    gh_pages_dir:     gh_pages_dir,
                                    gh_token:         ::ENV["GITHUB_TOKEN"],
-                                   docs_builder:     create_docs_builder,
                                    dry_run:          dry_run
   performer.instance gem_name, gem_version, pr_info: find_release_pr, only: only
 end
@@ -171,10 +170,4 @@ def find_release_pr
     logger.warn "No release PR found for this release."
   end
   pr_info
-end
-
-def create_docs_builder
-  docs_builder_tool = @utils.docs_builder_tool
-  return nil unless docs_builder_tool
-  proc { exec_separate_tool Array(docs_builder_tool) }
 end

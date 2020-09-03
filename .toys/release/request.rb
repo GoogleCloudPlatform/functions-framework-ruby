@@ -1,34 +1,33 @@
 # frozen_string_literal: true
 
-desc "Request a gem release"
+desc "Open a release request"
 
 long_desc \
-  "This tool analyzes the commits since the last release, and updates the" \
-    " library version and changelog accordingly. It opens a release pull" \
-    " request with those changes. Typically, when this pull request is" \
-    " merged, the post-push workflow will run automatically and perform the" \
-    " release. This tool is normally called from a GitHub Actions workflow," \
-    " but can also be executed locally.",
+  "This tool opens release pull requests for the specified gems. It analyzes" \
+  "the commits since the last release, and updates each gem's version and" \
+    " changelog accordingly. This tool is normally called from a GitHub" \
+    " Actions workflow, but can also be executed locally.",
   "",
   "When invoked, this tool first performs checks including:",
   "* The git workspace must be clean (no new, modified, or deleted files)",
   "* The remote repo must be the correct repo configured in releases.yml",
-  "* All GitHub checks for the release to commit must have succeeded",
+  "* All GitHub checks for the release commit must have succeeded",
   "",
   "The tool then creates release pull requests for each gem:",
-  "* It collects all commit messages since the previous release",
+  "* It collects all commit messages since the previous release.",
   "* It builds a changelog using properly formatted conventional commit" \
     " messages of type 'fix', 'feat', and 'docs', and any that indicate a" \
     " breaking change.",
-  "* It infers a new version number using the implied semver significance of" \
-    " the commit messages.",
+  "* Unless a specific version is provided via flags, it infers a new version" \
+    " number using the implied semver significance of the commit messages.",
   "* It edits the changelog and version Ruby files and pushes a commit to a" \
     " release branch.",
   "* It opens a release pull request.",
   "",
-  "The release pull request may be edited (to modify the version and/or" \
-    " changelog before merging. Alternately, specific version numbers to" \
-    " release can be specified via flags."
+  "Release pull requests may be edited to modify the version and/or changelog" \
+    " before merging. In repositories that have release automation enabled," \
+    " the release script will run automatically when a release pull request" \
+    " is merged."
 
 flag :gems, "--gems=VAL" do
   accept(/^([\w-]+(:[\w\.-]+)?([\s,]+[\w-]+(:[\w\.-]+)?)*)?$/)
@@ -53,19 +52,20 @@ end
 flag :git_user_email, "--git-user-email=VAL" do
   desc "Git user email to use for new commits"
   long_desc \
-    "Git user email to use for docs commits. If not provided, uses the" \
-    " current global git setting. Required if there is no global setting."
+    "Git user email to use for new commits. If not provided, uses the current" \
+    " global git setting. Required if there is no global setting."
 end
 flag :git_user_name, "--git-user-name=VAL" do
   desc "Git user email to use for new commits"
   long_desc \
-    "Git user name to use for docs commits. If not provided, uses the" \
-    " current global git setting. Required if there is no global setting."
+    "Git user name to use for new commits. If not provided, uses the current" \
+    " global git setting. Required if there is no global setting."
 end
 flag :release_ref, "--release-ref=VAL" do
-  desc "Branch name to use for the release"
+  desc "Target branch for the release"
   long_desc \
-    "The branch to target the release. Should be the main branch."
+    "The target branch for the release request. Defaults to the current" \
+      " branch."
 end
 flag :yes, "--yes", "-y" do
   desc "Automatically answer yes to all confirmations"
@@ -80,29 +80,32 @@ def run
   require "release_requester"
 
   cd context_directory
-  utils = ReleaseUtils.new self
+  @utils = ReleaseUtils.new self
 
   [:release_ref, :git_user_email, :git_user_name].each do |key|
     set key, nil if get(key).to_s.empty?
   end
 
-  instances = build_instances utils
-
-  instances.each do |instance|
+  requested = false
+  build_instances.each do |instance|
     next unless should_build instance
     instance.request
+    requested = true
     puts "PR ##{instance.pr_number} opened for #{instance.gem_name} #{instance.new_version}.",
          :bold, :green
   end
+  return if requested
+  @utils.error "Did not find any gems ready to release based on commit history.",
+               "You can force the release of a gem by listing it explicitly."
 end
 
-def build_instances utils
-  requester = ReleaseRequester.new utils,
+def build_instances
+  requester = ReleaseRequester.new @utils,
                                    release_ref:    release_ref,
                                    git_remote:     git_remote,
                                    git_user_name:  git_user_name,
                                    git_user_email: git_user_email
-  gem_list = gems.to_s.empty? ? utils.all_gems : gems.split(/[\s,]+/)
+  gem_list = gems.to_s.empty? ? @utils.all_gems : gems.split(/[\s,]+/)
   gem_list.map do |gem_info|
     gem_name, override_version = gem_info.split ":", 2
     requester.instance gem_name, override_version: override_version
