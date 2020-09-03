@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-desc "Prepare a gem release"
+desc "Request a gem release"
 
 long_desc \
   "This tool analyzes the commits since the last release, and updates the" \
     " library version and changelog accordingly. It opens a release pull" \
-    " request with those changes. The actual release can be triggered by" \
-    " merging that pull request. This tool is normally called from a GitHub" \
-    " Actions workflow, but can also be executed locally.",
+    " request with those changes. Typically, when this pull request is" \
+    " merged, the post-push workflow will run automatically and perform the" \
+    " release. This tool is normally called from a GitHub Actions workflow," \
+    " but can also be executed locally.",
   "",
   "When invoked, this tool first performs checks including:",
   "* The git workspace must be clean (no new, modified, or deleted files)",
@@ -42,7 +43,8 @@ flag :gems, "--gems=VAL" do
       " all gems in the repository that have at least one commit of type" \
       " 'fix', 'feat', or 'docs', or a breaking change, will be released."
 end
-flag :git_remote, "--git-remote=VAL", default: "origin" do
+flag :git_remote, "--git-remote=VAL" do
+  default "origin"
   desc "The name of the git remote"
   long_desc \
     "The name of the git remote pointing at the canonical repository." \
@@ -75,33 +77,35 @@ include :fileutils
 
 def run
   require "release_utils"
-  require "release_prepare"
+  require "release_requester"
 
   cd context_directory
   utils = ReleaseUtils.new self
 
-  set :release_ref, utils.current_branch if release_ref.to_s.empty?
-  set :git_user_name, nil if git_user_name.to_s.empty?
-  set :git_user_email, nil if git_user_email.to_s.empty?
+  [:release_ref, :git_user_email, :git_user_name].each do |key|
+    set key, nil if get(key).to_s.empty?
+  end
 
   instances = build_instances utils
 
   instances.each do |instance|
     next unless should_build instance
-    instance.prepare
+    instance.request
+    puts "PR ##{instance.pr_number} opened for #{instance.gem_name} #{instance.new_version}.",
+         :bold, :green
   end
 end
 
 def build_instances utils
-  preparer = ReleasePrepare.new utils,
-                                release_ref:    release_ref,
-                                git_remote:     git_remote,
-                                git_user_name:  git_user_name,
-                                git_user_email: git_user_email
+  requester = ReleaseRequester.new utils,
+                                   release_ref:    release_ref,
+                                   git_remote:     git_remote,
+                                   git_user_name:  git_user_name,
+                                   git_user_email: git_user_email
   gem_list = gems.to_s.empty? ? utils.all_gems : gems.split(/[\s,]+/)
   gem_list.map do |gem_info|
     gem_name, override_version = gem_info.split ":", 2
-    preparer.instance gem_name, override_version: override_version
+    requester.instance gem_name, override_version: override_version
   end
 end
 
