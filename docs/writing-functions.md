@@ -110,7 +110,6 @@ It is easy to connect an HTTP function to a Sinatra app. First, declare the
 dependency on Sinatra in your `Gemfile`:
 
 ```ruby
-# Gemfile
 source "https://rubygems.org"
 gem "functions_framework", "~> 0.5"
 gem "sinatra", "~> 2.0"
@@ -207,15 +206,14 @@ needed by the function. It must include at least one Ruby source file that
 defines functions, and can also include additional Ruby files defining classes
 and methods that assist in the function implementation.
 
-The "entrypoint" to the project, also called the "source", is a Ruby file. It
-can define any number of functions (with distinct names), although it is often
-good practice to create a separate Ruby file per function.
+By convention, the "main" Ruby file that defines functions should be called
+`app.rb` and be located at the root of the project. The path to this file is
+sometimes known as the **function source**. The Functions Framework allows you
+to specify an arbitrary source, but suome hosting environments (such as Google
+Cloud Functions) require it to be `./app.rb`.
 
-By convention, the source file is often called `app.rb`, but you can give it
-any name. Projects can also have multiple source files that apply to different
-cases.
-
-A simple project might look like this:
+A source file can define any number of functions (with distinct names). Each of
+the names is known as a **function target**.
 
 ```
 (project directory)

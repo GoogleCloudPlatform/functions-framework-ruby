@@ -8,8 +8,8 @@ The Functions Framework is an open source framework for writing lightweight,
 portable Ruby functions that run in a serverless environment. Functions written
 to this Framework will run in many different environments, including:
 
- *  [Google Cloud Functions](https://cloud.google.com/functions) *(in preview)*
- *  [Cloud Run or Cloud Run for Anthos](https://cloud.google.com/run)
+ *  [Google Cloud Functions](https://cloud.google.com/functions) *(alpha)*
+ *  [Google Cloud Run](https://cloud.google.com/run)
  *  Any other [Knative](https://github.com/knative)-based environment
  *  Your local development machine
 

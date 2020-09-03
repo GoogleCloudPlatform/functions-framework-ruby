@@ -34,7 +34,7 @@ You can run Ruby functions on Google Cloud Functions by selecting the `ruby26`
 runtime. This runtime uses a recent release of Ruby 2.6. Support for other
 versions of Ruby may be added in the future.
 
-> **Note:** Ruby support on Cloud Functions is currently in limited preview.
+> **Note:** Ruby support on Cloud Functions is currently in limited alpha.
 > It is not yet suitable for production workloads, and support is best-effort
 > only. Access is currently limited to selected early-access users.
 
@@ -46,30 +46,39 @@ is to `bundle install` or `bundle update` and run your local tests prior to
 deploying. Cloud Functions will not accept your function unless an up-to-date
 `Gemfile.lock` is present.
 
-Choose a name for your function. This function name is how it will appear in the
-cloud console, and will also be part of the function's URL. (It's different from
-the name you provide when writing your function; Cloud Functions calls that name
-the "function target".)
+Also, make sure your source file (which defines your function) is called
+`app.rb`. The Functions Framework lets you choose a function source file, but
+Cloud Functions currently requires you to use `app.rb`.
+
+Decide _which_ function in the source file to invoke, that is, the name that you
+used when writing the function. This is called the **target**. (Note that if you
+did not specify a name for the function, it defaults to the name `function`.)
+
+Choose a Cloud Functions **name** for your function. The **name** identifies
+this function deployment (e.g. in the cloud console) and is also part of the
+function's default URL. (Note: the **name** and the **target** do not have to
+be the same value.)
 
 Then, issue the gcloud command to deploy:
 
 ```sh
-gcloud functions deploy $YOUR_FUNCTION_NAME --project=$YOUR_PROJECT_ID \
-  --runtime=ruby26 --trigger-http --source=$YOUR_FUNCTION_SOURCE \
-  --entry-point=$YOUR_FUNCTION_TARGET
+gcloud functions deploy $YOUR_FUNCTION_NAME \
+    --project=$YOUR_PROJECT_ID \
+    --runtime=ruby26 \
+    --trigger-http \
+    --entry-point=$YOUR_FUNCTION_TARGET
 ```
 
-The source file defaults to `./app.rb` and the function target defaults to
-`function`, so those flags can be omitted if you're using the defaults. The
-project flag can also be omitted if you've set it as the default with
-`gcloud config set project`.
+The `--entry-point=` flag can be omitted if the **target** has the same value
+as the **name**. Additionally, the `--project` flag can be omitted if you've
+set your default project using `gcloud config set project`.
 
 If your function handles events rather than HTTP requests, you'll need to
 replace `--trigger-http` with a different trigger. For details, see the
 [reference documentation](https://cloud.google.com/sdk/gcloud/reference/functions/deploy)
 for `gcloud functions deploy`.
 
-To update your deployment, just redeploy using the same function name.
+To update your deployment, just redeploy using the same function **name**.
 
 ### Configuring Cloud Functions deployments
 
