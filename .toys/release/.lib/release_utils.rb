@@ -12,12 +12,14 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
     load_release_info release_info_path
     @logger = @tool_context.logger
     @error_proc = nil
+    ensure_gh_binary
+    ensure_git_binary
   end
 
   attr_reader :repo_path
   attr_reader :main_branch
   attr_reader :default_gem
-  attr_reader :docs_builder_tool
+  attr_reader :docs_builder
   attr_reader :tool_context
   attr_reader :logger
 
@@ -132,6 +134,40 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
     @tool_context.capture cmd, **opts, &block
   end
 
+  def ensure_gh_binary
+    result = exec ["gh", "--version"], out: :capture, exit_on_nonzero_status: false
+    match = /^gh version (\d+)\.(\d+)\.(\d+)/.match result.captured_out.to_s
+    if !result.success? || !match
+      error "gh not installed.",
+            "See https://cli.github.com/manual/installation for installation instructions."
+    end
+    version_val = match[1].to_i * 1_000_000 + match[2].to_i * 1000 + match[3].to_i
+    version_str = "#{match[1]}.#{match[2]}.#{match[3]}"
+    if version_val < 10_000
+      error "gh version 0.10 or later required but #{version_str} found.",
+            "See https://cli.github.com/manual/installation for installation instructions."
+    end
+    @logger.info "gh version #{version_str} found"
+    self
+  end
+
+  def ensure_git_binary
+    result = exec ["git", "--version"], out: :capture, exit_on_nonzero_status: false
+    match = /^git version (\d+)\.(\d+)\.(\d+)/.match result.captured_out.to_s
+    if !result.success? || !match
+      error "git not installed.",
+            "See https://git-scm.com/downloads for installation instructions."
+    end
+    version_val = match[1].to_i * 1_000_000 + match[2].to_i * 1000 + match[3].to_i
+    version_str = "#{match[1]}.#{match[2]}.#{match[3]}"
+    if version_val < 2_022_000
+      error "git version 2.22 or later required but #{version_str} found.",
+            "See https://git-scm.com/downloads for installation instructions."
+    end
+    @logger.info "git version #{match[1]}.#{match[2]}.#{match[3]} found"
+    self
+  end
+
   def find_release_prs gem_name: nil, merge_sha: nil, label: nil
     label ||= release_pending_label
     args = {
@@ -163,7 +199,7 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
   def load_pr pr_number
     result = exec ["gh", "api", "repos/#{repo_path}/pulls/#{pr_number}",
                    "-H", "Accept: application/vnd.github.v3+json"],
-                  out: :capture
+                  out: :capture, exit_on_nonzero_status: false
     return nil unless result.success?
     ::JSON.parse result.captured_out
   end
@@ -358,12 +394,27 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
   def load_release_info file_path
     error "Unable to find releases.yml data file" unless file_path
     info = ::YAML.load_file file_path
+    read_global_info info
+    error "Repo key missing from releases.yml" unless @repo_path
+    read_gem_info info
+    error "No gems listed in releases.yml" unless @default_gem
+  end
+
+  def read_global_info info
     @main_branch = info["main_branch"] || "main"
     @repo_path = info["repo"]
     @signoff_commits = info["signoff_commits"] ? true : false
-    @docs_builder_tool = info["docs_builder_tool"]
+    @docs_builder = create_docs_builder info["docs_builder_tool"]
     @enable_release_automation = info.fetch("enable_release_automation", true) ? true : false
-    error "Repo key missing from releases.yml" unless @repo_path
+  end
+
+  def create_docs_builder docs_builder_tool
+    return nil unless docs_builder_tool
+    tool_context = @tool_context
+    proc { tool_context.exec_separate_tool Array(docs_builder_tool) }
+  end
+
+  def read_gem_info info
     @gems = {}
     @default_gem = nil
     has_multiple_gems = info["gems"].size > 1
@@ -374,7 +425,6 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
       @gems[name] = gem_info
       @default_gem ||= name
     end
-    error "Repo key missing from releases.yml" unless @default_gem
   end
 
   def add_gem_defaults gem_info, name, has_multiple_gems

@@ -7,70 +7,6 @@ require "release_utils"
 
 # A class that performs releases
 class ReleasePerformer
-  def initialize utils,
-                 release_sha: nil,
-                 skip_checks: false,
-                 rubygems_api_key: nil,
-                 git_remote: nil,
-                 git_user_name: nil,
-                 git_user_email: nil,
-                 gh_pages_dir: nil,
-                 docs_builder: nil,
-                 gh_token: nil,
-                 dry_run: false
-    @utils = utils
-    @release_sha = @utils.current_sha release_sha
-    @skip_checks = skip_checks
-    @rubygems_api_key = rubygems_api_key
-    @git_remote = git_remote || "origin"
-    @git_user_name = git_user_name
-    @git_user_email = git_user_email
-    @dry_run = dry_run
-    @docs_builder = docs_builder
-    @gh_pages_dir = gh_pages_dir
-    @gh_token = gh_token
-    @performed_initial_setup = false
-  end
-
-  attr_reader :utils
-  attr_reader :release_sha
-  attr_reader :rubygems_api_key
-  attr_reader :docs_builder
-  attr_reader :gh_pages_dir
-  attr_reader :git_remote
-
-  def dry_run?
-    @dry_run
-  end
-
-  def enable_docs?
-    !@docs_builder.nil?
-  end
-
-  def skip_checks?
-    @skip_checks
-  end
-
-  def instance gem_name, gem_version, pr_info: nil, only: nil
-    Instance.new self, gem_name, gem_version, pr_info, only || "all"
-  end
-
-  def initial_setup
-    return if @performed_initial_setup
-    unless @skip_checks
-      @utils.verify_git_clean
-      @utils.verify_repo_identity git_remote: @git_remote
-      @utils.verify_github_checks ref: @release_sha
-    end
-    if enable_docs?
-      setup_gh_pages
-    else
-      @gh_pages_dir = nil
-    end
-    setup_rubygems_api_key
-    @performed_initial_setup = true
-  end
-
   # A release instance
   class Instance
     # @private
@@ -81,7 +17,7 @@ class ReleasePerformer
       @pr_info = pr_info
       @utils = parent.utils
       @include_gem = ["all", "gem"].include? step
-      @include_docs = @parent.enable_docs? && ["all", "docs"].include?(step)
+      @include_docs = !@utils.docs_builder.nil? && ["all", "docs"].include?(step)
       @include_github_release = ["all", "github-release"].include? step
     end
 
@@ -156,12 +92,12 @@ class ReleasePerformer
     end
 
     def build_docs
-      @utils.error "Cannot build docs" unless @parent.enable_docs?
+      @utils.error "Cannot build docs" unless @utils.docs_builder
       @utils.logger.info "Building #{@gem_name} #{@gem_version} docs..."
       @utils.gem_cd @gem_name do
         ::FileUtils.rm_rf ".yardoc"
         ::FileUtils.rm_rf "doc"
-        @parent.docs_builder.call
+        @utils.docs_builder.call
         path = ::File.expand_path @utils.gem_info(@gem_name, "gh_pages_directory"),
                                   @parent.gh_pages_dir
         path = ::File.expand_path "v#{@gem_version}", path
@@ -173,7 +109,7 @@ class ReleasePerformer
     end
 
     def set_default_docs_version
-      @utils.error "Cannot set default #{@gem_name} docs version" unless @parent.enable_docs?
+      @utils.error "Cannot set default #{@gem_name} docs version" unless @utils.docs_builder
       @utils.logger.info "Changing default #{@gem_name} docs version to #{@gem_version}..."
       path = "#{@parent.gh_pages_dir}/404.html"
       content = ::IO.read path
@@ -239,6 +175,63 @@ class ReleasePerformer
                                cur_pr:  @pr_info
       @utils.logger.info "Updated release PR."
     end
+  end
+
+  def initialize utils,
+                 release_sha: nil,
+                 skip_checks: false,
+                 rubygems_api_key: nil,
+                 git_remote: nil,
+                 git_user_name: nil,
+                 git_user_email: nil,
+                 gh_pages_dir: nil,
+                 gh_token: nil,
+                 dry_run: false
+    @utils = utils
+    @release_sha = @utils.current_sha release_sha
+    @skip_checks = skip_checks
+    @rubygems_api_key = rubygems_api_key
+    @git_remote = git_remote || "origin"
+    @git_user_name = git_user_name
+    @git_user_email = git_user_email
+    @dry_run = dry_run
+    @gh_pages_dir = gh_pages_dir
+    @gh_token = gh_token
+    @performed_initial_setup = false
+  end
+
+  attr_reader :utils
+  attr_reader :release_sha
+  attr_reader :rubygems_api_key
+  attr_reader :gh_pages_dir
+  attr_reader :git_remote
+
+  def dry_run?
+    @dry_run
+  end
+
+  def skip_checks?
+    @skip_checks
+  end
+
+  def instance gem_name, gem_version, pr_info: nil, only: nil
+    Instance.new self, gem_name, gem_version, pr_info, only || "all"
+  end
+
+  def initial_setup
+    return if @performed_initial_setup
+    unless @skip_checks
+      @utils.verify_git_clean
+      @utils.verify_repo_identity git_remote: @git_remote
+      @utils.verify_github_checks ref: @release_sha
+    end
+    if @utils.docs_builder
+      setup_gh_pages
+    else
+      @gh_pages_dir = nil
+    end
+    setup_rubygems_api_key
+    @performed_initial_setup = true
   end
 
   private

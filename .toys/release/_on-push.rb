@@ -93,15 +93,8 @@ def create_performer_instance gem_name, gem_version
                                    git_user_name:    git_user_name,
                                    git_user_email:   git_user_email,
                                    gh_token:         ::ENV["GITHUB_TOKEN"],
-                                   docs_builder:     create_docs_builder,
                                    dry_run:          dry_run
   performer.instance gem_name, gem_version, pr_info: @pr_info
-end
-
-def create_docs_builder
-  docs_builder_tool = @utils.docs_builder_tool
-  return nil unless docs_builder_tool
-  proc { exec_separate_tool Array(docs_builder_tool) }
 end
 
 def update_open_release_prs
