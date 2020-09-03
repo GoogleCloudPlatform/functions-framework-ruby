@@ -71,7 +71,7 @@ require "functions_framework/version"
 #
 module FunctionsFramework
   @global_registry = Registry.new
-  @logger = ::Logger.new ::STDERR
+  @logger = ::Logger.new $stderr
   @logger.level = ::Logger::INFO
 
   ##
