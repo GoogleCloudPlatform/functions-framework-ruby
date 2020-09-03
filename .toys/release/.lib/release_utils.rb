@@ -17,11 +17,20 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
   attr_reader :repo_path
   attr_reader :main_branch
   attr_reader :default_gem
+  attr_reader :docs_builder_tool
   attr_reader :tool_context
   attr_reader :logger
 
   def repo_owner
     repo_path.split("/").first
+  end
+
+  def signoff_commits?
+    @signoff_commits
+  end
+
+  def enable_release_automation?
+    @enable_release_automation
   end
 
   def all_gems
@@ -138,23 +147,25 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
     query = args.map { |k, v| "#{k}=#{v}" }.join "&"
     output = capture ["gh", "api", "repos/#{repo_path}/pulls?#{query}",
                       "-H", "Accept: application/vnd.github.v3+json"]
-    pulls = ::JSON.parse output
+    prs = ::JSON.parse output
     if merge_sha
-      pulls.find do |pull|
-        pull["merged_at"] && pull["merge_commit_sha"] == merge_sha &&
-          pull["labels"].any? { |label_info| label_info["name"] == label }
+      prs.find do |pr_info|
+        pr_info["merged_at"] && pr_info["merge_commit_sha"] == merge_sha &&
+          pr_info["labels"].any? { |label_info| label_info["name"] == label }
       end
     else
-      pulls.find_all do |pull|
-        pull["labels"].any? { |label_info| label_info["name"] == label }
+      prs.find_all do |pr_info|
+        pr_info["labels"].any? { |label_info| label_info["name"] == label }
       end
     end
   end
 
   def load_pr pr_number
-    output = capture ["gh", "api", "repos/#{repo_path}/pulls/#{pr_number}",
-                      "-H", "Accept: application/vnd.github.v3+json"]
-    ::JSON.parse output
+    result = exec ["gh", "api", "repos/#{repo_path}/pulls/#{pr_number}",
+                   "-H", "Accept: application/vnd.github.v3+json"],
+                  out: :capture
+    return nil unless result.success?
+    ::JSON.parse result.captured_out
   end
 
   def update_release_pr pr_number, label: nil, message: nil, state: nil, cur_pr: nil
@@ -349,6 +360,9 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
     info = ::YAML.load_file file_path
     @main_branch = info["main_branch"] || "main"
     @repo_path = info["repo"]
+    @signoff_commits = info["signoff_commits"] ? true : false
+    @docs_builder_tool = info["docs_builder_tool"]
+    @enable_release_automation = info.fetch("enable_release_automation", true) ? true : false
     error "Repo key missing from releases.yml" unless @repo_path
     @gems = {}
     @default_gem = nil
@@ -373,7 +387,6 @@ class ReleaseUtils # rubocop:disable Metrics/ClassLength
     gem_info["gh_pages_directory"] ||= has_multiple_gems ? name : "."
     gem_info["gh_pages_version_var"] ||=
       has_multiple_gems ? "version_#{name}".tr("-", "_") : "version"
-    gem_info["enable_release_automation"] = true if gem_info["enable_release_automation"].nil?
   end
 
   def camelize str

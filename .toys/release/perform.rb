@@ -26,35 +26,22 @@ long_desc \
   "* Building the docs and pushing it to gh-phages (if applicable)",
   "* Creating a GitHub release and tag"
 
-exactly_one desc: "Trigger Type" do
-  flag :ci_result, "--ci-result=VAL" do
-    desc "Given the CI result, look for a merged release pull request."
-    long_desc \
-      "Use the release pull request whose merge commit is the current HEAD." \
-      " The value must indicate the result of CI for the commit. If the" \
-      " value is 'success', the release will proceed, otherwise the release" \
-      " will be aborted. In either case, the pull request will be updated" \
-      " with the result. If the current commit is not a merge of a release" \
-      " pull request, no release is performed."
-  end
-  flag :gem, "--gem=VAL" do
-    accept(/^[\w-]+:[\w\.-]+$/)
-    desc "Release the given gem and version."
-    long_desc \
-      "Specify the exact gem and version to release, and do not update any" \
-        " release pull requests. The value must be given in the form:",
-      ["    <gem_name>:<version>"]
-  end
+required_arg :gem_name do
+  desc "Name of the gem to release. Required."
+end
+required_arg :gem_version do
+  desc "Version of the gem to release. Required."
 end
 flag_group desc: "Flags" do
-  flag :enable_releases, "--enable-releases[=VAL]" do
-    desc "Set to 'true' to enable releases."
+  flag :enable_releases, "--enable-releases=VAL" do
+    default "true"
+    desc "Control whether to enable releases."
     long_desc \
-      "If set to 'true', releases will be enabled. Otherwise, the release will" \
-      " proceed in dry-run mode, meaning it will go through the motions," \
+      "If set to 'true', releases will be enabled. Any other value will" \
+      " result in dry-run mode, meaning it will go through the motions," \
       " create a GitHub release, and update the release pull request if" \
-      " applicable, but will not actually push the gem to Rubygems or push the" \
-      " docs to gh-pages."
+      " applicable, but will not actually push the gem to Rubygems or push" \
+      " the docs to gh-pages."
   end
   flag :gh_pages_dir, "--gh-pages-dir=VAL" do
     desc "The directory to use for the gh-pages branch"
@@ -63,7 +50,8 @@ flag_group desc: "Flags" do
       " building and pushing gem documentation. If left unset, a temporary" \
       " directory will be created (and removed when finished)."
   end
-  flag :git_remote, "--git-remote=VAL", default: "origin" do
+  flag :git_remote, "--git-remote=VAL" do
+    default "origin"
     desc "The name of the git remote"
     long_desc \
       "The name of the git remote pointing at the canonical repository." \
@@ -81,7 +69,7 @@ flag_group desc: "Flags" do
       "Git user name to use for docs commits. If not provided, uses the" \
       " current global git setting. Required if there is no global setting."
   end
-  flag :github_sha, "--github-sha=VAL" do
+  flag :release_sha, "--release-sha=VAL" do
     desc "SHA of the commit to use for the release"
     long_desc \
       "Specifies a particular SHA for the release. Optional. Defaults to the" \
@@ -89,7 +77,7 @@ flag_group desc: "Flags" do
   end
   flag :only, "--only=VAL" do
     accept ["precheck", "gem", "docs", "github-release"]
-    desc "Run only one part of the release process."
+    desc "Run only one step of the release process."
     long_desc \
       "Cause only one step of the release process to run.",
       "* 'precheck' runs only the pre-release checks.",
@@ -98,6 +86,16 @@ flag_group desc: "Flags" do
       "* 'github-release' tags and creates a GitHub release.",
       "",
       "Optional. If omitted, all steps are performed."
+  end
+  flag :release_pr, "--release-pr=VAL" do
+    accept ::Integer
+    desc "Release pull request number"
+    long_desc \
+      "Update the given release pull request number. Optional. Normally," \
+        " this tool will look for a merged release pull request whose merge" \
+        " SHA matches the release SHA. However, if you are releasing from a" \
+        " different SHA than the pull request merge SHA, you can specify the" \
+        " pull request number explicitly."
   end
   flag :rubygems_api_key, "--rubygems-api-key=VAL" do
     desc "Set the Rubygems API key"
@@ -122,135 +120,61 @@ include :terminal, styled: true
 
 def run
   require "release_utils"
-  require "release_perform"
+  require "release_performer"
 
   cd context_directory
-  utils = ReleaseUtils.new self
-
-  unless ::ENV["GITHUB_ACTIONS"]
-    unless confirm "Perform a release locally, outside the normal process? ", :bold, :red
-      utils.error "Release aborted"
-    end
-  end
+  @utils = ReleaseUtils.new self
 
   [:gh_pages_dir, :git_user_email, :git_user_name, :rubygems_api_key].each do |key|
     set key, nil if get(key).to_s.empty?
   end
-  set :github_sha, utils.current_sha if github_sha.to_s.empty?
+  set :release_sha, @utils.current_sha if release_sha.to_s.empty?
 
-  if ci_result
-    handle_post_push utils
-  elsif gem
-    gem_name, gem_version = gem.split ":", 2
-    perform_release gem_name, gem_version, utils
-  end
+  instance = create_performer_instance
+  confirm_release
+  instance.perform
+  puts "SUCCESS", :bold, :green
 end
 
-def handle_post_push utils
-  pull = utils.find_release_prs merge_sha: github_sha
-  if pull
-    logger.info "This appears to be a merge of release PR #{pull['number']}."
-    utils.on_error { |content| report_release_error pull, content, utils }
-    gem_name = pull["head"]["ref"].sub "release/", ""
-    gem_version = utils.current_library_version gem_name
-    logger.info "The release is for #{gem_name} #{gem_version}."
-    unless ci_result == "success"
-      error "Release of #{gem_name} #{gem_version} failed because the CI result was #{ci_result}."
-    end
-    perform_release gem_name, gem_version, utils
-    utils.clear_error_proc
-    mark_release_pr_as_completed gem_name, gem_version, pull, utils
-  else
-    logger.info "This was not a merge of a release PR."
-    update_open_release_prs utils
-    unless ci_result == "success"
-      error "Exiting with an error code because the CI result was #{ci_result}."
-    end
-  end
-end
-
-def perform_release gem_name, gem_version, utils
-  docs_builder_tool = utils.gem_info gem_name, "docs_builder_tool"
-  docs_builder = docs_builder_tool ? proc { exec_separate_tool Array(docs_builder_tool) } : nil
+def create_performer_instance
   dry_run = /^t/i =~ enable_releases.to_s ? false : true
-  performer = ReleasePerform.new utils,
-                                 release_sha:      github_sha,
-                                 rubygems_api_key: rubygems_api_key,
-                                 git_remote:       git_remote,
-                                 git_user_name:    git_user_name,
-                                 git_user_email:   git_user_email,
-                                 gh_pages_dir:     gh_pages_dir,
-                                 docs_builder:     docs_builder,
-                                 dry_run:          dry_run
-  instance = performer.instance gem_name, gem_version
-  confirm_release gem_name, gem_version, utils
-  instance.perform only: only
+  performer = ReleasePerformer.new @utils,
+                                   release_sha:      release_sha,
+                                   skip_checks:      skip_checks,
+                                   rubygems_api_key: rubygems_api_key,
+                                   git_remote:       git_remote,
+                                   git_user_name:    git_user_name,
+                                   git_user_email:   git_user_email,
+                                   gh_pages_dir:     gh_pages_dir,
+                                   gh_token:         ::ENV["GITHUB_TOKEN"],
+                                   docs_builder:     create_docs_builder,
+                                   dry_run:          dry_run
+  performer.instance gem_name, gem_version, pr_info: find_release_pr, only: only
 end
 
-def confirm_release gem_name, gem_version, utils
+def confirm_release
   return if yes
   return if confirm "Release #{gem_name} #{gem_version}? ", :bold, default: false
-  utils.error "Release aborted"
+  @utils.error "Release aborted"
 end
 
-def mark_release_pr_as_completed gem_name, gem_version, pull, utils
-  pr_number = pull["number"]
-  logger.info "Updating release PR ##{pr_number} ..."
-  message = "Released of #{gem_name} #{gem_version} complete!"
-  utils.update_release_pr pr_number,
-                          label:   utils.release_complete_label,
-                          message: message,
-                          cur_pr:  pull
-  logger.info "Updated release PR."
-end
-
-def report_release_error pull, content, utils
-  pr_number = pull["number"]
-  logger.info "Updating the release PR ##{pr_number} to report an error ..."
-  utils.update_release_pr pr_number,
-                          label:   utils.release_error_label,
-                          message: "Release failed.\n#{content}",
-                          cur_pr:  pull
-  logger.info "Opening a new issue to report the failure ..."
-  body = <<~STR
-    A release failed.
-
-    Release PR: ##{pr_number}
-    Commit: https://github.com/#{utils.repo_path}/commit/#{github_sha}
-
-    Error message:
-    #{content}
-  STR
-  title = "Release PR ##{pr_number} failed with an error"
-  input = ::JSON.dump title: title, body: body
-  response = capture ["gh", "api", "repos/#{utils.repo_path}/issues", "--input", "-",
-                      "-H", "Accept: application/vnd.github.v3+json"],
-                     in: [:string, input]
-  issue_number = ::JSON.parse(response)["number"]
-  logger.info "Issue #{issue_number} opened."
-end
-
-def update_open_release_prs utils
-  logger.info "Searching for open release PRs ..."
-  pulls = utils.find_release_prs
-  if pulls.empty?
-    logger.info "No existing release PRs to update."
-    return
+def find_release_pr
+  if release_pr
+    pr_info = @utils.load_pr release_pr
+    @utils.error "Release PR ##{release_pr} not found" unless pr_info
+  else
+    pr_info = @utils.find_release_prs merge_sha: release_sha
   end
-  commit_message = capture ["git", "log", "-1", "--pretty=%B"]
-  pr_message = <<~STR
-    WARNING: An additional commit was added while this release PR was open.
-    You may need to add to the changelog, or close this PR and prepare a new one.
-
-    Commit link: https://github.com/#{utils.repo_path}/commit/#{github_sha}
-
-    Message:
-    #{commit_message}
-  STR
-  pulls.each do |pull|
-    pr_number = pullpr["number"]
-    logger.info "Updating PR #{pr_number} ..."
-    utils.update_release_pr pr_number, message: pr_message, cur_pr: pull
+  if pr_info
+    logger.info "Found release PR #{pr_info['number']}."
+  else
+    logger.warn "No release PR found for this release."
   end
-  logger.info "Finished updating existing release PRs."
+  pr_info
+end
+
+def create_docs_builder
+  docs_builder_tool = @utils.docs_builder_tool
+  return nil unless docs_builder_tool
+  proc { exec_separate_tool Array(docs_builder_tool) }
 end
