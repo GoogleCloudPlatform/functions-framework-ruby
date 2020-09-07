@@ -115,59 +115,66 @@ flag_group desc: "Flags" do
 end
 
 include :exec, exit_on_nonzero_status: true
-include :fileutils
 include :terminal, styled: true
 
 def run
   require "release_utils"
   require "release_performer"
 
-  cd context_directory
-  @utils = ReleaseUtils.new self
+  ::Dir.chdir(context_directory)
+  @utils = ReleaseUtils.new(self)
 
   [:gh_pages_dir, :git_user_email, :git_user_name, :rubygems_api_key].each do |key|
-    set key, nil if get(key).to_s.empty?
+    set(key, nil) if get(key).to_s.empty?
   end
-  set :release_sha, @utils.current_sha if release_sha.to_s.empty?
+  set(:release_sha, @utils.current_sha) if release_sha.to_s.empty?
 
-  instance = create_performer_instance
-  confirm_release
-  instance.perform
-  puts "SUCCESS", :bold, :green
+  perform
 end
 
-def create_performer_instance
+def perform
+  performer = create_performer
+  confirm_release
+  performer.instance(gem_name, gem_version, only: only).perform
+  if performer.report_results
+    puts("All releases completed successfully", :bold, :green)
+  else
+    @utils.error("Releases reported failure")
+  end
+end
+
+def create_performer
   dry_run = /^t/i =~ enable_releases.to_s ? false : true
-  performer = ReleasePerformer.new @utils,
-                                   release_sha:      release_sha,
-                                   skip_checks:      skip_checks,
-                                   rubygems_api_key: rubygems_api_key,
-                                   git_remote:       git_remote,
-                                   git_user_name:    git_user_name,
-                                   git_user_email:   git_user_email,
-                                   gh_pages_dir:     gh_pages_dir,
-                                   gh_token:         ::ENV["GITHUB_TOKEN"],
-                                   dry_run:          dry_run
-  performer.instance gem_name, gem_version, pr_info: find_release_pr, only: only
+  ReleasePerformer.new @utils,
+                       release_sha: release_sha,
+                       skip_checks: skip_checks,
+                       rubygems_api_key: rubygems_api_key,
+                       git_remote: git_remote,
+                       git_user_name: git_user_name,
+                       git_user_email: git_user_email,
+                       gh_pages_dir: gh_pages_dir,
+                       gh_token: ::ENV["GITHUB_TOKEN"],
+                       pr_info: find_release_pr,
+                       dry_run: dry_run
 end
 
 def confirm_release
   return if yes
-  return if confirm "Release #{gem_name} #{gem_version}? ", :bold, default: false
-  @utils.error "Release aborted"
+  return if confirm("Release #{gem_name} #{gem_version}? ", :bold, default: false)
+  @utils.error("Release aborted")
 end
 
 def find_release_pr
   if release_pr
-    pr_info = @utils.load_pr release_pr
-    @utils.error "Release PR ##{release_pr} not found" unless pr_info
+    pr_info = @utils.load_pr(release_pr)
+    @utils.error("Release PR ##{release_pr} not found") unless pr_info
   else
-    pr_info = @utils.find_release_prs merge_sha: release_sha
+    pr_info = @utils.find_release_prs(merge_sha: release_sha)
   end
   if pr_info
-    logger.info "Found release PR #{pr_info['number']}."
+    logger.info("Found release PR #{pr_info['number']}.")
   else
-    logger.warn "No release PR found for this release."
+    logger.warn("No release PR found for this release.")
   end
   pr_info
 end
