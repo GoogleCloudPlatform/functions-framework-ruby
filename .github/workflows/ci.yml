@@ -1,9 +1,13 @@
-name: "(presubmit)"
+name: "CI tests"
 
 on:
   pull_request:
     branches:
       - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
 
 jobs:
   tests:

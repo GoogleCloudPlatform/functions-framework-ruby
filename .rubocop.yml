@@ -3,9 +3,6 @@ inherit_gem:
 
 AllCops:
   Include:
-    - ".toys/**/*.rb"
-    - ".toys/**/.toys.rb"
-    - ".toys/**/.lib/**/*.rb"
     - "examples/**/.toys.rb"
     - "**/*.rb"
     - "**/Gemfile"
@@ -13,7 +10,6 @@ AllCops:
 
 Metrics/BlockLength:
   Exclude:
-    - ".toys/**/*.rb"
     - "test/**/test_*.rb"
     - "examples/**/.toys.rb"
     - "examples/**/test/test_*.rb"
