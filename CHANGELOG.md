@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.5.2 / 2020-09-06
+
+* FIXED: Use global $stderr rather than STDERR for logger 
+* DOCS: Fix instructions for deployment to Google Cloud Functions 
+
 ### v0.5.1 / 2020-07-20
 
 * Updated some documentation links. No functional changes.
