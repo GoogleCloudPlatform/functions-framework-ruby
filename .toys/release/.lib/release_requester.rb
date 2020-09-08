@@ -3,9 +3,7 @@
 require "fileutils"
 require "release_utils"
 
-# A class that creates release PRs
 class ReleaseRequester
-  # An instance of release PR preparation
   class GemInfo
     def initialize(utils, gem_name, override_version, release_ref)
       @utils = utils
@@ -236,8 +234,12 @@ class ReleaseRequester
       path = @utils.gem_changelog_path(@gem_name, from: :context)
       @utils.log("Modifying changelog file #{path}")
       content = ::File.read(path)
-      content.sub!(%r{\n### (v\d+\.\d+\.\d+ / \d\d\d\d-\d\d-\d\d)},
-                   "\n#{@full_changelog}\n\n### \\1")
+      changed = content.sub!(%r{\n### (v\d+\.\d+\.\d+ / \d\d\d\d-\d\d-\d\d)},
+                             "\n#{@full_changelog}\n\n### \\1")
+      unless changed
+        content << "\n" until content.end_with?("\n\n")
+        content << @full_changelog << "\n"
+      end
       ::File.open(path, "w") { |file| file.write(content) }
     end
   end

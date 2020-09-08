@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Repository release settings
 class RepoSettings
-  def initialize(info, context_directory)
-    @context_directory = context_directory
+  def initialize(info, tool_context)
+    @tool_context = tool_context
     @warnings = []
     read_global_info(info)
     read_gem_info(info)
@@ -50,7 +49,7 @@ class RepoSettings
     when :context
       path
     when :absolute
-      ::File.expand_path(path, @context_directory)
+      ::File.expand_path(path, @tool_context.context_directory)
     else
       raise "Unknown from value: #{from.inspect}"
     end
@@ -175,15 +174,21 @@ class RepoSettings
   def check_gem_info(gem_info)
     name = gem_info["name"]
     raise "Name missing from gem in releases.yml" unless name
-    dir = ::File.expand_path(gem_info["directory"], @context_directory)
+    dir = ::File.expand_path(gem_info["directory"], @tool_context.context_directory)
     raise "Missing directory #{dir} for gem #{name}" unless ::File.directory?(dir)
     gemspec = ::File.expand_path("#{name}.gemspec", dir)
     raise "Missing gemspec file #{gemspec}" unless ::File.file?(gemspec)
-    version_file = ::File.expand_path(gem_info["version_rb_path"], dir)
-    raise "Missing version file #{version_file} for gem #{name}" unless ::File.file?(version_file)
     changelog = ::File.expand_path(gem_info["changelog_path"], dir)
     raise "Missing changelog #{changelog} for gem #{name}" unless ::File.file?(changelog)
+    check_version_file(gem_info, name, dir)
     name
+  end
+
+  def check_version_file(gem_info, name, dir)
+    version_file = ::File.expand_path(gem_info["version_rb_path"], dir)
+    raise "Missing version file #{version_file} for gem #{name}" unless ::File.file?(version_file)
+    script = "load #{version_file.inspect}; p " + gem_info["version_constant"].join("::")
+    @tool_context.ruby(["-e", script], out: :null)
   end
 
   def camelize(str)
