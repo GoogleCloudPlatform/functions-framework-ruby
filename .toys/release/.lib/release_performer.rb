@@ -5,11 +5,8 @@ require "fileutils"
 require "tmpdir"
 require "release_utils"
 
-# A class that performs releases
 class ReleasePerformer
-  # A release instance
   class Instance
-    # @private
     def initialize(parent, gem_name, gem_version, step)
       @parent = parent
       @gem_name = gem_name

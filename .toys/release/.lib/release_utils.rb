@@ -5,9 +5,7 @@ require "json"
 require "yaml"
 require "repo_settings"
 
-# Utilities for release tools
 class ReleaseUtils
-  # Exception raised on error
   class ReleaseError < ::StandardError
     def initialize(message, more_messages)
       super(message)
@@ -345,7 +343,7 @@ class ReleaseUtils
     file_path = tool_context.find_data("releases.yml")
     error("Unable to find releases.yml data file") unless file_path
     info = ::YAML.load_file(file_path)
-    @repo_settings = RepoSettings.new(info, @tool_context.context_directory)
+    @repo_settings = RepoSettings.new(info, @tool_context)
     error("Repo key missing from releases.yml") unless @repo_settings.repo_path
     error("No gems listed in releases.yml") unless @repo_settings.default_gem
   end
