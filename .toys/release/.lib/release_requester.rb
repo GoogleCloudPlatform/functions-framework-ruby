@@ -102,18 +102,15 @@ class ReleaseRequester
         return
       end
       @utils.log("Analyzing commit messages since last version ...")
-      commits = "#{@gem_name}/v#{@last_version}^..#{@release_ref}"
-      shas = @utils.capture(["git", "log", commits, "--format=%H"]).split("\n").reverse
       dir = @utils.gem_directory(@gem_name)
       dir = "#{dir}/" unless dir.end_with?("/")
-      (0..(shas.length - 2)).each do |index|
-        sha1 = shas[index]
-        sha2 = shas[index + 1]
+      commits = "#{@gem_name}/v#{@last_version}..#{@release_ref}"
+      @utils.capture(["git", "log", commits, "--format=%H"]).split("\n").reverse_each do |sha|
         unless dir == "./"
-          files = @utils.capture(["git", "diff", "--name-only", "#{sha1}..#{sha2}"])
+          files = @utils.capture(["git", "diff", "--name-only", "#{sha}^..#{sha}"])
           next unless files.split("\n").any? { |file| file.start_with?(dir) }
         end
-        message = @utils.capture(["git", "log", "#{sha1}..#{sha2}", "--format=%B"])
+        message = @utils.capture(["git", "log", "#{sha}^..#{sha}", "--format=%B"])
         analyze_message message
       end
     end
@@ -225,8 +222,14 @@ class ReleaseRequester
       path = @utils.gem_version_rb_path(@gem_name, from: :context)
       @utils.log("Modifying version file #{path}")
       content = ::File.read(path)
-      content.sub!(/  VERSION = "\d+\.\d+\.\d+(?:\.\w+)*"/,
-                   "  VERSION = \"#{@new_version}\"")
+      original_content = content.dup
+      changed = content.sub!(/  VERSION\s*=\s*(["'])\d+\.\d+\.\d+(?:\.\w+)*["']/,
+                             "  VERSION = \\1#{@new_version}\\1")
+      @utils.error("Could not find VERSION constant for #{@gem_name} in #{path}") unless changed
+      if content == original_content
+        @utils.warning("Version constant for #{@gem_name} is already #{@new_version}.")
+        return
+      end
       ::File.open(path, "w") { |file| file.write(content) }
     end
 
@@ -234,8 +237,12 @@ class ReleaseRequester
       path = @utils.gem_changelog_path(@gem_name, from: :context)
       @utils.log("Modifying changelog file #{path}")
       content = ::File.read(path)
-      changed = content.sub!(%r{\n### (v\d+\.\d+\.\d+ / \d\d\d\d-\d\d-\d\d)},
-                             "\n#{@full_changelog}\n\n### \\1")
+      if content =~ %r{\n### v#{@new_version} / \d\d\d\d-\d\d-\d\d\n}
+        @utils.warning("Changelog entry for #{@gem_name} #{@new_version} already seems to exist.")
+        return
+      end
+      changed = content.sub!(%r{\n### (v\d+\.\d+\.\d+ / \d\d\d\d-\d\d-\d\d)\n},
+                             "\n#{@full_changelog}\n\n### \\1\n")
       unless changed
         content << "\n" until content.end_with?("\n\n")
         content << @full_changelog << "\n"
@@ -247,15 +254,11 @@ class ReleaseRequester
   def initialize(utils,
                  release_ref: nil,
                  git_remote: nil,
-                 git_user_name: nil,
-                 git_user_email: nil,
                  coordinate_versions: nil,
                  prune_gems: false)
     @utils = utils
     @release_ref = release_ref || @utils.current_branch || @utils.main_branch
     @git_remote = git_remote || "origin"
-    @git_user_name = git_user_name
-    @git_user_email = git_user_email
     @coordinate_versions = coordinate_versions
     @coordinate_versions = @utils.coordinate_versions? if @coordinate_versions.nil?
     @prune_gems = prune_gems
@@ -279,14 +282,16 @@ class ReleaseRequester
       @utils.exec(["git", "fetch", "--unshallow", @git_remote, @release_ref])
     end
     @utils.exec(["git", "fetch", @git_remote, "--tags"])
-    @utils.exec(["git", "config", "--local", "user.email", @git_user_email]) if @git_user_email
-    @utils.exec(["git", "config", "--local", "user.name", @git_user_name]) if @git_user_name
+    @utils.git_set_user_info
     @utils.exec(["git", "checkout", @release_ref])
     @performed_initial_setup = true
   end
 
   def gem_info(gem_name, override_version: nil)
     raise "Gem list is already finished" if @gem_info_list.frozen?
+    if @gem_info_list.any? { |gem_info| gem_info.gem_name == gem_name }
+      @utils.error("Gem #{gem_name} listed multiple times in release request")
+    end
     initial_setup unless @performed_initial_setup
     info = GemInfo.new(@utils, gem_name, override_version, @release_ref)
     @gem_info_list << info
@@ -346,6 +351,9 @@ class ReleaseRequester
   end
 
   def create_release_commit
+    if @utils.capture(["git", "diff"]).strip.empty?
+      @utils.error("No changes to make. Are you sure the version to release is correct?")
+    end
     check_branch_cmd = ["git", "rev-parse", "--verify", "--quiet", @release_branch_name]
     if @utils.exec(check_branch_cmd, e: false).success?
       @utils.exec(["git", "branch", "-D", @release_branch_name])
@@ -404,7 +412,9 @@ class ReleaseRequester
       "",
     ]
     @gem_info_list.each do |info|
-      lines << " *  **#{info.gem_name}** version #{info.last_version} -> **#{info.new_version}**"
+      gem_line = " *  **#{info.gem_name} #{info.new_version}**"
+      gem_line += info.last_version ? " (was #{info.last_version})" : " (initial release)"
+      lines << gem_line
     end
     lines << ""
     lines <<

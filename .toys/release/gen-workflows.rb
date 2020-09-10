@@ -38,6 +38,7 @@ def run
   @workflows_dir = ::File.join(context_directory, ".github", "workflows")
   files = [
     "release-on-closed.yml",
+    "release-on-open.yml",
     "release-on-push.yml",
     "release-perform.yml",
     "release-request.yml",

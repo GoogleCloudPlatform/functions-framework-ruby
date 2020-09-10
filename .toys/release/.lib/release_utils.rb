@@ -32,9 +32,13 @@ class ReleaseUtils
 
   def_delegators :@repo_settings,
                  :repo_path, :repo_owner, :main_branch, :default_gem,
+                 :git_user_name, :git_user_email,
                  :required_checks_regexp, :release_jobs_regexp, :required_checks_timeout,
                  :docs_builder_tool, :signoff_commits?, :enable_release_automation?,
                  :coordinate_versions?
+  def_delegators :@repo_settings,
+                 :commit_lint_active?, :commit_lint_fail_checks?,
+                 :commit_lint_merge, :commit_lint_allowed_types
   def_delegators :@repo_settings,
                  :all_gems, :gem_info,
                  :gem_directory, :gem_cd,
@@ -310,6 +314,20 @@ class ReleaseUtils
     results
   end
 
+  def git_set_user_info
+    if git_user_name
+      unless exec(["git", "config", "--get", "user.name"], out: :null, e: false).success?
+        exec(["git", "config", "--local", "user.name", git_user_name])
+      end
+    end
+    if git_user_email
+      unless exec(["git", "config", "--get", "user.email"], out: :null, e: false).success?
+        exec(["git", "config", "--local", "user.email", git_user_email])
+      end
+    end
+    self
+  end
+
   def log(message)
     logger.info(message)
   end
@@ -344,8 +362,7 @@ class ReleaseUtils
     error("Unable to find releases.yml data file") unless file_path
     info = ::YAML.load_file(file_path)
     @repo_settings = RepoSettings.new(info, @tool_context)
-    error("Repo key missing from releases.yml") unless @repo_settings.repo_path
-    error("No gems listed in releases.yml") unless @repo_settings.default_gem
+    error(*@repo_settings.errors) unless @repo_settings.errors.empty?
   end
 
   def wait_github_checks_internal(ref, deadline)
