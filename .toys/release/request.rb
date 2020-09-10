@@ -43,7 +43,12 @@ flag :gems, "--gems=VAL" do
     "If no version is specified for a gem, a version is inferred from the" \
       " conventional commit messages. If this flag is omitted or left blank," \
       " all gems in the repository that have at least one commit of type" \
-      " 'fix', 'feat', or 'docs', or a breaking change, will be released."
+      " 'fix', 'feat', or 'docs', or a breaking change, will be released.",
+    "",
+    "You can also use the special gem name 'all' which forces release of all" \
+      " gems in the repository regardless of whether they have significant" \
+      " changes. You can also supply a version with 'all' to release all gems" \
+      " with the same version."
 end
 flag :git_remote, "--git-remote=VAL" do
   default "origin"
@@ -51,18 +56,6 @@ flag :git_remote, "--git-remote=VAL" do
   long_desc \
     "The name of the git remote pointing at the canonical repository." \
     " Defaults to 'origin'."
-end
-flag :git_user_email, "--git-user-email=VAL" do
-  desc "Git user email to use for new commits"
-  long_desc \
-    "Git user email to use for new commits. If not provided, uses the current" \
-    " global git setting. Required if there is no global setting."
-end
-flag :git_user_name, "--git-user-name=VAL" do
-  desc "Git user email to use for new commits"
-  long_desc \
-    "Git user name to use for new commits. If not provided, uses the current" \
-    " global git setting. Required if there is no global setting."
 end
 flag :release_ref, "--release-ref=VAL" do
   desc "Target branch for the release"
@@ -84,7 +77,7 @@ def run
   ::Dir.chdir(context_directory)
   @utils = ReleaseUtils.new(self)
 
-  [:release_ref, :git_user_email, :git_user_name].each do |key|
+  [:release_ref].each do |key|
     set(key, nil) if get(key).to_s.empty?
   end
 
@@ -102,14 +95,18 @@ def populate_requester
   requester = ReleaseRequester.new(@utils,
                                    release_ref: release_ref,
                                    git_remote: git_remote,
-                                   git_user_name: git_user_name,
-                                   git_user_email: git_user_email,
                                    coordinate_versions: coordinate_versions,
                                    prune_gems: gems.to_s.empty?)
   gem_list = gems.to_s.empty? ? @utils.all_gems : gems.split(/[\s,]+/)
   gem_list.each do |entry|
     gem_name, override_version = entry.split(":", 2)
-    requester.gem_info(gem_name, override_version: override_version)
+    if gem_name == "all"
+      @utils.all_gems.each do |name|
+        requester.gem_info(name, override_version: override_version)
+      end
+    else
+      requester.gem_info(gem_name, override_version: override_version)
+    end
   end
   requester
 end
