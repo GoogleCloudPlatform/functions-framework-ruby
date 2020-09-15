@@ -68,10 +68,12 @@ class ReleaseUtils
   end
 
   def exec(cmd, **opts, &block)
+    opts = modify_exec_opts(opts, cmd)
     tool_context.exec(cmd, **opts, &block)
   end
 
   def capture(cmd, **opts, &block)
+    opts = modify_exec_opts(opts, cmd)
     tool_context.capture(cmd, **opts, &block)
   end
 
@@ -356,6 +358,16 @@ class ReleaseUtils
   end
 
   private
+
+  def modify_exec_opts(opts, cmd)
+    return opts unless raise_on_error
+    return opts if opts.key?(:result_callback)
+    return opts if opts[:e] == false || opts[:exit_on_nonzero_status] == false
+    result_callback = proc do |r|
+      error("Command failed with exit code #{r.exit_code}: #{cmd.inspect}") if r.error?
+    end
+    opts.merge(result_callback: result_callback)
+  end
 
   def load_repo_settings
     file_path = tool_context.find_data("releases.yml")
