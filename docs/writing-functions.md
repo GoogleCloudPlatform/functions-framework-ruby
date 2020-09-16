@@ -197,6 +197,68 @@ FunctionsFramework.http "error_reporter" do |request|
 end
 ```
 
+## Shared resources
+
+Generally, functions should be self-contained and stateless, and should not use
+or share any global state in the Ruby VM. This is because serverless runtimes
+may spin up or terminate instances of your app at any time, and because a
+single instance may be running multiple functions at a time in separate threads.
+
+However, it is sometimes useful to share a resource across multiple function
+invocations that run on the same Ruby instance. For example, you might establish
+a single connection to a remote database or other service, and share it across
+function invocations to avoid incurring the overhead of re-establishing it
+for every function invocation.
+
+When using a shared resource, it is important to keep three things in mind:
+
+ 1. **The shared resource should be thread-safe.** This is because serverless
+    runtimes such as Google Cloud Functions may run multiple functions at a time
+    in separate threads.
+
+ 2. **Use `FunctionsFramework.on_startup` to initialize shared resources.**
+    Do not initialize a shared resource at the top level of your app. This is
+    because serverless runtimes may load your files (and thus execute any Ruby
+    code at the top level) in a build/deployment environment that may not be
+    equipped to support the resource. Instead, initialize resources in a
+    `FunctionsFramework.on_startup` block, which the Functions Framework will
+    call only just before starting a server.
+
+    For example:
+
+    ```ruby
+    require "functions_framework"
+
+    # This local variable is lexically shared among all blocks.
+    storage_client = nil
+
+    # Do not create the storage client here. This may run during deployment
+    # when, e.g., your storage credentials are not accessible.
+    #   require "google/cloud/storage"
+    #   storage_client = Google::Cloud::Storage.new # <- may fail
+
+    # Use an on_startup block to initialize the shared client.
+    # This block runs only when the framework is starting an actual server,
+    # and is guaranteed to complete before any functions are executed.
+    FunctionsFramework.on_startup do
+      require "google/cloud/storage"
+      storage_client = Google::Cloud::Storage.new
+    end
+
+    # The storage_client is shared among all function invocations
+    FunctionsFramework.http "storage_example" do |request|
+      bucket = storage_client.bucket "my-bucket"
+      file = bucket.file "path/to/my-file.txt"
+      file.download.to_s
+    end
+    ```
+
+ 3. **There is no guaranteed cleanup hook.** The Functions Framework does not
+    provide a guaranteed way to register a cleanup task. You can register a
+    `Kernel.at_exit` task, but remember that it is possible for the Ruby VM to
+    terminate without calling it. It is strongly recommended that you use
+    resources that do not require "cleanup".
+
 ## Structuring a project
 
 A Functions Framework based "project" or "application" is a typical Ruby

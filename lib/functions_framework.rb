@@ -166,6 +166,29 @@ module FunctionsFramework
     end
 
     ##
+    # Define a server startup task. This is useful for initializing shared
+    # resources that should be accessible across all function invocations in
+    # this Ruby VM.
+    #
+    # Startup tasks are run just before a server starts. All startup tasks are
+    # guaranteed to complete before any function executes. However, they are
+    # run only when preparing to run functions. They are not run, for example,
+    # if an app is loaded to verify its integrity during deployment.
+    #
+    # Startup tasks are passed two arguments: the {FunctionsFramework::Function}
+    # identifying the function to execute, and the
+    # {FunctionsFramework::Server::Config} specifying the (frozen) server
+    # configuration. Tasks have no return value.
+    #
+    # @param block [Proc] The startup task
+    # @return [self]
+    #
+    def on_startup &block
+      global_registry.add_startup_task(&block)
+      self
+    end
+
+    ##
     # Start the functions framework server in the background. The server will
     # look up the given target function name in the global registry.
     #
@@ -184,6 +207,7 @@ module FunctionsFramework
         raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       end
       server = Server.new function, &block
+      global_registry.run_startup_tasks server
       server.respond_to_signals
       server.start
     end

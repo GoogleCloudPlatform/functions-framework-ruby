@@ -23,9 +23,11 @@ describe FunctionsFramework::CLI do
   let(:http_source) { File.join __dir__, "function_definitions", "simple_http.rb" }
   let(:event_source) { File.join __dir__, "function_definitions", "simple_event.rb" }
   let(:http_return_source) { File.join __dir__, "function_definitions", "return_http.rb" }
+  let(:startup_source) { File.join __dir__, "function_definitions", "startup_block.rb" }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
   let(:port) { "8066" }
+  let(:timeout) { 10 }
 
   def run_with_retry cli
     server = cli.start_server
@@ -40,8 +42,12 @@ describe FunctionsFramework::CLI do
       end
       raise last_error
     ensure
-      server.stop.wait_until_stopped timeout: 10
+      server.stop.wait_until_stopped timeout: timeout
     end
+  end
+
+  def run_in_timeout cli
+    ::Timeout.timeout(timeout) { cli.run }
   end
 
   before do
@@ -64,7 +70,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     assert_output "#{FunctionsFramework::VERSION}\n" do
-      cli.run
+      run_in_timeout cli
     end
     assert_nil cli.error_message
     assert_equal 0, cli.exit_code
@@ -77,7 +83,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     assert_output(/^Usage:/) do
-      cli.run
+      run_in_timeout cli
     end
     assert_nil cli.error_message
     assert_equal 0, cli.exit_code
@@ -194,7 +200,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     assert_output "OK\n" do
-      cli.run
+      run_in_timeout cli
     end
     assert_nil cli.error_message
     assert_equal 0, cli.exit_code
@@ -209,7 +215,7 @@ describe FunctionsFramework::CLI do
       "-q"
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
-    cli.run
+    run_in_timeout cli
     assert_equal 'Undefined function: "wrong_function_name"', cli.error_message
     assert_equal 1, cli.exit_code
     assert cli.error?
@@ -220,9 +226,40 @@ describe FunctionsFramework::CLI do
       "--blahblahblah"
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
-    cli.run
+    run_in_timeout cli
     assert_match(/^invalid option: --blahblahblah/, cli.error_message)
     assert_equal 2, cli.exit_code
     assert cli.error?
+  end
+
+  it "runs a startup block" do
+    args = [
+      "--source", startup_source,
+      "--target", "simple_http",
+      "--port", port,
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    response = nil
+    assert_output "in startup block\n" do
+      response = run_with_retry cli do
+        Net::HTTP.get_response URI("http://127.0.0.1:#{port}/")
+      end
+    end
+    assert_equal "200", response.code
+    assert_equal "OK", response.body
+  end
+
+  it "does not run startup block in verify mode" do
+    args = [
+      "--verify",
+      "--source", startup_source,
+      "--target", "simple_http",
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    assert_output "OK\n" do
+      run_in_timeout cli
+    end
   end
 end
