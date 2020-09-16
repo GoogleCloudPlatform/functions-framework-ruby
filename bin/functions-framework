@@ -16,4 +16,4 @@
 
 require "functions_framework/cli"
 
-::FunctionsFramework::CLI.new.parse_args(::ARGV).run
+::FunctionsFramework::CLI.new.parse_args(::ARGV).run.complete

@@ -66,6 +66,9 @@ describe FunctionsFramework::CLI do
     assert_output "#{FunctionsFramework::VERSION}\n" do
       cli.run
     end
+    assert_nil cli.error_message
+    assert_equal 0, cli.exit_code
+    refute cli.error?
   end
 
   it "prints online help when given the --help flag" do
@@ -76,6 +79,9 @@ describe FunctionsFramework::CLI do
     assert_output(/^Usage:/) do
       cli.run
     end
+    assert_nil cli.error_message
+    assert_equal 0, cli.exit_code
+    refute cli.error?
   end
 
   it "runs an http server" do
@@ -177,5 +183,46 @@ describe FunctionsFramework::CLI do
       end
     end
     assert_match(/Function "simple_event" does not match type http/, error.message)
+  end
+
+  it "passes verification" do
+    args = [
+      "--verify",
+      "--source", http_source,
+      "--target", "simple_http",
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    assert_output "OK\n" do
+      cli.run
+    end
+    assert_nil cli.error_message
+    assert_equal 0, cli.exit_code
+    refute cli.error?
+  end
+
+  it "fails verification if the target specifies a nonexistent function" do
+    args = [
+      "--verify",
+      "--source", http_source,
+      "--target", "wrong_function_name",
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    cli.run
+    assert_equal 'Undefined function: "wrong_function_name"', cli.error_message
+    assert_equal 1, cli.exit_code
+    assert cli.error?
+  end
+
+  it "fails on an unrecognized flag" do
+    args = [
+      "--blahblahblah"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    cli.run
+    assert_match(/^invalid option: --blahblahblah/, cli.error_message)
+    assert_equal 2, cli.exit_code
+    assert cli.error?
   end
 end

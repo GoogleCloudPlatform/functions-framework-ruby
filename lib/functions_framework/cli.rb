@@ -43,7 +43,29 @@ module FunctionsFramework
       @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
       @logging_level = init_logging_level
       @what_to_do = nil
+      @error_message = nil
+      @exit_code = 0
     end
+
+    ##
+    # Determine if an error has occurred
+    #
+    # @return [boolean]
+    #
+    def error?
+      !@error_message.nil?
+    end
+
+    ##
+    # @return [Integer] The current exit status.
+    #
+    attr_reader :exit_code
+
+    ##
+    # @return [String] The current error message.
+    # @return [nil] if no error has occurred.
+    #
+    attr_reader :error_message
 
     ##
     # Parse the given command line arguments.
@@ -85,6 +107,9 @@ module FunctionsFramework
         op.on "--[no-]detailed-errors", "Set whether to show error details" do |val|
           @detailed_errors = val
         end
+        op.on "--verify", "Verify the app only, but do not run the server." do
+          @what_to_do ||= :verify
+        end
         op.on "-v", "--verbose", "Increase log verbosity" do
           @logging_level -= 1
         end
@@ -98,8 +123,12 @@ module FunctionsFramework
           @what_to_do ||= :help
         end
       end
-      @option_parser.parse! argv
-      error "Unrecognized arguments: #{argv}\n#{op}" unless argv.empty?
+      begin
+        @option_parser.parse! argv
+        error! "Unrecognized arguments: #{argv}\n#{@option_parser}", 2 unless argv.empty?
+      rescue ::OptionParser::ParseError => e
+        error! "#{e.message}\n#{@option_parser}", 2
+      end
       self
     end
 
@@ -108,44 +137,62 @@ module FunctionsFramework
     #
     #  *  If the `--version` flag was given, display the version.
     #  *  If the `--help` flag was given, display online help.
-    #  *  Otherwise, start a server and wait for it to complete.
+    #  *  If the `--verify` flag was given, load and verify the function,
+    #     displaying any errors, then exit without starting a server.
+    #  *  Otherwise, start the configured server and block until it stops.
     #
     # @return [self]
     #
     def run
+      return self if error?
       case @what_to_do
       when :version
         puts ::FunctionsFramework::VERSION
       when :help
         puts @option_parser
+      when :verify
+        begin
+          load_function
+          puts "OK"
+        rescue ::StandardError => e
+          error! e.message
+        end
       else
         begin
-          server = start_server
+          start_server.wait_until_stopped
         rescue ::StandardError => e
-          error e.message
+          error! e.message
         end
-        server.wait_until_stopped
       end
       self
     end
 
     ##
-    # Start the configured server and return the running server object.
-    # If a validation error occurs, raise an exception.
-    # This is used for testing the CLI.
+    # Finish the CLI, displaying any error status and exiting with the current
+    # exit code. Never returns.
     #
-    # @return [FunctionsFramework::Server]
+    def complete
+      warn @error_message if @error_message
+      exit @exit_code
+    end
+
+    ##
+    # Load the source and get and verify the requested function.
+    # If a validation error occurs, raise an exception.
+    #
+    # @return [FunctionsFramework::Function]
     #
     # @private
     #
-    def start_server
+    def load_function
       ::FunctionsFramework.logger.level = @logging_level
-      ::FunctionsFramework.logger.info "FunctionsFramework v#{VERSION} server starting."
+      ::FunctionsFramework.logger.info "FunctionsFramework v#{VERSION}"
       ::ENV["FUNCTION_TARGET"] = @target
       ::ENV["FUNCTION_SOURCE"] = @source
       ::ENV["FUNCTION_SIGNATURE_TYPE"] = @signature_type
       ::FunctionsFramework.logger.info "FunctionsFramework: Loading functions from #{@source.inspect}..."
       load @source
+      ::FunctionsFramework.logger.info "FunctionsFramework: Looking for function name #{@target.inspect}..."
       function = ::FunctionsFramework.global_registry[@target]
       raise "Undefined function: #{@target.inspect}" if function.nil?
       unless @signature_type.nil? ||
@@ -153,6 +200,20 @@ module FunctionsFramework
              ["cloudevent", "event"].include?(@signature_type) && function.type == :cloud_event
         raise "Function #{@target.inspect} does not match type #{@signature_type}"
       end
+      function
+    end
+
+    ##
+    # Start the configured server and return the running server object.
+    # If a validation error occurs, raise an exception.
+    #
+    # @return [FunctionsFramework::Server]
+    #
+    # @private
+    #
+    def start_server
+      function = load_function
+      ::FunctionsFramework.logger.info "FunctionsFramework: Starting server..."
       ::FunctionsFramework.start function do |config|
         config.rack_env = @env
         config.port = @port
@@ -173,12 +234,13 @@ module FunctionsFramework
     end
 
     ##
-    # Print the given error message and exit.
-    # @param message [String]
+    # Set the error status.
+    # @param message [String] Error message.
+    # @param code [Integer] Exit code, defaults to 1.
     #
-    def error message
-      warn message
-      exit 1
+    def error! message, code = 1
+      @error_message = message
+      @exit_code = code
     end
   end
 end

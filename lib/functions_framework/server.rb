@@ -82,9 +82,9 @@ module FunctionsFramework
           @server.max_threads = @config.max_threads
           @server.leak_stack_on_error = @config.show_error_details?
           @server.binder.add_tcp_listener @config.bind_addr, @config.port
-          @server.run true
           @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect}" \
                               " on port #{@config.port}..."
+          @server.run true
         end
       end
       self
