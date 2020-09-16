@@ -25,8 +25,9 @@ module FunctionsFramework
     # Create a new empty registry.
     #
     def initialize
-      super()
+      @mutex = ::Monitor.new
       @functions = {}
+      @start_tasks = []
     end
 
     ##
@@ -37,7 +38,7 @@ module FunctionsFramework
     # @return [nil] if the function is not found
     #
     def [] name
-      @functions[name.to_s]
+      @mutex.synchronize { @functions[name.to_s] }
     end
 
     ##
@@ -46,7 +47,21 @@ module FunctionsFramework
     # @return [Array<String>]
     #
     def names
-      @functions.keys.sort
+      @mutex.synchronize { @functions.keys.sort }
+    end
+
+    ##
+    # Run all startup tasks.
+    #
+    # @param server [FunctionsFramework::Server] The server that is starting.
+    # @return [self]
+    #
+    def run_startup_tasks server
+      tasks = @mutex.synchronize { @start_tasks.dup }
+      tasks.each do |task|
+        task.call server.function, server.config
+      end
+      self
     end
 
     ##
@@ -68,7 +83,7 @@ module FunctionsFramework
     #
     def add_http name, &block
       name = name.to_s
-      synchronize do
+      @mutex.synchronize do
         raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
         @functions[name] = Function.new name, :http, &block
       end
@@ -89,9 +104,27 @@ module FunctionsFramework
     #
     def add_cloud_event name, &block
       name = name.to_s
-      synchronize do
+      @mutex.synchronize do
         raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
         @functions[name] = Function.new name, :cloud_event, &block
+      end
+      self
+    end
+
+    ##
+    # Add a startup task.
+    #
+    # Startup tasks are generally run just before a server starts. They are
+    # passed two arguments: the {FunctionsFramework::Function} identifying the
+    # function to execute, and the {FunctionsFramework::Server::Config}
+    # specifying the (frozen) server configuration. Tasks have no return value.
+    #
+    # @param block [Proc] The startup task
+    # @return [self]
+    #
+    def add_startup_task &block
+      @mutex.synchronize do
+        @start_tasks << block
       end
       self
     end

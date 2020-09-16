@@ -61,4 +61,24 @@ describe FunctionsFramework::Registry do
     assert_equal :cloud_event, registry["func1"].type
     assert_equal :http, registry["func2"].type
   end
+
+  it "defines startup tasks" do
+    expected_rack_env = "google"
+    tester = self
+    task_completed = false
+    registry.add_http "func1" do |_request|
+      "hello"
+    end
+    function = registry["func1"]
+    registry.add_startup_task do |func, config|
+      tester.assert_same function, func
+      tester.assert_equal expected_rack_env, config.rack_env
+      task_completed = true
+    end
+    server = FunctionsFramework::Server.new function do |config|
+      config.rack_env = expected_rack_env
+    end
+    registry.run_startup_tasks server
+    assert task_completed
+  end
 end
