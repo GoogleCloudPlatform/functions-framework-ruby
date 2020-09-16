@@ -42,6 +42,7 @@ module FunctionsFramework
       @detailed_errors = nil
       @signature_type = ::ENV["FUNCTION_SIGNATURE_TYPE"]
       @logging_level = init_logging_level
+      @what_to_do = nil
     end
 
     ##
@@ -52,7 +53,7 @@ module FunctionsFramework
     # @return [self]
     #
     def parse_args argv # rubocop:disable Metrics/MethodLength
-      option_parser = ::OptionParser.new do |op| # rubocop:disable Metrics/BlockLength
+      @option_parser = ::OptionParser.new do |op| # rubocop:disable Metrics/BlockLength
         op.on "-t", "--target TARGET",
               "Set the name of the function to execute (defaults to #{DEFAULT_TARGET})" do |val|
           @target = val
@@ -90,29 +91,41 @@ module FunctionsFramework
         op.on "-q", "--quiet", "Decrease log verbosity" do
           @logging_level += 1
         end
+        op.on "--version", "Display the framework version" do
+          @what_to_do ||= :version
+        end
         op.on "--help", "Display help" do
-          puts op
-          exit
+          @what_to_do ||= :help
         end
       end
-      option_parser.parse! argv
+      @option_parser.parse! argv
       error "Unrecognized arguments: #{argv}\n#{op}" unless argv.empty?
       self
     end
 
     ##
-    # Run the configured server, and block until it stops.
-    # If a validation error occurs, print a message and exit.
+    # Perform the requested function.
+    #
+    #  *  If the `--version` flag was given, display the version.
+    #  *  If the `--help` flag was given, display online help.
+    #  *  Otherwise, start a server and wait for it to complete.
     #
     # @return [self]
     #
     def run
-      begin
-        server = start_server
-      rescue ::StandardError => e
-        error e.message
+      case @what_to_do
+      when :version
+        puts ::FunctionsFramework::VERSION
+      when :help
+        puts @option_parser
+      else
+        begin
+          server = start_server
+        rescue ::StandardError => e
+          error e.message
+        end
+        server.wait_until_stopped
       end
-      server.wait_until_stopped
       self
     end
 

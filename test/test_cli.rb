@@ -58,6 +58,26 @@ describe FunctionsFramework::CLI do
     ENV["FUNCTION_SIGNATURE_TYPE"] = nil
   end
 
+  it "prints the version when given the --version flag" do
+    args = [
+      "--version"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    assert_output "#{FunctionsFramework::VERSION}\n" do
+      cli.run
+    end
+  end
+
+  it "prints online help when given the --help flag" do
+    args = [
+      "--help"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    assert_output(/^Usage:/) do
+      cli.run
+    end
+  end
+
   it "runs an http server" do
     args = [
       "--source", http_source,
