@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.6.0 / 2020-09-17
+
+* ADDED: You can use the --version flag to print the framework version
+* ADDED: You can use the --verify flag to verify that a given function is defined
+* ADDED: You can now define blocks that are executed at server startup
+
 ### v0.5.2 / 2020-09-06
 
 * FIXED: Use global $stderr rather than STDERR for logger 
