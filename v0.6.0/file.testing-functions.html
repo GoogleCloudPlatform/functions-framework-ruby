@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: Testing Functions
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "testing-functions";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: Testing Functions</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="testing-functions">Testing Functions</h1>
+
+<p>This guide covers writing unit tests for functions using the Functions Framework
+for Ruby. For more information about the Framework, see the
+<a href="index.html" title="Overview Guide">Overview Guide</a>.</p>
+
+<h2 id="overview-of-function-testing">Overview of function testing</h2>
+
+<p>One of the benefits of the functions-as-a-service paradigm is that functions are
+easy to test. In many cases, you can simply call a function with input, and test
+the output. You do not need to set up (or mock) an actual server.</p>
+
+<p>The Functions Framework provides utility methods that streamline the process of
+setting up functions and the environment for testing, constructing input
+parameters, and interpreting results. These are available in the
+<span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">FunctionsFramework::Testing</a></span> module. Generally, you can include this module in
+your Minitest test class or RSpec describe block.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>minitest/autorun</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>MyTest</span> <span class='op'>&lt;</span> <span class='const'>Minitest</span><span class='op'>::</span><span class='const'>Test</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+  <span class='comment'># define tests...
+</span><span class='kw'>end</span>
+</code></pre>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>rspec</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='id identifier rubyid_describe'>describe</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>My functions</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+  <span class='comment'># define examples...
+</span><span class='kw'>end</span>
+</code></pre>
+
+<h2 id="loading-functions-for-testing">Loading functions for testing</h2>
+
+<p>To test a function, you&#39;ll need to load the Ruby file that defines the function,
+and run the function to test its results. The Testing module provides a method
+<span class='object_link'><a href="FunctionsFramework/Testing.html#load_temporary-instance_method" title="FunctionsFramework::Testing#load_temporary (method)">FunctionsFramework::Testing#load_temporary</a></span>, which loads a Ruby file, defining
+functions but only for the scope of your test. This allows your test to coexist
+with tests for other functions, even functions with the same name from a
+different Ruby file.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>minitest/autorun</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>MyTest</span> <span class='op'>&lt;</span> <span class='const'>Minitest</span><span class='op'>::</span><span class='const'>Test</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_test_a_function'>test_a_function</span>
+    <span class='id identifier rubyid_load_temporary'>load_temporary</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>foo.rb</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='comment'># Test a function defined in foo.rb
+</span>    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_test_another_function'>test_another_function</span>
+    <span class='id identifier rubyid_load_temporary'>load_temporary</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>bar.rb</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='comment'># Test a function defined in bar.rb
+</span>    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>When running a test suite, you&#39;ll typically need to load all the Ruby files
+that define your functions. While <code>load_temporary</code> can ensure that the function
+definitions do not conflict, it cannot do the same for classes, methods, and
+other Ruby constructs. So, for testability, it is generally good practice to
+include only functions in one of these files. If you need to write supporting
+helper methods, classes, constants, or other code, include them in separate
+ruby files that you <code>require</code>.</p>
+
+<h2 id="testing-http-functions">Testing HTTP functions</h2>
+
+<p>Testing an HTTP function is generally as simple as generating a request, calling
+the function, and asserting against the response.</p>
+
+<p>The input to an HTTP function is a
+<a href="https://rubydoc.info/gems/rack/Rack/Request">Rack::Request</a> object. It is
+usually not hard to construct one of these objects, but the <code>Testing</code> module
+includes helper methods that you can use to create simple requests for many
+basic cases.</p>
+
+<p>When you have constructed an input request, use
+<span class='object_link'><a href="FunctionsFramework/Testing.html#call_http-instance_method" title="FunctionsFramework::Testing#call_http (method)">FunctionsFramework::Testing#call_http</a></span> to call a named function, passing the
+request object. This method returns a
+<a href="https://rubydoc.info/gems/rack/Rack/Response">Rack::Response</a> that you can
+assert against.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>minitest/autorun</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>MyTest</span> <span class='op'>&lt;</span> <span class='const'>Minitest</span><span class='op'>::</span><span class='const'>Test</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_test_http_function'>test_http_function</span>
+    <span class='id identifier rubyid_load_temporary'>load_temporary</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>app.rb</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_make_post_request'>make_post_request</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://example.com/foo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>{\&quot;name\&quot;:\&quot;Ruby\&quot;}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                                  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Content-Type: application/json</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_call_http'>call_http</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my_function</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span>
+      <span class='id identifier rubyid_assert_equal'>assert_equal</span> <span class='int'>200</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span>
+      <span class='id identifier rubyid_assert_equal'>assert_equal</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, Ruby!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>If the function raises an exception, the exception will be converted to a 500
+response object. So if you are testing an error case, you should still check the
+response object rather than looking for a raised exception.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>minitest/autorun</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>MyTest</span> <span class='op'>&lt;</span> <span class='const'>Minitest</span><span class='op'>::</span><span class='const'>Test</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_test_erroring_http_function'>test_erroring_http_function</span>
+    <span class='id identifier rubyid_load_temporary'>load_temporary</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>app.rb</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_request'>request</span> <span class='op'>=</span> <span class='id identifier rubyid_make_post_request'>make_post_request</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://example.com/foo</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>{\&quot;name\&quot;:\&quot;Ruby\&quot;}</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span>
+                                  <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Content-Type: application/json</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span>
+      <span class='id identifier rubyid_response'>response</span> <span class='op'>=</span> <span class='id identifier rubyid_call_http'>call_http</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>error_function</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_request'>request</span>
+      <span class='id identifier rubyid_assert_equal'>assert_equal</span> <span class='int'>500</span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_status'>status</span>
+      <span class='id identifier rubyid_assert_match'>assert_match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>ArgumentError</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_response'>response</span><span class='period'>.</span><span class='id identifier rubyid_body'>body</span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h2 id="testing-cloudevent-functions">Testing CloudEvent functions</h2>
+
+<p>Testing a CloudEvent function works similarly. The <code>Testing</code> module provides
+methods to help construct example CloudEvent objects, which can then be passed
+to the method <span class='object_link'><a href="FunctionsFramework/Testing.html#call_event-instance_method" title="FunctionsFramework::Testing#call_event (method)">FunctionsFramework::Testing#call_event</a></span>.</p>
+
+<p>Unlike HTTP functions, event functions do not have a return value. Instead, you
+will need to test side effects. A common approach is to test logs by capturing
+the standard error output.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>minitest/autorun</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework/testing</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>MyTest</span> <span class='op'>&lt;</span> <span class='const'>Minitest</span><span class='op'>::</span><span class='const'>Test</span>
+  <span class='id identifier rubyid_include'>include</span> <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="FunctionsFramework/Testing.html" title="FunctionsFramework::Testing (module)">Testing</a></span></span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_test_event_function'>test_event_function</span>
+    <span class='id identifier rubyid_load_temporary'>load_temporary</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>app.rb</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='id identifier rubyid_event'>event</span> <span class='op'>=</span> <span class='id identifier rubyid_make_cloud_event'>make_cloud_event</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, world!</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='label'>type:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my-type</span><span class='tstring_end'>&quot;</span></span>
+      <span class='id identifier rubyid__out'>_out</span><span class='comma'>,</span> <span class='id identifier rubyid_err'>err</span> <span class='op'>=</span> <span class='id identifier rubyid_capture_subprocess_io'>capture_subprocess_io</span> <span class='kw'>do</span>
+        <span class='id identifier rubyid_call_event'>call_event</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my_function</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='id identifier rubyid_event'>event</span>
+      <span class='kw'>end</span>
+      <span class='id identifier rubyid_assert_match'>assert_match</span><span class='lparen'>(</span><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>Received: &quot;Hello, world!&quot;</span><span class='regexp_end'>/</span></span><span class='comma'>,</span> <span class='id identifier rubyid_err'>err</span><span class='rparen'>)</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+</div></div>
+
+      <div id="footer">
+  Generated on Thu Sep 17 21:07:23 2020 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.25 (ruby-2.6.6).
+</div>
+
+    </div>
+  </body>
+</html>
