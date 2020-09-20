@@ -1,7 +1,7 @@
 name: "Ruby Unit CI"
 on: [push, pull_request]
 jobs:
-  check:
+  lint:
     if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     runs-on: ubuntu-latest
     steps:
