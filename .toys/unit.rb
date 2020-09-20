@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-desc "Run all CI checks"
+desc "Run unit CI checks"
 
 include :exec, result_callback: :handle_result
 include :terminal
@@ -29,7 +29,6 @@ end
 def run
   ::Dir.chdir context_directory
   exec_tool ["test"], name: "Tests"
-  exec_tool ["rubocop"], name: "Style checker"
   exec_tool ["yardoc"], name: "Docs generation"
   exec_tool ["build"], name: "Gem build"
   ::Dir.foreach "examples" do |dir|

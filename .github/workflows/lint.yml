@@ -1,0 +1,14 @@
+name: "Ruby Unit CI"
+on: [push, pull_request]
+jobs:
+  check:
+    if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Ruby
+      uses: ruby/setup-ruby@v1
+    - name: Install dependencies
+      run: "bundle install && gem install --no-document toys"
+    - name: Lint
+      run: toys lint

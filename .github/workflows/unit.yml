@@ -1,14 +1,5 @@
-name: "CI tests"
-
-on:
-  pull_request:
-    branches:
-      - master
-  push:
-    branches:
-      - master
-  workflow_dispatch:
-
+name: "Ruby Unit CI"
+on: [push, pull_request]
 jobs:
   tests:
     if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
@@ -19,7 +10,7 @@ jobs:
         include:
           - os: ubuntu-latest
             ruby: "2.7"
-            tool: ci
+            tool: unit
           - os: macos-latest
             ruby: "2.7"
           - os: windows-latest
