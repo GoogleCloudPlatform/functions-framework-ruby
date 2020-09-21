@@ -1,4 +1,4 @@
-name: "Ruby Lint CI"
+name: Ruby Lint CI
 on:	
   pull_request:	
     branches:	
@@ -21,4 +21,4 @@ jobs:
     - name: Install dependencies
       run: "bundle install && gem install --no-document toys"
     - name: Lint
-      run: "toys ci --only --test-rubocop < /dev/null"
+      run: "toys ci --only --test-rubocop"

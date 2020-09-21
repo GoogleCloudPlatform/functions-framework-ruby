@@ -35,16 +35,14 @@ end
 
 def run
   ::Dir.chdir context_directory
-  unless only
-    TESTS.each do |name|
-      key = "test_#{name}".to_sym
-      set key, true if get(key).nil?
-    end
+  TESTS.each do |name|
+    key = "test_#{name}".to_sym
+    set key, !only if get(key).nil?
   end
-  exec_tool ["test"], name: "Tests" if test_unit
-  exec_tool ["rubocop"], name: "Style checker" if test_rubocop
-  exec_tool ["yardoc"], name: "Docs generation" if test_yardoc
-  exec_tool ["build"], name: "Gem build" if test_build
+  exec ["toys", "test"], name: "Tests" if test_unit
+  exec ["toys", "rubocop"], name: "Style checker" if test_rubocop
+  exec ["toys", "yardoc"], name: "Docs generation" if test_yardoc
+  exec ["toys", "build"], name: "Gem build" if test_build
   return unless test_examples
   ::Dir.foreach "examples" do |dir|
     next if dir =~ /^\.+$/
