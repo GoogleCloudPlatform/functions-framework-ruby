@@ -12,7 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-desc "Run all CI checks"
+desc "Run CI checks"
+
+TESTS = ["unit", "rubocop", "yardoc", "build", "examples"]
+
+flag :only
+TESTS.each do |name|
+  flag "test_#{name}".to_sym, "--[no-]test-#{name}"
+end
 
 include :exec, result_callback: :handle_result
 include :terminal
@@ -28,10 +35,15 @@ end
 
 def run
   ::Dir.chdir context_directory
-  exec_tool ["test"], name: "Tests"
-  exec_tool ["rubocop"], name: "Style checker"
-  exec_tool ["yardoc"], name: "Docs generation"
-  exec_tool ["build"], name: "Gem build"
+  TESTS.each do |name|
+    key = "test_#{name}".to_sym
+    set key, !only if get(key).nil?
+  end
+  exec ["toys", "test"], name: "Tests" if test_unit
+  exec ["toys", "rubocop"], name: "Style checker" if test_rubocop
+  exec ["toys", "yardoc"], name: "Docs generation" if test_yardoc
+  exec ["toys", "build"], name: "Gem build" if test_build
+  return unless test_examples
   ::Dir.foreach "examples" do |dir|
     next if dir =~ /^\.+$/
     exec ["toys", "test"], name: "Tests for #{dir} example", chdir: ::File.join("examples", dir)

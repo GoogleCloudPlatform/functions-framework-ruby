@@ -1,0 +1,24 @@
+name: Ruby Lint CI
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  lint:
+    if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Install Ruby 2.7
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "2.7"
+    - name: Install dependencies
+      run: "bundle install && gem install --no-document toys"
+    - name: Lint
+      run: "toys ci --only --test-rubocop"
