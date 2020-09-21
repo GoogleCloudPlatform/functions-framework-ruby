@@ -10,13 +10,13 @@ jobs:
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Use Ruby ${{ matrix.ruby }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
-      - name: Install dependencies
-        run: "bundle install && gem install --no-document toys"
-      - name: Test
-        run: toys test < /dev/null
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Use Ruby ${{ matrix.ruby }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+    - name: Install dependencies
+      run: "bundle install && gem install --no-document toys"
+    - name: Test
+      run: toys test < /dev/null
