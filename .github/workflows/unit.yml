@@ -1,22 +1,42 @@
 name: "Ruby Unit CI"
-on: [push, pull_request]
+on:	
+  pull_request:	
+    branches:	
+      - master	
+  push:	
+    branches:	
+      - master	
+  workflow_dispatch:
 jobs:
   test:
     if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
-        ruby: [ "2.4", "2.5", "2.6", "2.7", "jruby" ]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            ruby: "2.4"
+          - os: ubuntu-latest
+            ruby: "2.5"
+          - os: ubuntu-latest
+            ruby: "2.6"
+          - os: ubuntu-latest
+            ruby: "2.7"
+          - os: ubuntu-latest
+            ruby: jruby
+          - os: macos-latest
+            ruby: "2.7"
+          - os: windows-latest
+            ruby: "2.7"
+      fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
-    - name: Use Ruby ${{ matrix.ruby }}
+    - name: Install Ruby ${{ matrix.ruby }}
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby }}
+        ruby-version: "${{ matrix.ruby }}"
     - name: Install dependencies
       run: "bundle install && gem install --no-document toys"
     - name: Test
-      run: toys test < /dev/null
+      run: "toys ci --no-test-rubocop < /dev/null"
