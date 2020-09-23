@@ -27,17 +27,22 @@ module FunctionsFramework
     include ::MonitorMixin
 
     ##
-    # Create a new web server given a function. Yields a
-    # {FunctionsFramework::Server::Config} object that you can use to set
-    # server configuration parameters. This block is the only opportunity to
-    # set configuration; once the server is initialized, configuration is
-    # frozen.
+    # Create a new web server given a function definition, a set of application
+    # globals, and server configuration.
+    #
+    # To configure the server, pass a block that takes a
+    # {FunctionsFramework::Server::Config} object as the parameter. This block
+    # is the only opportunity to modify the configuration; once the server is
+    # initialized, configuration is frozen.
     #
     # @param function [FunctionsFramework::Function] The function to execute.
+    # @param globals [Hash] Globals to pass to invocations. This hash should
+    #     normally be frozen so separate function invocations cannot interfere
+    #     with one another's globals.
     # @yield [FunctionsFramework::Server::Config] A config object that can be
     #     manipulated to configure this server.
     #
-    def initialize function
+    def initialize function, globals
       super()
       @config = Config.new
       yield @config if block_given?
@@ -46,9 +51,9 @@ module FunctionsFramework
       @app =
         case function.type
         when :http
-          HttpApp.new function, @config
+          HttpApp.new function, globals, @config
         when :cloud_event
-          EventApp.new function, @config
+          EventApp.new function, globals, @config
         else
           raise "Unrecognized function type: #{function.type}"
         end
@@ -379,9 +384,10 @@ module FunctionsFramework
 
     ## @private
     class HttpApp < AppBase
-      def initialize function, config
+      def initialize function, globals, config
         super config
         @function = function
+        @globals = globals
       end
 
       def call env
@@ -391,8 +397,7 @@ module FunctionsFramework
             logger = env["rack.logger"] ||= @config.logger
             request = ::Rack::Request.new env
             logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
-            calling_context = @function.new_call logger: logger
-            calling_context.call request
+            @function.call request, globals: @globals, logger: logger
           rescue ::StandardError => e
             e
           end
@@ -402,9 +407,10 @@ module FunctionsFramework
 
     ## @private
     class EventApp < AppBase
-      def initialize function, config
+      def initialize function, globals, config
         super config
         @function = function
+        @globals = globals
         @cloud_events = ::CloudEvents::HttpBinding.default
         @legacy_events = LegacyEventConverter.new
       end
@@ -439,8 +445,7 @@ module FunctionsFramework
 
       def handle_cloud_event event, logger
         logger.info "FunctionsFramework: Handling CloudEvent"
-        calling_context = @function.new_call logger: logger
-        calling_context.call event
+        @function.call event, globals: @globals, logger: logger
         "ok"
       rescue ::StandardError => e
         e

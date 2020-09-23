@@ -12,20 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "monitor"
-
 module FunctionsFramework
   ##
   # Registry providing lookup of functions by name.
   #
   class Registry
-    include ::MonitorMixin
-
     ##
     # Create a new empty registry.
     #
     def initialize
-      @mutex = ::Monitor.new
+      @mutex = ::Mutex.new
       @functions = {}
       @start_tasks = []
     end
@@ -51,17 +47,12 @@ module FunctionsFramework
     end
 
     ##
-    # Run all startup tasks.
+    # Return an array of startup tasks.
     #
-    # @param server [FunctionsFramework::Server] The server that is starting.
-    # @return [self]
+    # @return [Array<FunctionsFramework::Function>]
     #
-    def run_startup_tasks server
-      tasks = @mutex.synchronize { @start_tasks.dup }
-      tasks.each do |task|
-        task.call server.function, server.config
-      end
-      self
+    def startup_tasks
+      @mutex.synchronize { @start_tasks.dup }
     end
 
     ##
@@ -85,7 +76,7 @@ module FunctionsFramework
       name = name.to_s
       @mutex.synchronize do
         raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
-        @functions[name] = Function.new name, :http, &block
+        @functions[name] = Function.http name, &block
       end
       self
     end
@@ -106,7 +97,7 @@ module FunctionsFramework
       name = name.to_s
       @mutex.synchronize do
         raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
-        @functions[name] = Function.new name, :cloud_event, &block
+        @functions[name] = Function.cloud_event name, &block
       end
       self
     end
@@ -115,16 +106,15 @@ module FunctionsFramework
     # Add a startup task.
     #
     # Startup tasks are generally run just before a server starts. They are
-    # passed two arguments: the {FunctionsFramework::Function} identifying the
-    # function to execute, and the {FunctionsFramework::Server::Config}
-    # specifying the (frozen) server configuration. Tasks have no return value.
+    # passed the {FunctionsFramework::Function} identifying the function to
+    # execute, and have no return value.
     #
     # @param block [Proc] The startup task
     # @return [self]
     #
     def add_startup_task &block
       @mutex.synchronize do
-        @start_tasks << block
+        @start_tasks << Function.startup_task(&block)
       end
       self
     end

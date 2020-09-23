@@ -165,3 +165,35 @@ class MyTest < Minitest::Test
   end
 end
 ```
+
+## Testing startup tasks
+
+When a functions server is starting up, it calls startup tasks automatically.
+However, the testing environment does not do this. You must call startup tasks
+explicitly in order to test them, and to prepare any shared resources needed by
+the function to be tested.
+
+To call startup tasks, pass the function name to the method
+{FunctionsFramework::Testing#run_startup_tasks}. This will execute all defined
+startup tasks as if the server were preparing the given function for execution.
+It will also return the {FunctionsFramework::Function} object so you can
+inspect it.
+
+```ruby
+require "minitest/autorun"
+require "functions_framework/testing"
+
+class MyTest < Minitest::Test
+  include FunctionsFramework::Testing
+
+  def test_startup_tasks
+    load_temporary "app.rb" do
+      run_startup_tasks "my_function"
+
+      request = make_get_request "https://example.com/foo"
+      response = call_http "my_function", request
+      assert_equal 200, response.status
+    end
+  end
+end
+```

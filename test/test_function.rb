@@ -18,25 +18,25 @@ require "ostruct"
 describe FunctionsFramework::Function do
   it "represents an http function using a block" do
     tester = self
-    function = FunctionsFramework::Function.new "my_func", :http do |request|
+    function = FunctionsFramework::Function.http "my_func" do |request|
       tester.assert_equal "the-request", request
-      tester.assert_equal "my_func", context[:function_name]
+      tester.assert_equal "my_func", global(:function_name)
       "hello"
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.new_call.call "the-request"
+    response = function.call "the-request", globals: { function_name: function.name }
     assert_equal "hello", response
   end
 
   it "represents an http function using a block with a return statement" do
-    function = FunctionsFramework::Function.new "my_func", :http do |request|
+    function = FunctionsFramework::Function.http "my_func" do |request|
       return "hello" if request == "the-request"
       "goodbye"
     end
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.new_call.call "the-request"
+    response = function.call "the-request"
     assert_equal "hello", response
   end
 
@@ -44,12 +44,12 @@ describe FunctionsFramework::Function do
     tester = self
     function = FunctionsFramework::Function.new "my_event_func", :cloud_event do |event|
       tester.assert_equal "the-event", event
-      tester.assert_equal "my_event_func", context[:function_name]
+      tester.assert_equal "my_event_func", global(:function_name)
       "ok"
     end
     assert_equal "my_event_func", function.name
     assert_equal :cloud_event, function.type
-    function.new_call.call "the-event"
+    function.call "the-event", globals: { function_name: function.name }
   end
 
   it "represents an http function using an object" do
@@ -60,7 +60,7 @@ describe FunctionsFramework::Function do
     function = FunctionsFramework::Function.new "my_func", :http, callable
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.new_call.call "the-request"
+    response = function.call "the-request"
     assert_equal "hello", response
   end
 
@@ -77,7 +77,7 @@ describe FunctionsFramework::Function do
     function = FunctionsFramework::Function.new "my_func", :http, MyCallable
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.new_call.call "the-request"
+    response = function.call "the-request"
     assert_equal "hello", response
   end
 end

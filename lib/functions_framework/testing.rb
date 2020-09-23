@@ -76,6 +76,37 @@ module FunctionsFramework
     end
 
     ##
+    # Run startup tasks for the given function name and return the initialized
+    # globals hash.
+    #
+    # Normally, this will be run automatically prior to the first call to the
+    # function using {call_http} or {call_event}, if it has not already been
+    # run. However, you can call it explicitly to test its behavior. It cannot
+    # be called more than once for any given function.
+    #
+    # @param name [String] The name of the function to start up.
+    # @param lenient [Boolean] If false (the default), raise an error if the
+    #     given function has already had its startup tasks run. If true,
+    #     duplicate requests to run startup tasks are ignored.
+    # @return [Hash] The initialized globals.
+    #
+    def run_startup_tasks name, lenient: false
+      function = Testing.current_registry[name]
+      raise "Unknown function name #{name}" unless function
+      globals = Testing.current_globals name
+      if globals
+        raise "Function #{name} has already been started up" unless lenient
+      else
+        globals = function.populate_globals
+        Testing.current_registry.startup_tasks.each do |task|
+          task.call function, globals: globals
+        end
+        Testing.current_globals name, globals
+      end
+      globals.freeze
+    end
+
+    ##
     # Call the given HTTP function for testing. The underlying function must
     # be of type `:http`.
     #
@@ -84,10 +115,11 @@ module FunctionsFramework
     # @return [Rack::Response]
     #
     def call_http name, request
-      function = ::FunctionsFramework.global_registry[name]
+      globals = run_startup_tasks name, lenient: true
+      function = Testing.current_registry[name]
       case function&.type
       when :http
-        Testing.interpret_response { function.new_call.call request }
+        Testing.interpret_response { function.call request, globals: globals }
       when nil
         raise "Unknown function name #{name}"
       else
@@ -104,10 +136,11 @@ module FunctionsFramework
     # @return [nil]
     #
     def call_event name, event
-      function = ::FunctionsFramework.global_registry[name]
+      globals = run_startup_tasks name, lenient: true
+      function = Testing.current_registry[name]
       case function&.type
       when :cloud_event
-        function.new_call.call event
+        function.call event, globals: globals
         nil
       when nil
         raise "Unknown function name #{name}"
@@ -208,25 +241,47 @@ module FunctionsFramework
     extend self
 
     @testing_registries = {}
+    @main_globals = {}
     @mutex = ::Mutex.new
 
     class << self
       ## @private
       def load_for_testing path
         old_registry = ::FunctionsFramework.global_registry
-        @mutex.synchronize do
-          if @testing_registries.key? path
-            ::FunctionsFramework.global_registry = @testing_registries[path]
-          else
-            new_registry = ::FunctionsFramework::Registry.new
-            ::FunctionsFramework.global_registry = new_registry
-            ::Kernel.load path
-            @testing_registries[path] = new_registry
+        ::Thread.current[:functions_framework_testing_registry] =
+          @mutex.synchronize do
+            if @testing_registries.key? path
+              ::FunctionsFramework.global_registry = @testing_registries[path]
+            else
+              new_registry = ::FunctionsFramework::Registry.new
+              ::FunctionsFramework.global_registry = new_registry
+              ::Kernel.load path
+              @testing_registries[path] = new_registry
+            end
           end
-        end
+        ::Thread.current[:functions_framework_testing_globals] = {}
         yield
       ensure
+        ::Thread.current[:functions_framework_testing_registry] = nil
+        ::Thread.current[:functions_framework_testing_globals] = nil
         ::FunctionsFramework.global_registry = old_registry
+      end
+
+      ## @private
+      def current_registry
+        ::Thread.current[:functions_framework_testing_registry] ||
+          ::FunctionsFramework.global_registry
+      end
+
+      ## @private
+      def current_globals name, globals = nil
+        name = name.to_s
+        globals_by_name = ::Thread.current[:functions_framework_testing_globals] || @main_globals
+        if globals
+          globals_by_name[name] = globals
+        else
+          globals_by_name[name]
+        end
       end
 
       ## @private
