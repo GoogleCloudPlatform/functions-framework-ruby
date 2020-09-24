@@ -83,4 +83,12 @@ describe FunctionsFramework::Registry do
     assert task_completed
     assert_equal :bar, globals[:foo]
   end
+
+  it "defines a function without a formal parameter" do
+    registry.add_http "my_func" do
+      "hello"
+    end
+    response = registry["my_func"].call "the-request"
+    assert_equal "hello", response
+  end
 end

@@ -142,16 +142,25 @@ module FunctionsFramework
     end
 
     ##
-    # Get a callable for performing a function invocation. This will either
-    # return the singleton callable object, or instantiate a new callable from
-    # the configured class.
+    # Call the function given a set of arguments. Set the given logger and/or
+    # globals in the context if the callable supports it.
     #
-    # @param logger [::Logger] The logger for use by function executions. This
-    #     may or may not be used by the callable.
-    # @return [#call]
+    # If the given arguments exceeds what the function will accept, the args
+    # are silently truncated. However, if the function requires more arguments
+    # than are provided, an ArgumentError is raised.
+    #
+    # @param args [Array] Argument to pass to the function.
+    # @param logger [::Logger] Logger for use by function executions.
+    # @param globals [Hash] Globals for the function execution context
+    # @return [Object] The function return value.
     #
     def call *args, globals: nil, logger: nil
       callable = @callable || @callable_class.new(globals: globals, logger: logger)
+      params = callable.method(:call).parameters.map(&:first)
+      unless params.include? :rest
+        max_params = params.count(:req) + params.count(:opt)
+        args = args.take max_params
+      end
       callable.call(*args)
     end
 

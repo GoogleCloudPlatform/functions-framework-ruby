@@ -42,7 +42,7 @@ describe FunctionsFramework::Function do
 
   it "defines a cloud_event function using a block" do
     tester = self
-    function = FunctionsFramework::Function.new "my_event_func", :cloud_event do |event|
+    function = FunctionsFramework::Function.cloud_event "my_event_func" do |event|
       tester.assert_equal "the-event", event
       tester.assert_equal "my_event_func", global(:function_name)
       "ok"
@@ -50,6 +50,17 @@ describe FunctionsFramework::Function do
     assert_equal "my_event_func", function.name
     assert_equal :cloud_event, function.type
     function.call "the-event", globals: { function_name: function.name }
+  end
+
+  it "defines a startup function using a block" do
+    tester = self
+    function = FunctionsFramework::Function.startup_task do |func|
+      tester.assert_equal "the-function", func
+      tester.assert_nil global(:function_name)
+    end
+    assert_nil function.name
+    assert_equal :startup_task, function.type
+    function.call "the-function", globals: { function_name: function.name }
   end
 
   it "represents an http function using an object" do
@@ -79,5 +90,13 @@ describe FunctionsFramework::Function do
     assert_equal :http, function.type
     response = function.call "the-request"
     assert_equal "hello", response
+  end
+
+  it "can call a startup function with no formal argument" do
+    tester = self
+    function = FunctionsFramework::Function.startup_task do
+      tester.assert_nil global(:function_name)
+    end
+    function.call "the-function", globals: { function_name: function.name }
   end
 end

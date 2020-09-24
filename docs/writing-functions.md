@@ -249,7 +249,7 @@ require "functions_framework"
 
 # Instead initialize in an on_startup block, which is executed only when a
 # runtime server is starting up.
-FunctionsFramework.on_startup do
+FunctionsFramework.on_startup do |function|
   # Perform initialization here.
   require "my_cache"
   MyCache.warmup
