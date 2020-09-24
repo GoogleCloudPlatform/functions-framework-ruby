@@ -215,7 +215,7 @@ FunctionsFramework.on_startup do |function|
 end
 
 FunctionsFramework.http "hello" do |request|
-  # Use MyCache during thie
+  # Initialization will be done by the time a normal function is called.
 end
 ```
 
