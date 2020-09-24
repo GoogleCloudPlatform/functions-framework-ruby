@@ -199,11 +199,11 @@ end
 
 ## Initialization
 
-Generally, functions should be self-contained and stateless, but some functions
-need to perform one-time initialization, for example to warm up caches, perform
-precomputation, or establish shared remote connections. To perform
-initialization tasks, use {FunctionsFramework.on_startup} to define a startup
-block.
+Generally, functions should be self-contained and stateless. However, it is
+sometimes useful for a function to perform one-time initialization, for example
+to warm up caches, perform precomputation, or establish shared remote
+connections. To run code during initialization, use
+{FunctionsFramework.on_startup} to define a startup block.
 
 ```ruby
 require "functions_framework"
@@ -222,7 +222,7 @@ end
 `on_startup` blocks are run once per Ruby instance, before the framework starts
 receiving requests and executing functions. You can define multiple startup
 blocks, and they will run in order, and are guaranteed to complete before any
-function starts running.
+function is executed.
 
 The block is optionally passed the {FunctionsFramework::Function} representing
 the function that will be run. You can, for example, perform different
@@ -237,7 +237,8 @@ requested function is properly defined), and you generally don't want to run
 long-running initialization at that time. In some cases it could even cause
 deployment to fail if the initialization depends on resources available at
 runtime but not build time. Thus, most initialization should happen in an
-`on_startup` block, which is executed at runtime but not build time.
+`on_startup` block, which is executed when a runtime server is starting up, but
+ignored at build time.
 
 ```ruby
 require "functions_framework"
@@ -246,7 +247,8 @@ require "functions_framework"
 #   require "my_cache"
 #   MyCache.warmup
 
-# Instead use on_startup
+# Instead initialize in an on_startup block, which is executed only when a
+# runtime server is starting up.
 FunctionsFramework.on_startup do
   # Perform initialization here.
   require "my_cache"
@@ -269,8 +271,8 @@ the same logger provided by the HTTP request object or by calling
 
 Second, you can access global shared data by passing a key to
 {FunctionsFramework::Function::Callable#global}. _Global shared data_ is a set
-of common key-value pairs that are available to every function invocation. By
-default, two keys are available to all functions:
+of key-value pairs that are available to every function invocation. By default,
+two keys are available to all functions:
 
  *  `:function_name` whose String value is the name of the running function.
  *  `:function_type` whose value is either `:http` or `:cloud_event` depending
@@ -287,12 +289,12 @@ FunctionsFramework.cloud_event "hello" do |event|
 end
 ```
 
-The logger and global shared data is also available in `on_startup` blocks.
-Additionally, while most functions can read but not modify the global data,
-startup blocks can also add or modify global shared data keys. This is often
-useful for setting up _shared resources_, such as remote service connections,
-during startup, and accessing them from functions. We'll take a look at this
-technique next.
+The {FunctionsFramework::Function::Callable#logger} and
+{FunctionsFramework::Function::Callable#global} methods are also available in
+`on_startup` blocks. Additionally, while global data is generally read-only in
+function invocations, startup blocks can also add or modify global data. This
+is often useful for setting up _shared resources_, such as remote service
+connections. We'll take a look at this technique next.
 
 ## Sharing resources
 
@@ -307,46 +309,46 @@ you might establish a single connection to a remote database or other service,
 and share it across function invocations to avoid incurring the overhead of
 re-establishing it for every function invocation.
 
-When using a shared resource, it is important to keep three things in mind:
+The best practice for sharing a resource across function invocations is to
+initialize shared resources in a {FunctionsFramework.on_startup} block, and
+reference them from global shared data. As discussed above, avoid initializing
+shared resources at the top level of a Ruby file, because it could be loaded
+during build/deployment. Additionally, prefer the globals mechanism provided by
+the execution context, rather than using a Ruby global variable, because the
+Functions Framework can isolate the context's globals, improving testability.
 
- 1. **The shared resource should be thread-safe.** This is because serverless
-    runtimes such as Google Cloud Functions may run multiple functions at a time
-    in separate threads.
+Here is a simple example:
 
- 2. **Use `FunctionsFramework.on_startup` to initialize shared resources and
-    store them in global shared data.**
-    As mentioned earlier, avoid initializing shared resources at the top level
-    of your app, because it could be loaded during build/deployment. Instead,
-    initialize resources in a {FunctionsFramework.on_startup} block, and store
-    references to them in global state. Then all function invocations will have
-    access to it.
+```ruby
+require "functions_framework"
 
-    For example:
+# Use an on_startup block to initialize a shared client and store it in
+# the global shared data.
+FunctionsFramework.on_startup do
+  require "google/cloud/storage"
+  set_global :storage_client, Google::Cloud::Storage.new
+end
 
-    ```ruby
-    require "functions_framework"
+# The shared storage_client can be accessed by all function invocations
+# via the global shared data.
+FunctionsFramework.http "storage_example" do |request|
+  bucket = global(:storage_client).bucket "my-bucket"
+  file = bucket.file "path/to/my-file.txt"
+  file.download.to_s
+end
+```
 
-    # Use an on_startup block to initialize a shared client and store it in
-    # the global shared data.
-    FunctionsFramework.on_startup do
-      require "google/cloud/storage"
-      set_global :storage_client, Google::Cloud::Storage.new
-    end
+Importantly, if you do share a resource across function invocations, make sure
+the resource is thread-safe. This is because serverless runtimes such as Google
+Cloud Functions may run multiple functions at a time in separate threads.
 
-    # The shared storage_client can be accessed by all function invocations
-    # via the global shared data.
-    FunctionsFramework.http "storage_example" do |request|
-      bucket = global(:storage_client).bucket "my-bucket"
-      file = bucket.file "path/to/my-file.txt"
-      file.download.to_s
-    end
-    ```
-
- 3. **There is no guaranteed cleanup hook.** The Functions Framework does not
-    provide a guaranteed way to register a cleanup task. You can register a
-    `Kernel.at_exit` task, but remember that it is possible for the Ruby VM to
-    terminate without calling it. It is strongly recommended that you use
-    resources that do not require "cleanup".
+Also of note: There is no guaranteed cleanup hook. The Functions Framework does
+not provide a way to register a cleanup task, and we recommend that you use
+only resources that do not require explicit "cleanup". This is because, to save
+you resources (and cost), serverless runtimes may throttle your CPU time when
+not actually responding a function, so there might not be any opportunity to
+run cleanup tasks. (For example, you can register a `Kernel.at_exit` task, but
+the Ruby VM may still terminate without calling it.)
 
 ## Structuring a project
 
