@@ -169,15 +169,27 @@ end
 ## Testing startup tasks
 
 When a functions server is starting up, it calls startup tasks automatically.
-However, the testing environment does not do this. You must call startup tasks
-explicitly in order to test them, and to prepare any shared resources needed by
-the function to be tested.
+In the testing environment, when you call a function using the
+{FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event} methods, the testing environment will
+also automatically execute any startup tasks for you.
 
-To call startup tasks, pass the function name to the method
-{FunctionsFramework::Testing#run_startup_tasks}. This will execute all defined
-startup tasks as if the server were preparing the given function for execution.
-It will also return the {FunctionsFramework::Function} object so you can
-inspect it.
+You can also call startup tasks explicitly to test them in isolation, using the
+{FunctionsFramework::Testing#run_startup_tasks} method. Pass the name of a
+function, and the testing module will execute all defined startup blocks, in
+order, as if the server were preparing that function for execution.
+{FunctionsFramework::Testing#run_startup_tasks} returns the resulting globals
+as a hash, and you can assert against its contents.
+
+If you use {FunctionsFramework::Testing#run_startup_tasks} to run the startup
+tasks explicitly, they will not be run again when you call the function itself
+using {FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event}.
+
+There is currently no way to run a single startup block in isolation.
+
+Following is an example test that runs startup tasks explicitly and asserts
+against its effects on the globals.
 
 ```ruby
 require "minitest/autorun"
@@ -188,7 +200,8 @@ class MyTest < Minitest::Test
 
   def test_startup_tasks
     load_temporary "app.rb" do
-      run_startup_tasks "my_function"
+      globals = run_startup_tasks "my_function"
+      assert_equal "foo", globals[:my_global]
 
       request = make_get_request "https://example.com/foo"
       response = call_http "my_function", request
