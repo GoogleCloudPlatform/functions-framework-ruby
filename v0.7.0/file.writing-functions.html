@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: Writing Functions
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "writing-functions";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: Writing Functions</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="writing-functions">Writing Functions</h1>
+
+<p>This guide covers writing functions using the Functions Framework for Ruby. For
+more information about the Framework, see the
+<a href="index.html" title="Overview Guide">Overview Guide</a>.</p>
+
+<h2 id="about-functions">About functions</h2>
+
+<p>Functions are Ruby blocks that are run when an input is received. Those inputs
+can be HTTP requests or events in a recognized format. Functions that receive
+HTTP requests return an HTTP response, but event functions have no return value.</p>
+
+<p>When you define a function, you must provide an identifying name. The Functions
+Framework allows you to use any string as a function name; however, many
+deployment environments restrict the characters that can be used in a name. For
+maximum portability, it is recommended that you use names that are allowed for
+Ruby methods, i.e. beginning with a letter, and containing only letters,
+numbers, and underscores.</p>
+
+<h2 id="defining-an-http-function">Defining an HTTP function</h2>
+
+<p>An HTTP function is a simple web service that takes an HTTP request and returns
+an HTTP response. The following example defines an HTTP function named &quot;hello&quot;
+that returns a simple message in the HTTP response body:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='comment'># Return the response body.
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, world!\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>HTTP functions take a Rack Request object and return an HTTP response. We&#39;ll
+now cover these in a bit more detail.</p>
+
+<h3 id="using-the-request-object">Using the Request object</h3>
+
+<p>An HTTP function is passed a request, which is an object of type
+<a href="https://rubydoc.info/gems/rack/Rack/Request">Rack::Request</a>. This object
+provides methods for obtaining request information such as the method,
+path, query parameters, body content, and headers. You can also obtain the raw
+Rack environment using the <code>env</code> method. The following example includes some
+request information in the response:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>request_info_example</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='comment'># Include some request info in the response body.
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Received </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'>!\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>The Functions Framework sets up a logger in the Rack environment, so you can
+use the <code>logger</code> method on the request object if you want to emit logs. These
+logs will be written to the standard error stream, and will appear in the
+Google Cloud Logs if your function is running on a Google Cloud serverless
+hosting environment.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>logging_example</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='comment'># Log some request info.
+</span>  <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I received </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'> from </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='comment'># A simple response body.
+</span>  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>ok</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h3 id="response-types">Response types</h3>
+
+<p>The above examples return simple strings as the response body. Often, however,
+you will need to return more complex responses such as JSON, binary data, or
+even rendered HTML. The Functions Framework recognizes a variety of return
+types from an HTTP function:</p>
+
+<ul>
+<li> <strong>String</strong> : If you return a string, the framework will use it as the
+response body in with a 200 (success) HTTP status code. It will set the
+<code>Content-Type</code> header to <code>text/plain</code>.</li>
+<li> <strong>Array</strong> : If you return an array, the framework will assume it is a
+standard three-element Rack response array, as defined in the
+<a href="https://github.com/rack/rack/blob/master/SPEC.rdoc">Rack spec</a>.</li>
+<li> <strong>Rack::Response</strong> : You can return a
+<a href="https://rubydoc.info/gems/rack/Rack/Response">Rack::Response</a> object. The
+Framework will call <code>#finish</code> on this object and retrieve the contents.</li>
+<li> <strong>Hash</strong> : If you return a Hash, the Framework will attempt to encode it as
+JSON, and return it in the response body with a 200 (success) HTTP status
+code. The <code>Content-Type</code> will be set to <code>application/json</code>.</li>
+<li> <strong>StandardError</strong> : If you return an exception object, the Framework will
+return a 500 (server error) response. See the section below on
+Error Handling.</li>
+</ul>
+
+<h3 id="using-sinatra">Using Sinatra</h3>
+
+<p>The Functions Framework, and the functions-as-a-service (FaaS) solutions it
+targets, are optimized for relatively simple HTTP requests such as webhooks and
+simple APIs. If you want to deploy a large application or use a monolithic
+framework such as Ruby on Rails, you may want to consider a solution such as
+Google Cloud Run that is tailored to larger applications. However, a lightweight
+framework such as Sinatra is sometimes useful when writing HTTP functions.</p>
+
+<p>It is easy to connect an HTTP function to a Sinatra app. First, declare the
+dependency on Sinatra in your <code>Gemfile</code>:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_source'>source</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://rubygems.org</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 0.7</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sinatra</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 2.0</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p>Write the Sinatra app using the &quot;modular&quot; Sinatra interface (i.e. subclass
+<code>Sinatra::Base</code>), and then run the Sinatra app directly as a Rack handler from
+the function. Here is a basic example:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sinatra/base</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='kw'>class</span> <span class='const'>App</span> <span class='op'>&lt;</span> <span class='const'>Sinatra</span><span class='op'>::</span><span class='const'>Base</span>
+  <span class='id identifier rubyid_get'>get</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>/hello/:name</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_params'>params</span><span class='lbracket'>[</span><span class='symbol'>:name</span><span class='rbracket'>]</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>sinatra_example</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='const'>App</span><span class='period'>.</span><span class='id identifier rubyid_call'>call</span> <span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_env'>env</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>This technique gives you access to pretty much any feature of the Sinatra web
+framework, including routes, templates, and even custom middleware.</p>
+
+<h2 id="defining-an-event-function">Defining an Event function</h2>
+
+<p>An event function is a handler for a standard cloud event. It can receive
+industry-standard <a href="https://cloudevents.io">CloudEvents</a>, as well as events sent
+by Google Cloud services such as <a href="https://cloud.google.com/pubsub">Pub/Sub</a> and
+<a href="https://cloud.google.com/storage">Storage</a>. Event functions do not have a
+return value.</p>
+
+<p>The following is a simple event handler that receives an event and logs some
+information about it:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_cloud_event'><span class='object_link'><a href="FunctionsFramework.html#cloud_event-class_method" title="FunctionsFramework.cloud_event (method)">cloud_event</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_event'>event</span><span class='op'>|</span>
+  <span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_logger'><span class='object_link'><a href="FunctionsFramework.html#logger-class_method" title="FunctionsFramework.logger (method)">logger</a></span></span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>I received an event of type </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_event'>event</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_content'>!</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>The event parameter will be either a
+<a href="https://cloudevents.github.io/sdk-ruby/latest/CloudEvents/Event/V0">CloudEvents V0.3 Event</a>
+object (<a href="https://github.com/cloudevents/spec/blob/v0.3/spec.md">see spec</a>) or a
+<a href="https://cloudevents.github.io/sdk-ruby/latest/CloudEvents/Event/V1">CloudEvents V1.0 Event</a>
+object (<a href="https://github.com/cloudevents/spec/blob/v1.0/spec.md">see spec</a>).</p>
+
+<p>Some Google Cloud services send events in a legacy event format that was defined
+prior to CloudEvents. The Functions Framework will convert these legacy events
+to an equivalent CloudEvents V1 type, so your function will always receive a
+CloudEvent object when it is sent an event from Google Cloud. The precise
+mapping between legacy events and CloudEvents is not specified in detail here,
+but in general, the <em>data</em> from the legacy event will be mapped to the <code>data</code>
+field in the CloudEvent, and the <em>context</em> from the legacy event will be mapped
+to equivalent CloudEvent attributes.</p>
+
+<h2 id="error-handling">Error handling</h2>
+
+<p>If your function encounters an error, it can raise an exception. The Functions
+Framework will catch <code>StandardError</code> exceptions and handle them appropriately.</p>
+
+<p>If you raise an exception in an HTTP function, the Functions Framework will
+return a 500 (server error) response. You can control whether the exception
+details (e.g. exception type, message, and backtrace) are sent with the
+response by setting the detailed-errors configuration in the server. The
+Framework will also log the error for you.</p>
+
+<p>If you need more control over the error response, you can also construct the
+HTTP response yourself. For example:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>error_reporter</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='kw'>begin</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>whoops!</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>rescue</span> <span class='const'>RuntimeError</span> <span class='op'>=&gt;</span> <span class='id identifier rubyid_e'>e</span>
+    <span class='lbracket'>[</span><span class='int'>500</span><span class='comma'>,</span> <span class='lbrace'>{</span><span class='rbrace'>}</span><span class='comma'>,</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Uh, oh, got an error message: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_e'>e</span><span class='period'>.</span><span class='id identifier rubyid_message'>message</span><span class='embexpr_end'>}</span><span class='tstring_content'>.</span><span class='tstring_end'>&quot;</span></span><span class='rbracket'>]</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h2 id="the-runtime-environment">The runtime environment</h2>
+
+<p>A serverless environment may be somewhat different from server-based runtime
+environments you might be used to. Serverless runtimes often provide a simpler
+programming model, transparent scaling, and cost savings, but they do so by
+controlling how your code is managed and executed. The Functions Framework is
+designed around a &quot;functions-as-a-service&quot; (FaaS) paradigm, which runs
+self-contained stateless functions that have an input and a return value. It&#39;s
+important to understand what that means for your Ruby code in order to get the
+most out of a cloud serverless product.</p>
+
+<p>For example, multithreading is a core element of the Functions Framework. When
+you write functions, you should assume that multiple executions may be taking
+place concurrently in different threads, and thus you should avoid operations
+that can cause concurrency issues or race conditions. The easiest way to do
+this is to make your functions self-contained and stateless. Avoid global
+variables and don&#39;t share mutable data between different function executions.</p>
+
+<p>Additionally, a serverless runtime may throttle the CPU whenever no actual
+function executions are taking place. This lets it reduce the CPU resources
+used (and therefore the cost to you), while keeping your application warmed up
+and ready to respond to new requests quickly. An important implication, though,
+is that you should avoid starting up background threads or processes. They may
+not get any CPU time during periods when your Ruby application is not actually
+executing a function.</p>
+
+<p>In the sections below, we&#39;ll discuss a few techniques and features of the
+Functions Framework to help you write Ruby code that fits well into a
+serverless paradigm.</p>
+
+<h3 id="startup-tasks">Startup tasks</h3>
+
+<p>It is sometimes useful to perform one-time initialization that applies to many
+function executions, for example to warm up caches, perform precomputation, or
+establish shared remote connections. To run code during initialization, use
+<span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">FunctionsFramework.on_startup</a></span> to define a <em>startup task</em>.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_on_startup'><span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">on_startup</a></span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_function'>function</span><span class='op'>|</span>
+  <span class='comment'># Perform initialization here.
+</span>  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my_cache</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>MyCache</span><span class='period'>.</span><span class='id identifier rubyid_warmup'>warmup</span>
+<span class='kw'>end</span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='comment'># Initialization will be done by the time a normal function is called.
+</span><span class='kw'>end</span>
+</code></pre>
+
+<p>Startup tasks are run once per Ruby instance, before the framework starts
+receiving requests and executing functions. You can define multiple startup
+tasks, and they will run in order, and are guaranteed to complete before any
+function is executed.</p>
+
+<p>The block is optionally passed the <span class='object_link'><a href="FunctionsFramework/Function.html" title="FunctionsFramework::Function (class)">FunctionsFramework::Function</a></span> representing
+the function that will be run. You code can, for example, perform different
+initialization depending on the <span class='object_link'><a href="FunctionsFramework/Function.html#name-instance_method" title="FunctionsFramework::Function#name (method)">FunctionsFramework::Function#name</a></span> or
+<span class='object_link'><a href="FunctionsFramework/Function.html#type-instance_method" title="FunctionsFramework::Function#type (method)">FunctionsFramework::Function#type</a></span>.</p>
+
+<p><strong>In most cases, initialization code should live in an <code>on_startup</code> block
+instead of at the &quot;top level&quot; of your Ruby file.</strong> This is because some
+serverless runtimes may load your Ruby code at build or deployment time (for
+example, to verify that it properly defines the requested function), and this
+will execute any code present at the top level of the Ruby file. If top-level
+code is long-running or depends on runtime resources or environment variables,
+this could cause the deployment to fail. By performing initialization in an
+<code>on_startup</code> block instead, you ensure it will run only when an actual runtime
+server is starting up, not at build/deployment time.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'># DO NOT perform initialization here because this could get run at build time.
+</span><span class='comment'>#   require &quot;my_cache&quot;
+</span><span class='comment'>#   MyCache.warmup
+</span>
+<span class='comment'># Instead initialize in an on_startup block, which is executed only when a
+</span><span class='comment'># runtime server is starting up.
+</span><span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_on_startup'><span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">on_startup</a></span></span> <span class='kw'>do</span>
+  <span class='comment'># Perform initialization here.
+</span>  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my_cache</span><span class='tstring_end'>&quot;</span></span>
+  <span class='const'>MyCache</span><span class='period'>.</span><span class='id identifier rubyid_warmup'>warmup</span>
+<span class='kw'>end</span>
+
+<span class='comment'># ...
+</span></code></pre>
+
+<h3 id="the-execution-context-and-global-data">The execution context and global data</h3>
+
+<p>When your function block executes, the <em>object context</em> (i.e. <code>self</code>) is set to
+an instance of <span class='object_link'><a href="FunctionsFramework/Function/Callable.html" title="FunctionsFramework::Function::Callable (class)">FunctionsFramework::Function::Callable</a></span>. Each function
+invocation (including functions that might be running concurrently in separate
+threads) runs within a different instance, to help you avoid having functions
+interfere with each other.</p>
+
+<p>The object context also defines a few methods that may be useful when writing
+your function.</p>
+
+<p>First, you can obtain the logger by calling the
+<span class='object_link'><a href="FunctionsFramework/Function/Callable.html#logger-instance_method" title="FunctionsFramework::Function::Callable#logger (method)">FunctionsFramework::Function::Callable#logger</a></span> convenience method. This is
+the same logger that is provided by the HTTP request object or by the
+<span class='object_link'><a href="FunctionsFramework.html#logger-class_method" title="FunctionsFramework.logger (method)">FunctionsFramework.logger</a></span> global method.</p>
+
+<p>Second, you can access global shared data by passing a key to
+<span class='object_link'><a href="FunctionsFramework/Function/Callable.html#global-instance_method" title="FunctionsFramework::Function::Callable#global (method)">FunctionsFramework::Function::Callable#global</a></span>. <em>Global shared data</em> is a set
+of key-value pairs that are available to every function invocation. By default,
+two keys are available to all functions:</p>
+
+<ul>
+<li> <code>:function_name</code> whose String value is the name of the running function.</li>
+<li> <code>:function_type</code> whose value is either <code>:http</code> or <code>:cloud_event</code> depending
+on the type of the running function.</li>
+</ul>
+
+<p>Following is a simple example using the <code>logger</code> and <code>global</code> methods of the
+context object:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_cloud_event'><span class='object_link'><a href="FunctionsFramework.html#cloud_event-class_method" title="FunctionsFramework.cloud_event (method)">cloud_event</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_event'>event</span><span class='op'>|</span>
+  <span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Now running the function called </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_global'>global</span><span class='lparen'>(</span><span class='symbol'>:function_name</span><span class='rparen'>)</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>To avoid concurrency issues, global shared data is immutable when executing a
+function. You cannot add or delete keys or change the value of existing keys.
+However, the global data is settable during startup tasks, because startup
+tasks never run concurrently. You can use this feature to initialize shared
+resources, as described below.</p>
+
+<p>Using the global data mechanism is generally preferred over actual Ruby global
+variables, because the Functions Framework can help you avoid concurrent edits.
+Additionally, the framework will isolate the sets of global data associated
+with different sets of functions, which lets you test functions in isolation
+without the tests interfering with one another by writing to global variables.</p>
+
+<h3 id="sharing-resources">Sharing resources</h3>
+
+<p>Although functions should generally be self-contained and stateless, it is
+sometimes useful to share certain kinds of resources across multiple function
+invocations that run on the same Ruby instance. For example, you might
+establish a single connection to a remote database or other service, and share
+it across function invocations to avoid incurring the overhead of
+re-establishing it for every function invocation.</p>
+
+<p>The best practice for sharing a resource across function invocations is to
+initialize it in a <span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">FunctionsFramework.on_startup</a></span> block, and reference it from
+global shared data. (As discussed above, prefer to initialize shared resources
+in a startup task rather than at the top level of a Ruby file, and prefer using
+the Functions Framework&#39;s global data mechanism rather than Ruby&#39;s global
+variables.)</p>
+
+<p>Here is a simple example:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='comment'># Use an on_startup block to initialize a shared client and store it in
+</span><span class='comment'># the global shared data.
+</span><span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_on_startup'><span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">on_startup</a></span></span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>google/cloud/storage</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_set_global'>set_global</span> <span class='symbol'>:storage_client</span><span class='comma'>,</span> <span class='const'>Google</span><span class='op'>::</span><span class='const'>Cloud</span><span class='op'>::</span><span class='const'>Storage</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span>
+<span class='kw'>end</span>
+
+<span class='comment'># The shared storage_client can be accessed by all function invocations
+</span><span class='comment'># via the global shared data.
+</span><span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>storage_example</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='id identifier rubyid_bucket'>bucket</span> <span class='op'>=</span> <span class='id identifier rubyid_global'>global</span><span class='lparen'>(</span><span class='symbol'>:storage_client</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_bucket'>bucket</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>my-bucket</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_file'>file</span> <span class='op'>=</span> <span class='id identifier rubyid_bucket'>bucket</span><span class='period'>.</span><span class='id identifier rubyid_file'>file</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>path/to/my-file.txt</span><span class='tstring_end'>&quot;</span></span>
+  <span class='id identifier rubyid_file'>file</span><span class='period'>.</span><span class='id identifier rubyid_download'>download</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>Importantly, if you do share a resource across function invocations, make sure
+the resource is thread-safe, so that separate functions running concurrently in
+different threads can access them safely. The API clients provided by Google,
+for example, are thread-safe and can be used concurrently.</p>
+
+<p>Also of note: There is no guaranteed cleanup hook. The Functions Framework does
+not provide a way to register a cleanup task, and we recommend against using
+resources that require explicit &quot;cleanup&quot;. This is because serverless runtimes
+may perform CPU throttling, and therefore there may not be an opportunity for
+cleanup tasks to run. (For example, you could register a <code>Kernel.at_exit</code> task,
+but the Ruby VM may still terminate without calling it.)</p>
+
+<h2 id="structuring-a-project">Structuring a project</h2>
+
+<p>A Functions Framework based &quot;project&quot; or &quot;application&quot; is a typical Ruby
+application. It should include a <code>Gemfile</code> that specifies the gem dependencies
+(including the <code>functions_framework</code> gem itself), and any other dependencies
+needed by the function. It must include at least one Ruby source file that
+defines functions, and can also include additional Ruby files defining classes
+and methods that assist in the function implementation.</p>
+
+<p>By convention, the &quot;main&quot; Ruby file that defines functions should be called
+<code>app.rb</code> and be located at the root of the project. The path to this file is
+sometimes known as the <strong>function source</strong>. The Functions Framework allows you
+to specify an arbitrary source, but some hosting environments (such as Google
+Cloud Functions) require it to be <code>./app.rb</code>.</p>
+
+<p>A source file can define any number of functions (with distinct names). Each of
+the names is known as a <strong>function target</strong>.</p>
+
+<p>Following is a typical layout for a Functions Framework based project.</p>
+
+<pre class="code ruby"><code class="ruby">(project directory)
+|
++- Gemfile
+|
++- app.rb
+|
++- lib/
+|  |
+|  +- hello.rb
+|
++- test/
+   |
+   ...
+</code></pre>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># Gemfile
+</span><span class='id identifier rubyid_source'>source</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://rubygems.org</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 0.7</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># app.rb
+</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_on_startup'><span class='object_link'><a href="FunctionsFramework.html#on_startup-class_method" title="FunctionsFramework.on_startup (method)">on_startup</a></span></span> <span class='kw'>do</span>
+  <span class='id identifier rubyid_require_relative'>require_relative</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>lib/hello</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='const'>Hello</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span><span class='lparen'>(</span><span class='id identifier rubyid_request'>request</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_build_response'>build_response</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># lib/hello.rb
+</span><span class='kw'>class</span> <span class='const'>Hello</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span> <span class='id identifier rubyid_request'>request</span>
+    <span class='ivar'>@request</span> <span class='op'>=</span> <span class='id identifier rubyid_request'>request</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_build_response'>build_response</span>
+    <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Received request: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_method'>method</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_request'>request</span><span class='period'>.</span><span class='id identifier rubyid_url'>url</span><span class='embexpr_end'>}</span><span class='tstring_content'>\n</span><span class='tstring_end'>&quot;</span></span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<h2 id="next-steps">Next steps</h2>
+
+<p>To learn about writing unit tests for functions, see
+<a href="file.testing-functions.html" title="Testing Functions">Testing Functions</a>.</p>
+
+<p>To learn how to run your functions in a server, see
+<a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a>.</p>
+
+<p>To learn how to deploy your functions to Google Cloud Functions or Google Cloud
+Run, see
+<a href="file.deploying-functions.html" title="Deploying Functions">Deploying Functions</a>.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Fri Sep 25 23:38:55 2020 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.25 (ruby-2.6.6).
+</div>
+
+    </div>
+  </body>
+</html>
