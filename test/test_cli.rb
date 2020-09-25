@@ -38,6 +38,7 @@ describe FunctionsFramework::CLI do
           return yield
         rescue ::SystemCallError => e
           last_error = e
+          sleep retry_interval
         end
       end
       raise last_error

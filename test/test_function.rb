@@ -68,7 +68,7 @@ describe FunctionsFramework::Function do
       assert_equal "the-request", request
       "hello"
     end
-    function = FunctionsFramework::Function.new "my_func", :http, callable
+    function = FunctionsFramework::Function.http "my_func", callable: callable
     assert_equal "my_func", function.name
     assert_equal :http, function.type
     response = function.call "the-request"
@@ -85,7 +85,7 @@ describe FunctionsFramework::Function do
       end
     end
 
-    function = FunctionsFramework::Function.new "my_func", :http, MyCallable
+    function = FunctionsFramework::Function.http "my_func", callable: MyCallable
     assert_equal "my_func", function.name
     assert_equal :http, function.type
     response = function.call "the-request"
@@ -98,5 +98,14 @@ describe FunctionsFramework::Function do
       tester.assert_nil global(:function_name)
     end
     function.call "the-function", globals: { function_name: function.name }
+  end
+
+  it "sets a global from a startup task" do
+    function = FunctionsFramework::Function.startup_task do
+      set_global :foo, :bar
+    end
+    globals = {}
+    function.call "the-function", globals: globals
+    assert_equal :bar, globals[:foo]
   end
 end

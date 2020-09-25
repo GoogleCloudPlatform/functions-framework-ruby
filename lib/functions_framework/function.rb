@@ -66,8 +66,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a block.
     # @return [FunctionsFramework::Function]
     #
-    def self.http name, callable = nil, &block
-      new name, :http, callable, &block
+    def self.http name, callable: nil, &block
+      new name, :http, callable: callable, &block
     end
 
     ##
@@ -78,8 +78,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a block.
     # @return [FunctionsFramework::Function]
     #
-    def self.cloud_event name, callable = nil, &block
-      new name, :cloud_event, callable, &block
+    def self.cloud_event name, callable: nil, &block
+      new name, :cloud_event, callable: callable, &block
     end
 
     ##
@@ -89,8 +89,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a block.
     # @return [FunctionsFramework::Function]
     #
-    def self.startup_task callable = nil, &block
-      new nil, :startup_task, callable, &block
+    def self.startup_task callable: nil, &block
+      new nil, :startup_task, callable: callable, &block
     end
 
     ##
@@ -102,7 +102,7 @@ module FunctionsFramework
     # @param callable [Class,#call] A callable object or class.
     # @param block [Proc] The function code as a block.
     #
-    def initialize name, type, callable = nil, &block
+    def initialize name, type, callable: nil, &block
       @name = name
       @type = type
       @callable = @callable_class = nil
@@ -150,7 +150,7 @@ module FunctionsFramework
     # than are provided, an ArgumentError is raised.
     #
     # @param args [Array] Argument to pass to the function.
-    # @param logger [::Logger] Logger for use by function executions.
+    # @param logger [Logger] Logger for use by function executions.
     # @param globals [Hash] Globals for the function execution context
     # @return [Object] The function return value.
     #
