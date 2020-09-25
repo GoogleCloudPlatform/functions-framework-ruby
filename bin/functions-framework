@@ -16,4 +16,7 @@
 
 require "functions_framework/cli"
 
+puts "WARNING: The functions-framework binary is deprecated and will be removed"
+puts "in a future version. Please use functions-framework-ruby instead."
+
 ::FunctionsFramework::CLI.new.parse_args(::ARGV).run.complete
