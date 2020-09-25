@@ -2,6 +2,7 @@ inherit_gem:
   google-style: google-style.yml
 
 AllCops:
+  TargetRubyVersion: 2.5
   Include:
     - "examples/**/.toys.rb"
     - "**/*.rb"

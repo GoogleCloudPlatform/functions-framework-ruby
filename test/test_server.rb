@@ -59,11 +59,10 @@ describe FunctionsFramework::Server do
     server.start
     last_error = nil
     retry_count.times do
-      begin
-        return yield
-      rescue ::SystemCallError => e
-        last_error = e
-      end
+      return yield
+    rescue ::SystemCallError => e
+      last_error = e
+      sleep retry_interval
     end
     raise last_error
   ensure
@@ -78,15 +77,13 @@ describe FunctionsFramework::Server do
   end
 
   it "starts and stops" do
-    begin
-      refute http_server.running?
-      http_server.start
-      assert http_server.running?
-      http_server.stop.wait_until_stopped timeout: 10
-      refute http_server.running?
-    ensure
-      http_server.stop.wait_until_stopped timeout: 10
-    end
+    refute http_server.running?
+    http_server.start
+    assert http_server.running?
+    http_server.stop.wait_until_stopped timeout: 10
+    refute http_server.running?
+  ensure
+    http_server.stop.wait_until_stopped timeout: 10
   end
 
   it "handles post requests" do

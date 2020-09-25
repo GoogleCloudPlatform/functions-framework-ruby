@@ -33,12 +33,10 @@ describe FunctionsFramework do
     begin
       last_error = nil
       retry_count.times do
-        begin
-          return yield
-        rescue ::SystemCallError => e
-          last_error = e
-          sleep retry_interval
-        end
+        return yield
+      rescue ::SystemCallError => e
+        last_error = e
+        sleep retry_interval
       end
       raise last_error
     ensure
