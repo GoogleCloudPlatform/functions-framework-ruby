@@ -1,5 +1,19 @@
 # Changelog
 
+### v0.7.0 / 2020-09-25
+
+* Now requires Ruby 2.5 or later.
+* BREAKING CHANGE: Renamed "context" hash to "globals" and made it read-only for normal functions.
+* BREAKING CHANGE: Server config is no longer passed to startup blocks.
+* ADDED: Provided a "logger" convenience method in the context object.
+* ADDED: Globals can be set from startup blocks, which is useful for initializing shared resources.
+* ADDED: Support for testing startup tasks in the Testing module.
+* ADDED: Support for controlling logging in the Testing module.
+* FIXED: Fixed crash introduced in 0.6.0 when a block didn't declare an expected argument.
+* FIXED: Better support for running concurrent tests.
+* DOCS: Expanded documentation on initialization, execution context, and shared resources.
+* DEPRECATED: The functions-framework executable is deprecated. Use functions-framework-ruby instead.
+
 ### v0.6.0 / 2020-09-17
 
 * ADDED: You can use the --version flag to print the framework version
