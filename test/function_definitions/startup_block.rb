@@ -17,7 +17,7 @@ require "functions_framework"
 # Startup block
 FunctionsFramework.on_startup do |function|
   set_global :my_name, function.name
-  puts "in startup block"
+  logger.info "in startup block"
 end
 
 # Create a simple HTTP function called "simple_http"

@@ -84,13 +84,19 @@ module FunctionsFramework
     # run. However, you can call it explicitly to test its behavior. It cannot
     # be called more than once for any given function.
     #
+    # By default, the {FunctionsFramework.logger} will be used, but you can
+    # override that by providing your own logger. In particular, to disable
+    # logging, you can pass `Logger.new(nil)`.
+    #
     # @param name [String] The name of the function to start up.
+    # @param logger [Logger] Use the given logger instead of the Functions
+    #     Framework's global logger. Optional.
     # @param lenient [Boolean] If false (the default), raise an error if the
     #     given function has already had its startup tasks run. If true,
     #     duplicate requests to run startup tasks are ignored.
     # @return [Hash] The initialized globals.
     #
-    def run_startup_tasks name, lenient: false
+    def run_startup_tasks name, logger: nil, lenient: false
       function = Testing.current_registry[name]
       raise "Unknown function name #{name}" unless function
       globals = Testing.current_globals name
@@ -99,7 +105,7 @@ module FunctionsFramework
       else
         globals = function.populate_globals
         Testing.current_registry.startup_tasks.each do |task|
-          task.call function, globals: globals
+          task.call function, globals: globals, logger: logger
         end
         Testing.current_globals name, globals
       end
@@ -108,18 +114,32 @@ module FunctionsFramework
 
     ##
     # Call the given HTTP function for testing. The underlying function must
-    # be of type `:http`.
+    # be of type `:http`. Returns the Rack response.
+    #
+    # By default, the startup tasks will be run for the given function if they
+    # have not already been run. You can, however, disable running startup
+    # tasks by providing an explicit globals hash.
+    #
+    # By default, the {FunctionsFramework.logger} will be used, but you can
+    # override that by providing your own logger. In particular, to disable
+    # logging, you can pass `Logger.new(nil)`.
     #
     # @param name [String] The name of the function to call
     # @param request [Rack::Request] The Rack request to send
+    # @param globals [Hash] Do not run startup tasks, and instead provide the
+    #     globals directly. Optional.
+    # @param logger [Logger] Use the given logger instead of the Functions
+    #     Framework's global logger. Optional.
     # @return [Rack::Response]
     #
-    def call_http name, request
-      globals = run_startup_tasks name, lenient: true
+    def call_http name, request, globals: nil, logger: nil
+      globals ||= run_startup_tasks name, logger: logger, lenient: true
       function = Testing.current_registry[name]
       case function&.type
       when :http
-        Testing.interpret_response { function.call request, globals: globals }
+        Testing.interpret_response do
+          function.call request, globals: globals, logger: logger
+        end
       when nil
         raise "Unknown function name #{name}"
       else
@@ -131,16 +151,28 @@ module FunctionsFramework
     # Call the given event function for testing. The underlying function must
     # be of type :cloud_event`.
     #
+    # By default, the startup tasks will be run for the given function if they
+    # have not already been run. You can, however, disable running startup
+    # tasks by providing an explicit globals hash.
+    #
+    # By default, the {FunctionsFramework.logger} will be used, but you can
+    # override that by providing your own logger. In particular, to disable
+    # logging, you can pass `Logger.new(nil)`.
+    #
     # @param name [String] The name of the function to call
     # @param event [::CloudEvents::Event] The event to send
+    # @param globals [Hash] Do not run startup tasks, and instead provide the
+    #     globals directly. Optional.
+    # @param logger [Logger] Use the given logger instead of the Functions
+    #     Framework's global logger. Optional.
     # @return [nil]
     #
-    def call_event name, event
-      globals = run_startup_tasks name, lenient: true
+    def call_event name, event, globals: nil, logger: nil
+      globals ||= run_startup_tasks name, logger: logger, lenient: true
       function = Testing.current_registry[name]
       case function&.type
       when :cloud_event
-        function.call event, globals: globals
+        function.call event, globals: globals, logger: logger
         nil
       when nil
         raise "Unknown function name #{name}"

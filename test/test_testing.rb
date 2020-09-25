@@ -160,9 +160,10 @@ describe FunctionsFramework::Testing do
       FunctionsFramework::Testing.load_temporary simple_http_path do
         request = FunctionsFramework::Testing.make_get_request "http://example.com/"
         response = nil
-        capture_subprocess_io do
+        _out, err = capture_subprocess_io do
           response = FunctionsFramework::Testing.call_http "simple_http", request
         end
+        assert_match %r{I received a request: GET http://example.com/}, err
         assert_equal "I received a request: GET http://example.com/", response.body.join
       end
     end
@@ -177,6 +178,42 @@ describe FunctionsFramework::Testing do
         assert_equal "I received a GET request: http://example.com/", response.body.join
       end
     end
+
+    it "overrides logging" do
+      FunctionsFramework::Testing.load_temporary simple_http_path do
+        request = FunctionsFramework::Testing.make_get_request "http://example.com/"
+        response = nil
+        _out, err = capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_http "simple_http", request, logger: Logger.new(nil)
+        end
+        assert_empty err
+        assert_equal "I received a request: GET http://example.com/", response.body.join
+      end
+    end
+
+    it "automatically runs startup tasks" do
+      FunctionsFramework::Testing.load_temporary startup_block_path do
+        request = FunctionsFramework::Testing.make_get_request "http://example.com/"
+        response = nil
+        _out, err = capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_http "simple_http", request
+        end
+        assert_match(/in startup block/, err)
+        assert_equal "OK", response.body.join
+      end
+    end
+
+    it "can disable automatic run of startup tasks" do
+      FunctionsFramework::Testing.load_temporary startup_block_path do
+        request = FunctionsFramework::Testing.make_get_request "http://example.com/"
+        response = nil
+        _out, err = capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_http "simple_http", request, globals: { my_name: "simple_http" }
+        end
+        assert_empty err
+        assert_equal "OK", response.body.join
+      end
+    end
   end
 
   describe "#call_event" do
@@ -189,15 +226,25 @@ describe FunctionsFramework::Testing do
         assert_match(/I received "Hello, world!" in an event of type event-type/, err)
       end
     end
+
+    it "overrides logging" do
+      FunctionsFramework::Testing.load_temporary simple_event_path do
+        event = FunctionsFramework::Testing.make_cloud_event "Hello, world!", type: "event-type"
+        _out, err = capture_subprocess_io do
+          FunctionsFramework::Testing.call_event "simple_event", event, logger: Logger.new(nil)
+        end
+        assert_empty err
+      end
+    end
   end
 
   describe "#run_startup_tasks" do
     it "runs startup tasks" do
       FunctionsFramework::Testing.load_temporary startup_block_path do
-        out, _err = capture_subprocess_io do
+        _out, err = capture_subprocess_io do
           FunctionsFramework::Testing.run_startup_tasks "simple_http"
         end
-        assert_equal "in startup block\n", out
+        assert_match(/in startup block/, err)
         request = FunctionsFramework::Testing.make_get_request "http://example.com/"
         response = FunctionsFramework::Testing.call_http "simple_http", request
         assert_equal "OK", response.body.join
@@ -208,10 +255,10 @@ describe FunctionsFramework::Testing do
       FunctionsFramework::Testing.load_temporary startup_block_path do
         request = FunctionsFramework::Testing.make_get_request "http://example.com/"
         response = nil
-        out, _err = capture_subprocess_io do
+        _out, err = capture_subprocess_io do
           response = FunctionsFramework::Testing.call_http "simple_http", request
         end
-        assert_equal "in startup block\n", out
+        assert_match(/in startup block/, err)
         assert_equal "OK", response.body.join
       end
     end
@@ -225,6 +272,15 @@ describe FunctionsFramework::Testing do
         assert_raises "Function simple_http has already started up" do
           FunctionsFramework::Testing.run_startup_tasks "simple_http"
         end
+      end
+    end
+
+    it "overrides logging" do
+      FunctionsFramework::Testing.load_temporary startup_block_path do
+        _out, err = capture_subprocess_io do
+          FunctionsFramework::Testing.run_startup_tasks "simple_http", logger: Logger.new(nil)
+        end
+        assert_empty err
       end
     end
   end
