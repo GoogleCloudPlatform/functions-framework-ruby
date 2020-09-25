@@ -179,17 +179,22 @@ You can also call startup tasks explicitly to test them in isolation, using the
 function, and the testing module will execute all defined startup blocks, in
 order, as if the server were preparing that function for execution.
 {FunctionsFramework::Testing#run_startup_tasks} returns the resulting globals
-as a hash, and you can assert against its contents.
+as a hash, so you can assert against its contents.
 
 If you use {FunctionsFramework::Testing#run_startup_tasks} to run the startup
 tasks explicitly, they will not be run again when you call the function itself
 using {FunctionsFramework::Testing#call_http} or
-{FunctionsFramework::Testing#call_event}.
+{FunctionsFramework::Testing#call_event}. However, if startup tasks have
+already been run implicitly by {FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event}, then attempting to run them again
+explicitly by calling {FunctionsFramework::Testing#run_startup_tasks} will
+result in an exception.
 
-There is currently no way to run a single startup block in isolation.
+There is currently no way to run a single startup block in isolation. If you
+have multiple startup blocks defined, they are always executed together.
 
 Following is an example test that runs startup tasks explicitly and asserts
-against its effects on the globals.
+against the effect on the globals.
 
 ```ruby
 require "minitest/autorun"

@@ -203,12 +203,12 @@ A serverless environment may be somewhat different from server-based runtime
 environments you might be used to. Serverless runtimes often provide a simpler
 programming model, transparent scaling, and cost savings, but they do so by
 controlling how your code is managed and executed. The Functions Framework is
-designed around a "functions-as-a-service" (FaaS) paradigm which runs
+designed around a "functions-as-a-service" (FaaS) paradigm, which runs
 self-contained stateless functions that have an input and a return value. It's
 important to understand what that means for your Ruby code in order to get the
 most out of a cloud serverless product.
 
-For example, Multithreading is a core element of the Functions Framework. When
+For example, multithreading is a core element of the Functions Framework. When
 you write functions, you should assume that multiple executions may be taking
 place concurrently in different threads, and you should avoid operations that
 can cause concurrency issues or race conditions. The easiest way to do this is
@@ -227,12 +227,12 @@ In the sections below, we'll discuss a few techniques and features of the
 Functions Framework to help you write Ruby code that fits well into a
 serverless paradigm.
 
-### Startup blocks
+### Startup tasks
 
-It is sometimes useful for a function to perform one-time initialization that
-applies to many executions, for example to warm up caches, perform
-precomputation, or establish shared remote connections. To run code during
-initialization, use {FunctionsFramework.on_startup} to define a startup block.
+It is sometimes useful to perform one-time initialization that applies to many
+function executions, for example to warm up caches, perform precomputation, or
+establish shared remote connections. To run code during initialization, use
+{FunctionsFramework.on_startup} to define a _startup task_.
 
 ```ruby
 require "functions_framework"
@@ -248,26 +248,25 @@ FunctionsFramework.http "hello" do |request|
 end
 ```
 
-`on_startup` blocks are run once per Ruby instance, before the framework starts
+Startup tasks are run once per Ruby instance, before the framework starts
 receiving requests and executing functions. You can define multiple startup
-blocks, and they will run in order, and are guaranteed to complete before any
+tasks, and they will run in order, and are guaranteed to complete before any
 function is executed.
 
 The block is optionally passed the {FunctionsFramework::Function} representing
-the function that will be run. You can, for example, perform different
-initialization tasks depending on the {FunctionsFramework::Function#name} or
+the function that will be run. You code can, for example, perform different
+initialization depending on the {FunctionsFramework::Function#name} or
 {FunctionsFramework::Function#type}.
 
-In most cases, you should perform initialization in an `on_startup` block
-_instead of_ including the initialization code at the "top level" of your Ruby
-file that defines functions. This is because some serverless runtimes may load
-your Ruby file at build or deployment time (for example, to verify that the
-requested function is properly defined), which will execute any code present at
-the top level of the Ruby file. If your initialization is long-running or
-depends on runtime resources or environment variables, this could cause the
-deployment to fail. By performing initialization in an `on_startup` block
-instead, you ensure it will run when an actual runtime server is starting up,
-but not at build/deployment time.
+In most cases, initialization code should live in an `on_startup` block
+_instead of_ at the "top level" of your Ruby file that defines functions. This
+is because some serverless runtimes may load your Ruby file at build or
+deployment time (for example, to verify that the requested function is properly
+defined), which will execute any code present at the top level of the Ruby
+file. If your initialization is long-running or depends on runtime resources or
+environment variables, this could cause the deployment to fail. By performing
+initialization in an `on_startup` block instead, you ensure it will run only
+when an actual runtime server is starting up, not at build/deployment time.
 
 ```ruby
 require "functions_framework"
@@ -287,12 +286,12 @@ end
 # ...
 ```
 
-### The execution context
+### The execution context and global data
 
 When your function block executes, the _object context_ (i.e. `self`) is set to
 an instance of {FunctionsFramework::Function::Callable}. Each function
 invocation (including functions that might be running concurrently in separate
-threads) is assigned a different instance, to help you avoid having functions
+threads) runs within a different instance, to help you avoid having functions
 interfere with each other.
 
 The object context also defines a few methods that may be useful when writing
@@ -300,8 +299,8 @@ your function.
 
 First, you can obtain the logger by calling the
 {FunctionsFramework::Function::Callable#logger} convenience method. This is
-the same logger provided by the HTTP request object or by calling
-{FunctionsFramework.logger}.
+the same logger that is provided by the HTTP request object or by the
+{FunctionsFramework.logger} global method.
 
 Second, you can access global shared data by passing a key to
 {FunctionsFramework::Function::Callable#global}. _Global shared data_ is a set
@@ -323,9 +322,17 @@ FunctionsFramework.cloud_event "hello" do |event|
 end
 ```
 
-Global shared data keys are immutable when executing a function, to avoid
-concurrency issues. However, you can set your own global data during startup
-blocks. This is useful to create shared resources, as described below.
+To avoid concurrency issues, global shared data is immutable when executing a
+function. You cannot add or delete keys or change the value of existing keys.
+However, the global data is settable during startup tasks, because startup
+tasks never run concurrently. You can use this feature to initialize shared
+resources, as described below.
+
+Using the global data mechanism is generally preferred over actual Ruby global
+variables, because the Functions Framework can help you avoid concurrent edits.
+Additionally, the framework will sandbox different sets of global data
+associated with different sets of functions, which lets you test functions in
+isolation without the tests interfering with one another.
 
 ### Sharing resources
 
@@ -338,11 +345,10 @@ re-establishing it for every function invocation.
 
 The best practice for sharing a resource across function invocations is to
 initialize shared resources in a {FunctionsFramework.on_startup} block, and
-reference them from global shared data. As discussed above, avoid initializing
-shared resources at the top level of a Ruby file, because it could be loaded
-during build/deployment. Additionally, prefer the globals mechanism provided by
-the execution context, rather than using a Ruby global variable, because the
-Functions Framework can isolate the context's globals, improving testability.
+reference them from global shared data. (As discussed above, prefer to
+initialize shared resources in a startup task rather than at the top level of a
+Ruby file, and prefer using the Functions Framework's global data mechanism
+rather than Ruby global variables.)
 
 Here is a simple example:
 
@@ -371,12 +377,11 @@ different threads can access them safely. The API clients provided by Google,
 for example, are thread-safe and can be used concurrently.
 
 Also of note: There is no guaranteed cleanup hook. The Functions Framework does
-not provide a way to register a cleanup task, and we recommend that you use
-only resources that do not require explicit "cleanup". This is because, to save
-you resources (and cost), serverless runtimes may throttle your CPU time when
-not actually responding a function, so there might not be any opportunity to
-run cleanup tasks. (For example, you can register a `Kernel.at_exit` task, but
-the Ruby VM may still terminate without calling it.)
+not provide a way to register a cleanup task, and we recommend against using
+resources that require explicit "cleanup". This is because serverless runtimes
+may perform CPU throttling, and therefore there may not be an opportunity for
+cleanup tasks to run. (For example, you can register a `Kernel.at_exit` task,
+but the Ruby VM may still terminate without calling it.)
 
 ## Structuring a project
 
