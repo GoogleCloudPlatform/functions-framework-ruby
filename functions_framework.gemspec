@@ -29,8 +29,8 @@ version = ::FunctionsFramework::VERSION
   spec.description =
     "The Functions Framework is an open source framework for writing" \
     " lightweight, portable Ruby functions that run in a serverless" \
-    " environment. Functions written to this Framework will run Google Cloud" \
-    " Google Cloud Functions, Google Cloud Run, or any other Knative-based" \
+    " environment. Functions written to this Framework will run on Google" \
+    " Cloud Functions, Google Cloud Run, or any other Knative-based" \
     " environment."
   spec.license = "Apache-2.0"
   spec.homepage = "https://github.com/GoogleCloudPlatform/functions-framework-ruby"
