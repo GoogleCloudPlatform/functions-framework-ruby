@@ -41,9 +41,10 @@ describe FunctionsFramework::Server do
   let(:event_server) { make_basic_server event_function }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
+  let(:app_context) { ::Hash.new }
 
   def make_basic_server function
-    FunctionsFramework::Server.new function do |config|
+    FunctionsFramework::Server.new function, app_context do |config|
       config.min_threads = 1
       config.max_threads = 1
       config.port = port
@@ -58,11 +59,10 @@ describe FunctionsFramework::Server do
     server.start
     last_error = nil
     retry_count.times do
-      begin
-        return yield
-      rescue ::SystemCallError => e
-        last_error = e
-      end
+      return yield
+    rescue ::SystemCallError => e
+      last_error = e
+      sleep retry_interval
     end
     raise last_error
   ensure
@@ -70,22 +70,20 @@ describe FunctionsFramework::Server do
   end
 
   it "supports configuration in a constructor block" do
-    server = FunctionsFramework::Server.new http_function do |config|
+    server = FunctionsFramework::Server.new http_function, app_context do |config|
       config.rack_env = "my-env"
     end
     assert_equal "my-env", server.config.rack_env
   end
 
   it "starts and stops" do
-    begin
-      refute http_server.running?
-      http_server.start
-      assert http_server.running?
-      http_server.stop.wait_until_stopped timeout: 10
-      refute http_server.running?
-    ensure
-      http_server.stop.wait_until_stopped timeout: 10
-    end
+    refute http_server.running?
+    http_server.start
+    assert http_server.running?
+    http_server.stop.wait_until_stopped timeout: 10
+    refute http_server.running?
+  ensure
+    http_server.stop.wait_until_stopped timeout: 10
   end
 
   it "handles post requests" do

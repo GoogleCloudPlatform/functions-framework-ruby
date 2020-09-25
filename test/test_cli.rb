@@ -34,11 +34,10 @@ describe FunctionsFramework::CLI do
     begin
       last_error = nil
       retry_count.times do
-        begin
-          return yield
-        rescue ::SystemCallError => e
-          last_error = e
-        end
+        return yield
+      rescue ::SystemCallError => e
+        last_error = e
+        sleep retry_interval
       end
       raise last_error
     ensure
@@ -236,16 +235,16 @@ describe FunctionsFramework::CLI do
     args = [
       "--source", startup_source,
       "--target", "simple_http",
-      "--port", port,
-      "-q"
+      "--port", port
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     response = nil
-    assert_output "in startup block\n" do
+    _out, err = capture_subprocess_io do
       response = run_with_retry cli do
         Net::HTTP.get_response URI("http://127.0.0.1:#{port}/")
       end
     end
+    assert_match(/in startup block/, err)
     assert_equal "200", response.code
     assert_equal "OK", response.body
   end

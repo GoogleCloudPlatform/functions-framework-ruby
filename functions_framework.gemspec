@@ -29,8 +29,8 @@ version = ::FunctionsFramework::VERSION
   spec.description =
     "The Functions Framework is an open source framework for writing" \
     " lightweight, portable Ruby functions that run in a serverless" \
-    " environment. Functions written to this Framework will run Google Cloud" \
-    " Google Cloud Functions, Google Cloud Run, or any other Knative-based" \
+    " environment. Functions written to this Framework will run on Google" \
+    " Cloud Functions, Google Cloud Run, or any other Knative-based" \
     " environment."
   spec.license = "Apache-2.0"
   spec.homepage = "https://github.com/GoogleCloudPlatform/functions-framework-ruby"
@@ -44,7 +44,7 @@ version = ::FunctionsFramework::VERSION
   spec.bindir = "bin"
   spec.executables = ["functions-framework", "functions-framework-ruby"]
 
-  spec.required_ruby_version = ">= 2.4.0"
+  spec.required_ruby_version = ">= 2.5.0"
   spec.add_dependency "cloud_events", "~> 0.1"
   spec.add_dependency "puma", "~> 4.3"
   spec.add_dependency "rack", "~> 2.1"

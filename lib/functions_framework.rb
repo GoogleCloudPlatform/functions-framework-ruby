@@ -175,10 +175,8 @@ module FunctionsFramework
     # run only when preparing to run functions. They are not run, for example,
     # if an app is loaded to verify its integrity during deployment.
     #
-    # Startup tasks are passed two arguments: the {FunctionsFramework::Function}
-    # identifying the function to execute, and the
-    # {FunctionsFramework::Server::Config} specifying the (frozen) server
-    # configuration. Tasks have no return value.
+    # Startup tasks are passed the {FunctionsFramework::Function} identifying
+    # the function to execute, and have no return value.
     #
     # @param block [Proc] The startup task
     # @return [self]
@@ -189,8 +187,9 @@ module FunctionsFramework
     end
 
     ##
-    # Start the functions framework server in the background. The server will
-    # look up the given target function name in the global registry.
+    # Run startup tasks, then start the functions framework server in the
+    # background. The startup tasks and target function will be looked up in
+    # the global registry.
     #
     # @param target [FunctionsFramework::Function,String] The function to run,
     #     or the name of the function to look up in the global registry.
@@ -206,8 +205,12 @@ module FunctionsFramework
         function = global_registry[target]
         raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       end
-      server = Server.new function, &block
-      global_registry.run_startup_tasks server
+      globals = function.populate_globals
+      server = Server.new function, globals, &block
+      global_registry.startup_tasks.each do |task|
+        task.call function, globals: globals, logger: server.config.logger
+      end
+      globals.freeze
       server.respond_to_signals
       server.start
     end

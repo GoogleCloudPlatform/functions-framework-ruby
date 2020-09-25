@@ -33,7 +33,7 @@ describe FunctionsFramework::Registry do
     function = registry["my_func"]
     assert_equal "my_func", function.name
     assert_equal :http, function.type
-    response = function.new_call.call "the-request"
+    response = function.call "the-request"
     assert_equal "hello", response
   end
 
@@ -47,7 +47,7 @@ describe FunctionsFramework::Registry do
     function = registry["my_func"]
     assert_equal "my_func", function.name
     assert_equal :cloud_event, function.type
-    function.new_call.call "the-event"
+    function.call "the-event"
   end
 
   it "defines multiple functions" do
@@ -63,22 +63,32 @@ describe FunctionsFramework::Registry do
   end
 
   it "defines startup tasks" do
-    expected_rack_env = "google"
     tester = self
     task_completed = false
     registry.add_http "func1" do |_request|
       "hello"
     end
     function = registry["func1"]
-    registry.add_startup_task do |func, config|
+    registry.add_startup_task do |func|
       tester.assert_same function, func
-      tester.assert_equal expected_rack_env, config.rack_env
       task_completed = true
+      set_global :foo, :bar
     end
-    server = FunctionsFramework::Server.new function do |config|
-      config.rack_env = expected_rack_env
-    end
-    registry.run_startup_tasks server
+    tasks = registry.startup_tasks
+    assert_equal 1, tasks.size
+    task = tasks.first
+    assert_equal :startup_task, task.type
+    globals = {}
+    task.call function, globals: globals
     assert task_completed
+    assert_equal :bar, globals[:foo]
+  end
+
+  it "defines a function without a formal parameter" do
+    registry.add_http "my_func" do
+      "hello"
+    end
+    response = registry["my_func"].call "the-request"
+    assert_equal "hello", response
   end
 end

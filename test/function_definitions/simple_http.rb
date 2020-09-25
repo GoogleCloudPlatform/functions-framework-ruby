@@ -17,6 +17,6 @@ require "functions_framework"
 # Create a simple HTTP function called "simple_http"
 FunctionsFramework.http "simple_http" do |request|
   message = "I received a request: #{request.request_method} #{request.url}"
-  request.logger.info message
+  logger.info message
   message
 end

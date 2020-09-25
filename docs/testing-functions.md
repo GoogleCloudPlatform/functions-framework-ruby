@@ -165,3 +165,53 @@ class MyTest < Minitest::Test
   end
 end
 ```
+
+## Testing startup tasks
+
+When a functions server is starting up, it calls startup tasks automatically.
+In the testing environment, when you call a function using the
+{FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event} methods, the testing environment will
+also automatically execute any startup tasks for you.
+
+You can also call startup tasks explicitly to test them in isolation, using the
+{FunctionsFramework::Testing#run_startup_tasks} method. Pass the name of a
+function, and the testing module will execute all defined startup blocks, in
+order, as if the server were preparing that function for execution.
+{FunctionsFramework::Testing#run_startup_tasks} returns the resulting globals
+as a hash, so you can assert against its contents.
+
+If you use {FunctionsFramework::Testing#run_startup_tasks} to run the startup
+tasks explicitly, they will not be run again when you call the function itself
+using {FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event}. However, if startup tasks have
+already been run implicitly by {FunctionsFramework::Testing#call_http} or
+{FunctionsFramework::Testing#call_event}, then attempting to run them again
+explicitly by calling {FunctionsFramework::Testing#run_startup_tasks} will
+result in an exception.
+
+There is currently no way to run a single startup block in isolation. If you
+have multiple startup blocks defined, they are always executed together.
+
+Following is an example test that runs startup tasks explicitly and asserts
+against the effect on the globals.
+
+```ruby
+require "minitest/autorun"
+require "functions_framework/testing"
+
+class MyTest < Minitest::Test
+  include FunctionsFramework::Testing
+
+  def test_startup_tasks
+    load_temporary "app.rb" do
+      globals = run_startup_tasks "my_function"
+      assert_equal "foo", globals[:my_global]
+
+      request = make_get_request "https://example.com/foo"
+      response = call_http "my_function", request
+      assert_equal 200, response.status
+    end
+  end
+end
+```

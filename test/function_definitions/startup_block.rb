@@ -14,16 +14,14 @@
 
 require "functions_framework"
 
-my_global = false
-
 # Startup block
-FunctionsFramework.on_startup do |function, _config|
-  my_global = function.name == "simple_http"
-  puts "in startup block"
+FunctionsFramework.on_startup do |function|
+  set_global :my_name, function.name
+  logger.info "in startup block"
 end
 
 # Create a simple HTTP function called "simple_http"
 FunctionsFramework.http "simple_http" do |_request|
-  raise "Whoops" unless my_global
+  raise "Whoops" unless global(:my_name) == "simple_http"
   "OK"
 end
