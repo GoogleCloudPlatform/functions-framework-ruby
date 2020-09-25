@@ -12,6 +12,7 @@
 * FIXED: Fixed crash introduced in 0.6.0 when a block didn't declare an expected argument.
 * FIXED: Better support for running concurrent tests.
 * DOCS: Expanded documentation on initialization, execution context, and shared resources.
+* DEPRECATED: The functions-framework executable is deprecated. Use functions-framework-ruby instead.
 
 ### v0.6.0 / 2020-09-17
 
