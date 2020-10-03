@@ -446,7 +446,7 @@ class Hello
   end
 
   def build_response
-    "Received request: #{request.method} #{request.url}\n"
+    "Received request: #{@request.request_method} #{@request.url}\n"
   end
 end
 ```
