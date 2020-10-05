@@ -53,7 +53,7 @@ require "functions_framework"
 
 FunctionsFramework.http "request_info_example" do |request|
   # Include some request info in the response body.
-  "Received #{request.method} from #{request.url}!\n"
+  "Received #{request.request_method} from #{request.url}!\n"
 end
 ```
 
@@ -68,7 +68,7 @@ require "functions_framework"
 
 FunctionsFramework.http "logging_example" do |request|
   # Log some request info.
-  request.logger.info "I received #{request.method} from #{request.url}!"
+  request.logger.info "I received #{request.request_method} from #{request.url}!"
   # A simple response body.
   "ok"
 end
@@ -446,7 +446,7 @@ class Hello
   end
 
   def build_response
-    "Received request: #{request.method} #{request.url}\n"
+    "Received request: #{@request.request_method} #{@request.url}\n"
   end
 end
 ```
