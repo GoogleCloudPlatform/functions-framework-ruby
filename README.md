@@ -51,7 +51,9 @@ and later. Older versions of Ruby _may_ still work, but are unsupported and not
 recommended. See https://www.ruby-lang.org/en/downloads/branches/ for details
 about the Ruby support schedule.
 
-## Quickstart
+## Quickstarts
+
+### Quickstart: Hello, World on your local machine
 
 Here is how to run a Hello World function on your local machine.
 
@@ -93,6 +95,33 @@ curl http://localhost:8080
 ```
 
 Stop the server with `CTRL+C`.
+
+### Quickstart: Build a Deployable Container
+
+Here is how to build and run a deployable container on your local machine.
+
+1. Install [Docker](https://store.docker.com/search?type=edition&offering=community) and the [`pack` tool](https://buildpacks.io/docs/install-pack/).
+
+1. Build a container from your function using the Functions [buildpacks](https://github.com/GoogleCloudPlatform/buildpacks):
+	```sh
+	pack build \
+		--builder gcr.io/buildpacks/builder:v1 \
+		--env GOOGLE_FUNCTION_SIGNATURE_TYPE=http \
+		--env GOOGLE_FUNCTION_TARGET=hello \
+		my-first-function
+	```
+
+1. Start the built container:
+	```sh
+	docker run --rm -p 8080:8080 my-first-function
+	# Output: Serving function...
+	```
+
+1. Send requests to this function using `curl` from another terminal window:
+	```sh
+	curl localhost:8080
+	# Output: Hello World!
+	```
 
 ## Documentation
 
