@@ -23,6 +23,9 @@ jobs:
             ruby: "2.7"
             flags: "--no-test-rubocop"
           - os: ubuntu-latest
+            ruby: head
+            flags: "--only --test-unit"
+          - os: ubuntu-latest
             ruby: jruby
             flags: "--only --test-unit"
           - os: macos-latest
