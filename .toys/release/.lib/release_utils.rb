@@ -293,7 +293,8 @@ class ReleaseUtils
       logger.info("GitHub checks disabled")
       return self
     end
-    wait_github_checks_internal(current_sha(ref), ::Time.now.to_i + required_checks_timeout)
+    deadline = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) + required_checks_timeout
+    wait_github_checks_internal(current_sha(ref), deadline)
   end
 
   def github_check_errors(ref)
@@ -387,7 +388,7 @@ class ReleaseUtils
         return []
       end
       errors.each { |msg| logger.info(msg) }
-      if ::Time.now.to_i > deadline
+      if ::Process.clock_gettime(::Process::CLOCK_MONOTONIC) > deadline
         results = ["GitHub checks still failing after #{required_checks_timeout} secs."]
         return results + errors
       end
