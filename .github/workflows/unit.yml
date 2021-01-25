@@ -2,10 +2,10 @@ name: Ruby Unit CI
 on:
   pull_request:
     branches:
-      - master
+      - main
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 jobs:
   test:
@@ -23,7 +23,7 @@ jobs:
             ruby: "2.7"
             flags: "--no-test-rubocop"
           - os: ubuntu-latest
-            ruby: head
+            ruby: "3.0"
             flags: "--only --test-unit"
           - os: ubuntu-latest
             ruby: jruby
