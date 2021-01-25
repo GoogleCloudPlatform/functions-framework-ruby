@@ -31,12 +31,8 @@ Functions Framework is designed especially for functions that can be hosted on
 Cloud Functions.
 
 You can run Ruby functions on Google Cloud Functions by selecting the `ruby26`
-runtime. This runtime uses a recent release of Ruby 2.6. Support for other
-versions of Ruby may be added in the future.
-
-> **Note:** Ruby support on Cloud Functions is currently in limited alpha.
-> It is not yet suitable for production workloads, and support is best-effort
-> only. Access is currently limited to selected early-access users.
+runtime or `ruby27` runtime to use a recent release of Ruby 2.6 or Ruby 2.7.
+Support for Ruby 3.0 is forthcoming.
 
 ### Deploying and updating your function
 
@@ -64,7 +60,7 @@ Then, issue the gcloud command to deploy:
 ```sh
 gcloud functions deploy $YOUR_FUNCTION_NAME \
     --project=$YOUR_PROJECT_ID \
-    --runtime=ruby26 \
+    --runtime=ruby27 \
     --trigger-http \
     --entry-point=$YOUR_FUNCTION_TARGET
 ```
@@ -90,7 +86,7 @@ and above, set `FUNCTION_LOGGING_LEVEL` to `WARN` when deploying:
 
 ```sh
 gcloud functions deploy $YOUR_FUNCTION_NAME --project=$YOUR_PROJECT_ID \
-  --runtime=ruby26 --trigger-http --source=$YOUR_FUNCTION_SOURCE \
+  --runtime=ruby27 --trigger-http --source=$YOUR_FUNCTION_SOURCE \
   --entry-point=$YOUR_FUNCTION_TARGET \
   --set-env-vars=FUNCTION_LOGGING_LEVEL=WARN
 ```
@@ -125,7 +121,7 @@ Dockerfile that you can use as a starting point. Feel free to adjust it to the
 needs of your project:
 
 ```
-FROM ruby:2.6
+FROM ruby:2.7
 WORKDIR /app
 COPY . .
 RUN gem install --no-document bundler \
@@ -151,8 +147,8 @@ command may ask you for permission to enable the Cloud Build API for the project
 if it isn't already enabled.
 
 Because you provide your own Docker image when deploying to Cloud Run, you can
-use any version of Ruby supported by the Functions Framework, from 2.4 through
-2.7.
+use any version of Ruby supported by the Functions Framework, from 2.5 through
+3.0.
 
 ### Deploying an image to Cloud Run
 
