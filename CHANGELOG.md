@@ -2,8 +2,7 @@
 
 ### v0.7.1 / 2021-01-26
 
-* DOCS: Fix several errors in the writing-functions doc samples
-* DOCS: Update README.md 
+* DOCS: Fixed several errors in the writing-functions doc samples
 * DOCS: Updated documentation to note public release of GCF support 
 
 ### v0.7.0 / 2020-09-25
