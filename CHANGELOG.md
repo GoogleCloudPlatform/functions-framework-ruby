@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.7.1 / 2021-01-26
+
+* DOCS: Fix several errors in the writing-functions doc samples
+* DOCS: Update README.md 
+* DOCS: Updated documentation to note public release of GCF support 
+
 ### v0.7.0 / 2020-09-25
 
 * Now requires Ruby 2.5 or later.
