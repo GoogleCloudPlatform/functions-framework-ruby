@@ -129,6 +129,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     run_with_retry cli do
+      # Do nothing
     end
   end
 
@@ -143,6 +144,7 @@ describe FunctionsFramework::CLI do
     cli = FunctionsFramework::CLI.new.parse_args args
     error = assert_raises RuntimeError do
       run_with_retry cli do
+        # Do nothing
       end
     end
     assert_match(/Function "simple_http" does not match type cloudevent/, error.message)
@@ -158,6 +160,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     run_with_retry cli do
+      # Do nothing
     end
   end
 
@@ -171,6 +174,7 @@ describe FunctionsFramework::CLI do
     ]
     cli = FunctionsFramework::CLI.new.parse_args args
     run_with_retry cli do
+      # Do nothing
     end
   end
 
@@ -185,6 +189,7 @@ describe FunctionsFramework::CLI do
     cli = FunctionsFramework::CLI.new.parse_args args
     error = assert_raises RuntimeError do
       run_with_retry cli do
+        # Do nothing
       end
     end
     assert_match(/Function "simple_event" does not match type http/, error.message)

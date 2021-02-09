@@ -49,14 +49,17 @@ module FunctionsFramework
     end
 
     def normalized_context input
-      raw_context = input["context"]
-      id = raw_context&.[]("eventId") || input["eventId"]
-      timestamp = raw_context&.[]("timestamp") || input["timestamp"]
-      type = raw_context&.[]("eventType") || input["eventType"]
-      service, resource = analyze_resource raw_context&.[]("resource") || input["resource"]
+      id = normalized_context_field input, "eventId"
+      timestamp = normalized_context_field input, "timestamp"
+      type = normalized_context_field input, "eventType"
+      service, resource = analyze_resource normalized_context_field input, "resource"
       service ||= service_from_type type
       return nil unless id && timestamp && type && service && resource
       { id: id, timestamp: timestamp, type: type, service: service, resource: resource }
+    end
+
+    def normalized_context_field input, field
+      input["context"]&.[](field) || input[field]
     end
 
     def analyze_resource raw_resource

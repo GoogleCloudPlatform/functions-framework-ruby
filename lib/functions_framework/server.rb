@@ -158,7 +158,7 @@ module FunctionsFramework
           ::Signal.trap "SIGHUP" do
             Server.signal_enqueue "SIGHUP", @config.logger, @server
           end
-        rescue ::ArgumentError # rubocop:disable Lint/HandleExceptions
+        rescue ::ArgumentError
           # Not available on all systems
         end
         @signals_installed = true

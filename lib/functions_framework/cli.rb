@@ -74,7 +74,7 @@ module FunctionsFramework
     # @param argv [Array<String>]
     # @return [self]
     #
-    def parse_args argv # rubocop:disable Metrics/MethodLength
+    def parse_args argv # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
       @option_parser = ::OptionParser.new do |op| # rubocop:disable Metrics/BlockLength
         op.on "-t", "--target TARGET",
               "Set the name of the function to execute (defaults to #{DEFAULT_TARGET})" do |val|

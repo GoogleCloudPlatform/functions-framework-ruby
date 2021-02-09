@@ -33,7 +33,7 @@ describe FunctionsFramework::Server do
   let(:port) { 8077 }
   let(:server_url) { "http://127.0.0.1:#{port}" }
   let(:quiet_logger) {
-    logger = ::Logger.new ::STDOUT
+    logger = ::Logger.new $stdout
     logger.level = ::Logger::FATAL
     logger
   }
@@ -41,7 +41,7 @@ describe FunctionsFramework::Server do
   let(:event_server) { make_basic_server event_function }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
-  let(:app_context) { ::Hash.new }
+  let(:app_context) { {} }
 
   def make_basic_server function
     FunctionsFramework::Server.new function, app_context do |config|
