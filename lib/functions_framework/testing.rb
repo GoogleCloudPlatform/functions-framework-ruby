@@ -366,9 +366,10 @@ module FunctionsFramework
           ::Rack::RACK_ERRORS     => ::StringIO.new
         }
         headers.each do |header|
-          if header.is_a? String
+          case header
+          when String
             name, value = header.split ":"
-          elsif header.is_a? Array
+          when ::Array
             name, value = header
           end
           next unless name && value

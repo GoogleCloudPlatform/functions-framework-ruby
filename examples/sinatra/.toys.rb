@@ -16,7 +16,7 @@ require "json"
 require "fileutils"
 
 mixin "shared" do
-  def vendor_framework do_vendor = true
+  def vendor_framework do_vendor: true
     ::Dir.chdir context_directory do
       ::FileUtils.rm_rf "vendor"
       if do_vendor
@@ -63,7 +63,7 @@ tool "test" do
   include :exec, e: true
 
   def run
-    vendor_framework !use_release
+    vendor_framework do_vendor: !use_release
     ::Dir.chdir context_directory
     exec ["bundle", "install"]
     exec ["bundle", "exec", "ruby", "test/test_app.rb"]
@@ -91,7 +91,7 @@ tool "server" do
   include :exec, e: true
 
   def run
-    vendor_framework !use_release
+    vendor_framework do_vendor: !use_release
     ::Dir.chdir context_directory
     bin_path =
       if use_release
@@ -152,7 +152,7 @@ tool "image" do
     include :exec, e: true
 
     def run
-      vendor_framework !use_release
+      vendor_framework do_vendor: !use_release
       ::Dir.chdir context_directory
       exec ["docker", "build", "--tag", image, "."]
     end
@@ -220,7 +220,7 @@ tool "run" do
       app_tag = tag || default_tag
       app_project = project || default_project
       image = "gcr.io/#{app_project}/#{app_name}:#{app_tag}"
-      vendor_framework !use_release
+      vendor_framework do_vendor: !use_release
       ::Dir.chdir context_directory
       exec ["gcloud", "builds", "submit", "--tag", image, "."]
       exec ["gcloud", "run", "deploy", app_name,
