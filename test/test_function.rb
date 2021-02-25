@@ -101,11 +101,38 @@ describe FunctionsFramework::Function do
   end
 
   it "sets a global from a startup task" do
-    function = FunctionsFramework::Function.startup_task do
+    tester = self
+    startup = FunctionsFramework::Function.startup_task do
       set_global :foo, :bar
     end
+    function = FunctionsFramework::Function.http "my_func" do |_request|
+      tester.assert_equal :bar, global(:foo)
+      "hello"
+    end
     globals = {}
+    startup.call "the-startup", globals: globals
     function.call "the-function", globals: globals
-    assert_equal :bar, globals[:foo]
+  end
+
+  it "sets a lazy global from a startup task" do
+    tester = self
+    counter = 0
+    startup = FunctionsFramework::Function.startup_task do
+      set_global :foo do
+        counter += 1
+        :bar
+      end
+    end
+    function = FunctionsFramework::Function.http "my_func" do |_request|
+      tester.assert_equal :bar, global(:foo)
+      "hello"
+    end
+    globals = {}
+    startup.call "the-startup", globals: globals
+    assert_equal 0, counter
+    function.call "the-function", globals: globals
+    assert_equal 1, counter
+    function.call "the-function", globals: globals
+    assert_equal 1, counter
   end
 end

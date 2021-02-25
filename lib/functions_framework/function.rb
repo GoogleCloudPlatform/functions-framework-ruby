@@ -165,6 +165,28 @@ module FunctionsFramework
     end
 
     ##
+    # A lazy evaluator for a global
+    # @private
+    #
+    class LazyGlobal
+      def initialize block
+        @block = block
+        @value = nil
+        @mutex = ::Mutex.new
+      end
+
+      def value
+        @mutex.synchronize do
+          if @block
+            @value = @block.call
+            @block = nil
+          end
+          @value
+        end
+      end
+    end
+
+    ##
     # A base class for a callable object that provides calling context.
     #
     # An object of this class is `self` while a function block is running.
@@ -196,7 +218,9 @@ module FunctionsFramework
       # @return [Object]
       #
       def global key
-        @__globals[key]
+        value = @__globals[key]
+        value = value.value if value.is_a? LazyGlobal
+        value
       end
 
       ##
@@ -204,11 +228,35 @@ module FunctionsFramework
       # are frozen when the server starts, so this call will raise an exception
       # if called from a normal function.
       #
-      # @param key [Symbol,String]
-      # @param value [Object]
+      # You can set a global to a final value, or you can provide a block that
+      # lazily computes the global the first time it is requested.
       #
-      def set_global key, value
-        @__globals[key] = value
+      # @overload set_global(key, value)
+      #   Set the given global to the given value. For example:
+      #
+      #       set_global(:project_id, "my-project-id")
+      #
+      #   @param key [Symbol,String]
+      #   @param value [Object]
+      #   @return [self]
+      #
+      # @overload set_global(key, &block)
+      #   Call the given block to compute the global's value only when the
+      #   value is actually requested. This block will be called at most once,
+      #   and its result reused for subsequent calls. For example:
+      #
+      #       set_global(:connection_pool) do
+      #         ExpensiveConnectionPool.new
+      #       end
+      #
+      #   @param key [Symbol,String]
+      #   @param block [Proc] A block that lazily computes a value
+      #   @yieldreturn [Object] The value
+      #   @return [self]
+      #
+      def set_global key, value = nil, &block
+        @__globals[key] = block ? LazyGlobal.new(block) : value
+        self
       end
 
       ##
