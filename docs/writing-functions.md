@@ -111,7 +111,7 @@ dependency on Sinatra in your `Gemfile`:
 
 ```ruby
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.7"
+gem "functions_framework", "~> 0.8"
 gem "sinatra", "~> 2.0"
 ```
 
@@ -248,10 +248,10 @@ FunctionsFramework.http "hello" do |request|
 end
 ```
 
-Startup tasks are run once per Ruby instance, before the framework starts
-receiving requests and executing functions. You can define multiple startup
-tasks, and they will run in order, and are guaranteed to complete before any
-function is executed.
+Startup tasks are run once per Ruby instance during cold start -- that is,
+after the Ruby VM boots up but before the framework starts receiving requests
+and executing functions. You can define multiple startup tasks, and they will
+run in order, and are guaranteed to complete before any function is executed.
 
 The block is optionally passed the {FunctionsFramework::Function} representing
 the function that will be run. You code can, for example, perform different
@@ -285,6 +285,11 @@ end
 
 # ...
 ```
+
+Because startup tasks run during cold start, they could have an impact on your
+function's startup latency. To mitigate this issue, it is possible to run parts
+of your initialization lazily, as described below in the section below on
+[lazy initialization](#Lazy_initialization).
 
 ### The execution context and global data
 
@@ -331,8 +336,9 @@ resources, as described below.
 Using the global data mechanism is generally preferred over actual Ruby global
 variables, because the Functions Framework can help you avoid concurrent edits.
 Additionally, the framework will isolate the sets of global data associated
-with different sets of functions, which lets you test functions in isolation
-without the tests interfering with one another by writing to global variables.
+with different sets of functions, which lets you run functions in isolation
+during unit tests. If you are testing multiple functions, they will not
+interfere with each other as they might if they used global variables.
 
 ### Sharing resources
 
@@ -345,10 +351,10 @@ re-establishing it for every function invocation.
 
 The best practice for sharing a resource across function invocations is to
 initialize it in a {FunctionsFramework.on_startup} block, and reference it from
-global shared data. (As discussed above, prefer to initialize shared resources
-in a startup task rather than at the top level of a Ruby file, and prefer using
-the Functions Framework's global data mechanism rather than Ruby's global
-variables.)
+global shared data. (As discussed above, the best practice is to initialize
+shared resources in a startup task rather than at the top level of a Ruby file,
+and to use the Functions Framework's global data mechanism rather than Ruby's
+global variables.)
 
 Here is a simple example:
 
@@ -382,6 +388,48 @@ resources that require explicit "cleanup". This is because serverless runtimes
 may perform CPU throttling, and therefore there may not be an opportunity for
 cleanup tasks to run. (For example, you could register a `Kernel.at_exit` task,
 but the Ruby VM may still terminate without calling it.)
+
+### Lazy initialization
+
+Because startup tasks run during cold start, they could have an impact on your
+function's startup latency. You can mitigate this by initializing some globals
+_lazily_. When setting a global, instead of computing and setting the value
+directly (e.g. constructing a shared API client object directly), you can
+provide a block that describes how to construct it on demand.
+
+Here is an example using the storage client we saw above.
+
+```ruby
+require "functions_framework"
+
+# This startup block describes _how_ to initialize a shared client, but
+# does not construct it immediately.
+FunctionsFramework.on_startup do
+  require "google/cloud/storage"
+  set_global :storage_client do
+    Google::Cloud::Storage.new
+  end
+end
+
+# The first time this function is invoked, it will call the above block
+# to construct the storage client. Subsequent invocations will not need
+# to construct it again, but will reuse the same shared object.
+FunctionsFramework.http "storage_example" do |request|
+  bucket = global(:storage_client).bucket "my-bucket"
+  file = bucket.file "path/to/my-file.txt"
+  file.download.to_s
+end
+```
+
+The block will not be called until a function actually attempts to access the
+global. From that point, subsequent accesses of the global will return that
+same shared value; the block will be called at most once. This is true even if
+multiple functions are run concurrently in different threads.
+
+Lazy initialization is particularly useful if you define several different
+functions that may use different sets of shared resources. Instead of
+initializing all resources eagerly up front, you could initialize them lazily
+and run only the code needed by the function that is actually invoked.
 
 ## Structuring a project
 
@@ -422,7 +470,7 @@ Following is a typical layout for a Functions Framework based project.
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.7"
+gem "functions_framework", "~> 0.8"
 ```
 
 ```ruby
