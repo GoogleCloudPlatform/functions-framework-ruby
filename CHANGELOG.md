@@ -1,5 +1,9 @@
 # Changelog
 
+### v0.8.0 / 2021-03-02
+
+* ADDED: Support for lazily-initialized globals
+
 ### v0.7.1 / 2021-01-26
 
 * DOCS: Fixed several errors in the writing-functions doc samples
