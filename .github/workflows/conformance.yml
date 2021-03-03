@@ -14,8 +14,8 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
-    - name: Setup test data
-      run: "./set_up_conformance_tests.sh"
+    - name: Bundle install
+      run: 'bundle install'
     - name: Run HTTP conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.3.6
       with:
