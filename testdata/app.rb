@@ -5,7 +5,9 @@ require "cloud_events/json_format"
 OUTPUT_FILE = "function_output.json"
 
 FunctionsFramework.http "http_func" do |request|
-  File.write(OUTPUT_FILE, request.body.read)
+  File.open(OUTPUT_FILE, "w") do |f|
+    f.write request.body.read
+  end
   "ok"
 end
 
