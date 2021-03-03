@@ -23,7 +23,7 @@ jobs:
         source: 'testdata'
         target: 'http_func'
         runtime: 'ruby27'
-        tag: 'ruby27_20210204_2_7_2_RC00'
+        tag: 'ruby27_20210209_20_RC00'
         startDelay: 10
     - name: Run CloudEvent conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.3.6
@@ -33,5 +33,5 @@ jobs:
         source: 'testdata'
         target: 'cloudevent_func'
         runtime: 'ruby27'
-        tag: 'ruby27_20210204_2_7_2_RC00'
+        tag: 'ruby27_20210209_20_RC00'
         startDelay: 10
