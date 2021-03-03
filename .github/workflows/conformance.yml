@@ -3,6 +3,9 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        ruby-version: [2.5, 2.6, 2.7]
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -13,7 +16,7 @@ jobs:
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: ${{ matrix.ruby-version }}
     - name: Bundle install
       run: 'bundle install'
     - name: Run HTTP conformance tests
