@@ -21,13 +21,13 @@ jobs:
       with:
         functionType: 'http'
         useBuildpacks: false
-        outputFile: 'testdata/function_output.json'
-        cmd: "'bundle exec functions-framework-ruby --source testdata/app.rb --target http_func --signature-type http'"
+        outputFile: 'test/conformance/function_output.json'
+        cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target http_func --signature-type http'"
     - name: Run CloudEvent conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.3.6
       with:
         functionType: 'cloudevent'
         useBuildpacks: false
-        outputFile: 'testdata/function_output.json'
+        outputFile: 'test/conformance/function_output.json'
         validateMapping: false
-        cmd: "'bundle exec functions-framework-ruby --source testdata/app.rb --target cloudevent_func --signature-type cloudevent'"
+        cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target cloudevent_func --signature-type cloudevent'"
