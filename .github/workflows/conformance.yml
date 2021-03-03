@@ -18,20 +18,16 @@ jobs:
       run: "./set_up_conformance_tests.sh"
     - name: Run HTTP conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.3.6
+      working-directory: 'testdata'
       with:
         functionType: 'http'
-        source: 'testdata'
-        target: 'http_func'
-        runtime: 'ruby27'
-        tag: 'ruby27_20210209_20_RC00'
-        startDelay: 10
+        useBuildpacks: false
+        cmd: 'bundle exec functions-framework-ruby --target http_func --signature-type http'
     - name: Run CloudEvent conformance tests
       uses: GoogleCloudPlatform/functions-framework-conformance/action@v0.3.6
+      working-directory: 'testdata'
       with:
         functionType: 'cloudevent'
+        useBuildpacks: false
         validateMapping: false
-        source: 'testdata'
-        target: 'cloudevent_func'
-        runtime: 'ruby27'
-        tag: 'ruby27_20210209_20_RC00'
-        startDelay: 10
+        cmd: 'bundle exec functions-framework-ruby --target cloudevent_func --signature-type cloudevent'
