@@ -2,7 +2,7 @@ require "json"
 require "functions_framework"
 require "cloud_events/json_format"
 
-OUTPUT_FILE = "function_output.json"
+OUTPUT_FILE = File.join __dir__, "function_output.json"
 
 FunctionsFramework.http "http_func" do |request|
   File.open(OUTPUT_FILE, "w") do |f|
