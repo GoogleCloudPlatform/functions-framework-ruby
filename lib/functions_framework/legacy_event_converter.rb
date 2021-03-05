@@ -33,7 +33,7 @@ module FunctionsFramework
       return nil unless input
       context = normalized_context input
       return nil unless context
-      construct_cloud_event context, input["data"], content_type.charset
+      construct_cloud_event context, input["data"]
     end
 
     private
@@ -81,12 +81,12 @@ module FunctionsFramework
       nil
     end
 
-    def construct_cloud_event context, data, charset
+    def construct_cloud_event context, data
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
       ce_data = convert_data context[:service], data
-      content_type = "application/json; charset=#{charset}"
+      content_type = "application/json"
       ::CloudEvents::Event.new id:                context[:id],
                                source:            source,
                                type:              type,
@@ -98,18 +98,28 @@ module FunctionsFramework
     end
 
     def convert_source service, resource
-      if service == "storage.googleapis.com"
-        match = %r{^(projects/[^/]+/buckets/[^/]+)/([^#]+)(?:#.*)?$}.match resource
-        return [nil, nil] unless match
-        ["//#{service}/#{match[1]}", match[2]]
-      else
-        ["//#{service}/#{resource}", nil]
-      end
+      return ["//#{service}/#{resource}", nil] unless CE_SERVICE_TO_RESOURCE_RE.key?(service)
+
+      match = CE_SERVICE_TO_RESOURCE_RE[service].match resource
+      return [nil, nil] unless match
+      ["//#{service}/#{match[1]}", match[2]]
     end
 
     def convert_data service, data
-      if service == "pubsub.googleapis.com"
-        { "message" => data, "subscription" => nil }
+      case service
+      when "pubsub.googleapis.com"
+        return { "message" => data }
+      when "firebaseauth.googleapis.com"
+        return data unless data.key?("metadata")
+
+        FIREBASE_AUTH_METADATA_LEGACTY_TO_CE.each do |old_key, new_key|
+          if data["metadata"].key?(old_key)
+            data["metadata"][new_key] = data["metadata"][old_key]
+            data["metadata"].delete old_key
+          end
+        end
+
+        return data
       else
         data
       end
@@ -119,8 +129,9 @@ module FunctionsFramework
       %r{^providers/cloud\.firestore/} => "firestore.googleapis.com",
       %r{^providers/cloud\.pubsub/}    => "pubsub.googleapis.com",
       %r{^providers/cloud\.storage/}   => "storage.googleapis.com",
-      %r{^providers/firebase\.auth/}   => "firebase.googleapis.com",
-      %r{^providers/google\.firebase}  => "firebase.googleapis.com"
+      %r{^providers/firebase\.auth/}   => "firebaseauth.googleapis.com",
+      %r{^providers/google\.firebase\.analytics/}  => "firebase.googleapis.com",
+      %r{^providers/google\.firebase\.database/}  => "firebasedatabase.googleapis.com"
     }.freeze
 
     LEGACY_TYPE_TO_CE_TYPE = {
@@ -142,6 +153,19 @@ module FunctionsFramework
       "providers/google.firebase.database/eventTypes/ref.update" => "google.firebase.database.document.v1.updated",
       "providers/google.firebase.database/eventTypes/ref.delete" => "google.firebase.database.document.v1.deleted",
       "providers/cloud.storage/eventTypes/object.change"         => "google.cloud.storage.object.v1.finalized"
+    }.freeze
+
+    CE_SERVICE_TO_RESOURCE_RE = {
+      "firebase.googleapis.com"         => %r{^(projects/[^/]+)/(events/[^/]+)$},
+      "firebasedatabase.googleapis.com" => %r{^(projects/_/instances/[^/]+)/(refs/.+)$},
+      "firestore.googleapis.com"        => %r{^(projects/[^/]+/databases/\(default\))/(documents/.+)$},
+      "storage.googleapis.com"          => %r{^(projects/[^/]+/buckets/[^/]+)/([^#]+)(?:#.*)?$}
+    }.freeze
+
+    # Map Firebase Auth legacy event metadata field names to their equivalent CloudEvent field names.
+    FIREBASE_AUTH_METADATA_LEGACTY_TO_CE = {
+      "createdAt"      => "createTime",
+      "lastSignedInAt" => "lastSignInTime"
     }.freeze
   end
 end
