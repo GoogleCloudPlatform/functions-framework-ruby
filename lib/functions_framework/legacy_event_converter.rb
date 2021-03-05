@@ -112,7 +112,7 @@ module FunctionsFramework
       when "firebaseauth.googleapis.com"
         return data unless data.key? "metadata"
 
-        FIREBASE_AUTH_METADATA_LEGACTY_TO_CE.each do |old_key, new_key|
+        FIREBASE_AUTH_METADATA_LEGACY_TO_CE.each do |old_key, new_key|
           if data["metadata"].key? old_key
             data["metadata"][new_key] = data["metadata"][old_key]
             data["metadata"].delete old_key
@@ -163,7 +163,7 @@ module FunctionsFramework
     }.freeze
 
     # Map Firebase Auth legacy event metadata field names to their equivalent CloudEvent field names.
-    FIREBASE_AUTH_METADATA_LEGACTY_TO_CE = {
+    FIREBASE_AUTH_METADATA_LEGACY_TO_CE = {
       "createdAt"      => "createTime",
       "lastSignedInAt" => "lastSignInTime"
     }.freeze
