@@ -98,7 +98,7 @@ module FunctionsFramework
     end
 
     def convert_source service, resource
-      return ["//#{service}/#{resource}", nil] unless CE_SERVICE_TO_RESOURCE_RE.key?(service)
+      return ["//#{service}/#{resource}", nil] unless CE_SERVICE_TO_RESOURCE_RE.key? service
 
       match = CE_SERVICE_TO_RESOURCE_RE[service].match resource
       return [nil, nil] unless match
@@ -108,18 +108,18 @@ module FunctionsFramework
     def convert_data service, data
       case service
       when "pubsub.googleapis.com"
-        return { "message" => data }
+        { "message" => data }
       when "firebaseauth.googleapis.com"
-        return data unless data.key?("metadata")
+        return data unless data.key? "metadata"
 
         FIREBASE_AUTH_METADATA_LEGACTY_TO_CE.each do |old_key, new_key|
-          if data["metadata"].key?(old_key)
+          if data["metadata"].key? old_key
             data["metadata"][new_key] = data["metadata"][old_key]
             data["metadata"].delete old_key
           end
         end
 
-        return data
+        data
       else
         data
       end
@@ -130,8 +130,8 @@ module FunctionsFramework
       %r{^providers/cloud\.pubsub/}    => "pubsub.googleapis.com",
       %r{^providers/cloud\.storage/}   => "storage.googleapis.com",
       %r{^providers/firebase\.auth/}   => "firebaseauth.googleapis.com",
-      %r{^providers/google\.firebase\.analytics/}  => "firebase.googleapis.com",
-      %r{^providers/google\.firebase\.database/}  => "firebasedatabase.googleapis.com"
+      %r{^providers/google\.firebase\.analytics/} => "firebase.googleapis.com",
+      %r{^providers/google\.firebase\.database/} => "firebasedatabase.googleapis.com"
     }.freeze
 
     LEGACY_TYPE_TO_CE_TYPE = {
