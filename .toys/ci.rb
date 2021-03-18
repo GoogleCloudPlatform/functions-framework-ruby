@@ -14,7 +14,7 @@
 
 desc "Run CI checks"
 
-TESTS = ["unit", "rubocop", "yardoc", "build", "examples"]
+TESTS = ["unit", "rubocop", "yardoc", "build", "examples", "conformance"]
 
 flag :only
 TESTS.each do |name|
@@ -39,13 +39,13 @@ def run
     key = "test_#{name}".to_sym
     set key, !only if get(key).nil?
   end
-  exec ["toys", "test"], name: "Tests" if test_unit
+  exec ["toys", "test"], name: "Unit tests" if test_unit
   exec ["toys", "rubocop"], name: "Style checker" if test_rubocop
   exec ["toys", "yardoc"], name: "Docs generation" if test_yardoc
   exec ["toys", "build"], name: "Gem build" if test_build
-  return unless test_examples
   ::Dir.foreach "examples" do |dir|
     next if dir =~ /^\.+$/
     exec ["toys", "test"], name: "Tests for #{dir} example", chdir: ::File.join("examples", dir)
-  end
+  end if test_examples
+  exec ["toys", "conformance"], name: "Conformance tests" if test_conformance
 end

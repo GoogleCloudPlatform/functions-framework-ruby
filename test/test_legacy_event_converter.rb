@@ -115,7 +115,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "4423b4fa-c39b-4f79-b338-977a018e9b55", event.id
     assert_equal "//firebaseauth.googleapis.com/projects/my-project-id", event.source.to_s
     assert_equal "google.firebase.auth.user.v1.created", event.type
-    assert_nil event.subject
+    assert_equal "users/UUpby3s4spZre6kHsgVSPetzQ8l2", event.subject
     assert_equal "2020-05-26T10:42:27+00:00", event.time.rfc3339
     assert_equal "test@nowhere.com", event.data["email"]
   end
@@ -126,7 +126,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "5fd71bdc-4955-421f-9fc3-552ac3abead8", event.id
     assert_equal "//firebaseauth.googleapis.com/projects/my-project-id", event.source.to_s
     assert_equal "google.firebase.auth.user.v1.deleted", event.type
-    assert_nil event.subject
+    assert_equal "users/UUpby3s4spZre6kHsgVSPetzQ8l2", event.subject
     assert_equal "2020-05-26T10:47:14+00:00", event.time.rfc3339
     assert_equal "test@nowhere.com", event.data["email"]
   end
