@@ -306,7 +306,7 @@ module FunctionsFramework
       # @return [Integer]
       #
       def max_threads
-        @max_threads || (@rack_env == "development" ? 1 : 16)
+        @max_threads || 1
       end
 
       ##
