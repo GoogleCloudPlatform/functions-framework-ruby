@@ -111,7 +111,7 @@ dependency on Sinatra in your `Gemfile`:
 
 ```ruby
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.8"
+gem "functions_framework", "~> 0.9"
 gem "sinatra", "~> 2.0"
 ```
 
@@ -470,7 +470,7 @@ Following is a typical layout for a Functions Framework based project.
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.8"
+gem "functions_framework", "~> 0.9"
 ```
 
 ```ruby

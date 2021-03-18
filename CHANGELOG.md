@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.9.0 / 2021-03-18
+
+* BREAKING CHANGE: Servers are configured as single-threaded in production by default, matching the current behavior of Google Cloud Functions.
+* FIXED: Fixed conversion of Firebase events to CloudEvents to conform to the specs used by Cloud Functions and Cloud Run.
+* FIXED: Fixed an error when reading a global set to a Minitest::Mock. This will make it easier to write tests that use mocks for global resources.
+
 ### v0.8.0 / 2021-03-02
 
 * ADDED: Support for lazily-initialized globals
