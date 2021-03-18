@@ -85,7 +85,7 @@ module FunctionsFramework
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
-      ce_data = convert_data context[:service], data
+      ce_data, data_subject = convert_data context[:service], data
       content_type = "application/json"
       ::CloudEvents::Event.new id:                context[:id],
                                source:            source,
@@ -93,7 +93,7 @@ module FunctionsFramework
                                spec_version:      "1.0",
                                data_content_type: content_type,
                                data:              ce_data,
-                               subject:           subject,
+                               subject:           subject || data_subject,
                                time:              context[:timestamp]
     end
 
@@ -108,20 +108,20 @@ module FunctionsFramework
     def convert_data service, data
       case service
       when "pubsub.googleapis.com"
-        { "message" => data }
+        [{ "message" => data }, nil]
       when "firebaseauth.googleapis.com"
-        return data unless data.key? "metadata"
-
-        FIREBASE_AUTH_METADATA_LEGACY_TO_CE.each do |old_key, new_key|
-          if data["metadata"].key? old_key
-            data["metadata"][new_key] = data["metadata"][old_key]
-            data["metadata"].delete old_key
+        if data.key? "metadata"
+          FIREBASE_AUTH_METADATA_LEGACY_TO_CE.each do |old_key, new_key|
+            if data["metadata"].key? old_key
+              data["metadata"][new_key] = data["metadata"][old_key]
+              data["metadata"].delete old_key
+            end
           end
         end
-
-        data
+        subject = "users/#{data['uid']}" if data.key? "uid"
+        [data, subject]
       else
-        data
+        [data, nil]
       end
     end
 

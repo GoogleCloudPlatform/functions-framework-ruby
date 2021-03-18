@@ -21,7 +21,7 @@ jobs:
             flags: "--only --test-unit"
           - os: ubuntu-latest
             ruby: "2.7"
-            flags: "--no-test-rubocop"
+            flags: "--only --test-unit"
           - os: ubuntu-latest
             ruby: "3.0"
             flags: "--only --test-unit"
@@ -34,6 +34,9 @@ jobs:
           - os: windows-latest
             ruby: "2.7"
             flags: "--only --test-unit"
+          - os: ubuntu-latest
+            ruby: "2.7"
+            flags: "--only --test-yardoc --test-build --test-examples"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
