@@ -135,4 +135,17 @@ describe FunctionsFramework::Function do
     function.call "the-function", globals: globals
     assert_equal 1, counter
   end
+
+  it "allows a global of type Minitest::Mock" do
+    startup = FunctionsFramework::Function.startup_task do
+      set_global :foo, Minitest::Mock.new
+    end
+    function = FunctionsFramework::Function.http "my_func" do |_request|
+      global :foo
+      "hello"
+    end
+    globals = {}
+    startup.call "the-startup", globals: globals
+    function.call "the-function", globals: globals
+  end
 end
