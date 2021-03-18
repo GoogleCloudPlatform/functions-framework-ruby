@@ -219,7 +219,7 @@ module FunctionsFramework
       #
       def global key
         value = @__globals[key]
-        value = value.value if value.is_a? LazyGlobal
+        value = value.value if LazyGlobal === value
         value
       end
 
