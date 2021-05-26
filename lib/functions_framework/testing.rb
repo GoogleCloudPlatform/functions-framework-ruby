@@ -330,20 +330,27 @@ module FunctionsFramework
         when ::Array
           ::Rack::Response.new response[2], response[0], response[1]
         when ::String
-          string_response response, "text/plain", 200
+          string_response response, 200
         when ::Hash
           json = ::JSON.dump response
-          string_response json, "application/json", 200
+          string_response json, 200, content_type: "application/json"
         when ::StandardError
           message = "#{response.class}: #{response.message}\n#{response.backtrace}\n"
-          string_response message, "text/plain", 500
+          string_response message, 500
         else
           raise "Unexpected response type: #{response.inspect}"
         end
       end
 
       ## @private
-      def string_response string, content_type, status
+      def string_response string, status, content_type: nil
+        string.force_encoding ::Encoding::ASCII_8BIT unless string.valid_encoding?
+        if string.encoding == ::Encoding::ASCII_8BIT
+          content_type ||= "application/octet-stream"
+        else
+          content_type ||= "text/plain"
+          content_type = "#{content_type}; charset=#{string.encoding.name.downcase}"
+        end
         headers = {
           "Content-Type"   => content_type,
           "Content-Length" => string.bytesize

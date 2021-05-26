@@ -346,9 +346,9 @@ module FunctionsFramework
         when ::Rack::Response
           response.finish
         when ::String
-          string_response response, "text/plain", 200
+          string_response response, 200
         when ::Hash
-          string_response ::JSON.dump(response), "application/json", 200
+          string_response ::JSON.dump(response), 200, content_type: "application/json"
         when ::CloudEvents::CloudEventsError
           cloud_events_error_response response
         when ::StandardError
@@ -359,10 +359,17 @@ module FunctionsFramework
       end
 
       def notfound_response
-        string_response "Not found", "text/plain", 404
+        string_response "Not found", 404
       end
 
-      def string_response string, content_type, status
+      def string_response string, status, content_type: nil
+        string.force_encoding ::Encoding::ASCII_8BIT unless string.valid_encoding?
+        if string.encoding == ::Encoding::ASCII_8BIT
+          content_type ||= "application/octet-stream"
+        else
+          content_type ||= "text/plain"
+          content_type = "#{content_type}; charset=#{string.encoding.name.downcase}"
+        end
         headers = {
           "Content-Type"   => content_type,
           "Content-Length" => string.bytesize
@@ -372,13 +379,13 @@ module FunctionsFramework
 
       def cloud_events_error_response error
         @config.logger.warn error
-        string_response "#{error.class}: #{error.message}", "text/plain", 400
+        string_response "#{error.class}: #{error.message}", 400
       end
 
       def error_response message
         @config.logger.error message
         message = "Unexpected internal error" unless @config.show_error_details?
-        string_response message, "text/plain", 500
+        string_response message, 500
       end
     end
 

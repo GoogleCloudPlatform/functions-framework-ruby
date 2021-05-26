@@ -92,6 +92,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "200", response.code
     assert_equal "Received: \"Hello, world!\"", response.body
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "handles get requests" do
@@ -100,7 +101,33 @@ describe FunctionsFramework::Server do
     end
     assert_equal "200", response.code
     assert_equal "Received: \"\"", response.body
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
+  end
+
+  it "interprets binary string" do
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
+      "\xff".force_encoding Encoding::ASCII_8BIT
+    end
+    server = make_basic_server function
+    response = query_server_with_retry server do
+      ::Net::HTTP.get_response URI("#{server_url}/")
+    end
+    assert_equal "200", response.code
+    assert_equal "\xff".force_encoding(Encoding::ASCII_8BIT), response.body
+    assert_equal "application/octet-stream", response["Content-Type"]
+  end
+
+  it "interprets invalid encoding string" do
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
+      "\xff"
+    end
+    server = make_basic_server function
+    response = query_server_with_retry server do
+      ::Net::HTTP.get_response URI("#{server_url}/")
+    end
+    assert_equal "200", response.code
+    assert_equal "\xff".force_encoding(Encoding::ASCII_8BIT), response.body
+    assert_equal "application/octet-stream", response["Content-Type"]
   end
 
   it "interprets array responses" do
@@ -126,7 +153,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "200", response.code
     assert_equal '{"foo":"bar"}', response.body
-    assert_equal "application/json", response["Content-Type"]
+    assert_equal "application/json; charset=utf-8", response["Content-Type"]
   end
 
   it "handles CloudEvents" do
@@ -147,7 +174,7 @@ describe FunctionsFramework::Server do
     refute_nil response
     assert_equal "200", response.code
     assert_equal "ok", response.body
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
     assert_match(/Received: "Hello, world!"/, err)
   end
 
@@ -173,7 +200,7 @@ describe FunctionsFramework::Server do
     refute_nil response
     assert_equal "400", response.code
     assert_match(/Batched CloudEvents are not supported/, response.body)
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "handles legacy events" do
@@ -188,7 +215,7 @@ describe FunctionsFramework::Server do
     refute_nil response
     assert_equal "200", response.code
     assert_equal "ok", response.body
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
     assert_match(/VGhpcyBpcyBhIHNhbXBsZSBtZXNzYWdl/, err)
   end
 
@@ -202,7 +229,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "500", response.code
     assert_match(/Whoops!/, response.body)
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "refuses favicon requests" do
@@ -211,7 +238,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "404", response.code
     assert_equal "Not found", response.body
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "refuses robots requests" do
@@ -220,7 +247,7 @@ describe FunctionsFramework::Server do
     end
     assert_equal "404", response.code
     assert_equal "Not found", response.body
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "reports badly formed CloudEvents" do
@@ -231,7 +258,7 @@ describe FunctionsFramework::Server do
     refute_nil response
     assert_equal "400", response.code
     assert_match(/Unrecognized specversion/, response.body)
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
   it "reports unknown event types" do
@@ -242,6 +269,6 @@ describe FunctionsFramework::Server do
     refute_nil response
     assert_equal "400", response.code
     assert_match(/Unrecognized event format/, response.body)
-    assert_equal "text/plain", response["Content-Type"]
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 end
