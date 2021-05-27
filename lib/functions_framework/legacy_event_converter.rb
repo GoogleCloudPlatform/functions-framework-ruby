@@ -27,7 +27,7 @@ module FunctionsFramework
     # @return [nil] if the event format was not recognized.
     #
     def decode_rack_env env
-      content_type = ::CloudEvents::ContentType.new env["CONTENT_TYPE"]
+      content_type = ::CloudEvents::ContentType.new env["CONTENT_TYPE"], default_charset: "utf-8"
       return nil unless content_type.media_type == "application" && content_type.subtype_base == "json"
       input = read_input_json env["rack.input"], content_type.charset
       return nil unless input

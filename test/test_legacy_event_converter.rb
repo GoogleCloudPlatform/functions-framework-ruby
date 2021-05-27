@@ -61,6 +61,18 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "dGVzdCBtZXNzYWdlIDM=", event.data["message"]["data"]
   end
 
+  it "converts pubsub_utf8.json" do
+    event = load_legacy_event "pubsub_utf8.json"
+    assert_equal "1.0", event.spec_version
+    assert_equal "1144231683168617", event.id
+    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
+    assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
+    assert_nil event.subject
+    assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
+    assert_equal "あああ", event.data["message"]["attributes"]["attr1"]
+    assert_equal "dGVzdCBtZXNzYWdlIDM=", event.data["message"]["data"]
+  end
+
   it "converts pubsub_binary.json" do
     event = load_legacy_event "pubsub_binary.json"
     assert_equal "1.0", event.spec_version
