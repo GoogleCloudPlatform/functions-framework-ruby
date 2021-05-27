@@ -31,6 +31,7 @@ module FunctionsFramework
       return nil unless content_type.media_type == "application" && content_type.subtype_base == "json"
       input = read_input_json env["rack.input"], content_type.charset
       return nil unless input
+      input = convert_raw_pubsub_event input, env if raw_pubsub_payload? input
       context = normalized_context input
       return nil unless context
       construct_cloud_event context, input["data"]
@@ -46,6 +47,37 @@ module FunctionsFramework
       content
     rescue ::JSON::ParserError
       nil
+    end
+
+    def raw_pubsub_payload? input
+      return false if input.include?("context") || !input.include?("subscription")
+      message = input["message"]
+      message.is_a?(::Hash) && message.include?("data") && message.include?("messageId")
+    end
+
+    def convert_raw_pubsub_event input, env
+      message = input["message"]
+      path = "#{env['SCRIPT_NAME']}#{env['PATH_INFO']}"
+      path_match = %r{projects/[^/?]+/topics/[^/?]+}.match path
+      topic = path_match ? path_match[0] : "UNKNOWN_PUBSUB_TOPIC"
+      timestamp = message["publishTime"] || ::Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S.%6NZ")
+      {
+        "context" => {
+          "eventId" => message["messageId"],
+          "timestamp" => timestamp,
+          "eventType" => "google.pubsub.topic.publish",
+          "resource" => {
+            "service" => "pubsub.googleapis.com",
+            "type" => "type.googleapis.com/google.pubsub.v1.PubsubMessage",
+            "name" => topic
+          }
+        },
+        "data" => {
+          "@type" => "type.googleapis.com/google.pubsub.v1.PubsubMessage",
+          "data" => message["data"],
+          "attributes" => message["attributes"]
+        }
+      }
     end
 
     def normalized_context input

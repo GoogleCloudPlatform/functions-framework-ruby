@@ -17,10 +17,10 @@ require "helper"
 describe FunctionsFramework::LegacyEventConverter do
   let(:data_dir) { File.join __dir__, "legacy_events_data" }
 
-  def load_legacy_event filename
+  def load_legacy_event filename, url_path: nil
     path = File.join data_dir, filename
     File.open path do |io|
-      env = { "rack.input" => io, "CONTENT_TYPE" => "application/json" }
+      env = { "rack.input" => io, "CONTENT_TYPE" => "application/json", "PATH_INFO" => url_path }
       converter = FunctionsFramework::LegacyEventConverter.new
       converter.decode_rack_env env
     end
@@ -82,6 +82,30 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "AQIDBA==", event.data["message"]["data"]
+  end
+
+  it "converts raw_pubsub.json" do
+    event = load_legacy_event "raw_pubsub.json"
+    assert_equal "1.0", event.spec_version
+    assert_equal "1215011316659232", event.id
+    assert_equal "//pubsub.googleapis.com/UNKNOWN_PUBSUB_TOPIC", event.source.to_s
+    assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
+    assert_nil event.subject
+    assert_in_delta event.time.to_time.to_f, Time.now.to_f, 1.0
+    assert_equal "123", event.data["message"]["attributes"]["test"]
+    assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
+  end
+
+  it "converts raw_pubsub.json with path" do
+    event = load_legacy_event "raw_pubsub.json", url_path: "/projects/sample-project/topics/gcf-test"
+    assert_equal "1.0", event.spec_version
+    assert_equal "1215011316659232", event.id
+    assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
+    assert_equal "google.cloud.pubsub.topic.v1.messagePublished", event.type
+    assert_nil event.subject
+    assert_in_delta event.time.to_time.to_f, Time.now.to_f, 1.0
+    assert_equal "123", event.data["message"]["attributes"]["test"]
+    assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
   end
 
   it "converts storage.json" do

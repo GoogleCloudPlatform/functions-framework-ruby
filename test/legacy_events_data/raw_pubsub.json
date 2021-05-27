@@ -1,0 +1,8 @@
+{
+  "subscription": "projects/sample-project/subscriptions/gcf-test-sub",
+  "message": {
+      "data": "eyJmb28iOiJiYXIifQ==",
+      "messageId": "1215011316659232",
+      "attributes": {"test": "123"}
+  }
+}
