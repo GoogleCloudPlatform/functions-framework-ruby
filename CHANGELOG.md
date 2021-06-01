@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.10.0 / 2021-06-01
+
+* ADDED: Support raw pubsub events sent by the pubsub emulator
+* FIXED: Set proper response content-type charset when a function returns a string (plain text) or hash (JSON)
+* FIXED: Properly handle conversion of non-ascii characters in legacy event strings
+
 ### v0.9.0 / 2021-03-18
 
 * BREAKING CHANGE: Servers are configured as single-threaded in production by default, matching the current behavior of Google Cloud Functions.
