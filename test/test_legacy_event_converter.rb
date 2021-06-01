@@ -17,9 +17,9 @@ require "helper"
 describe FunctionsFramework::LegacyEventConverter do
   let(:data_dir) { File.join __dir__, "legacy_events_data" }
 
-  def load_legacy_event filename, url_path: nil
+  def load_legacy_event filename, url_path: nil, encoding: "utf-8"
     path = File.join data_dir, filename
-    File.open path do |io|
+    File.open path, encoding: encoding do |io|
       env = { "rack.input" => io, "CONTENT_TYPE" => "application/json", "PATH_INFO" => url_path }
       converter = FunctionsFramework::LegacyEventConverter.new
       converter.decode_rack_env env
@@ -62,7 +62,7 @@ describe FunctionsFramework::LegacyEventConverter do
   end
 
   it "converts pubsub_utf8.json" do
-    event = load_legacy_event "pubsub_utf8.json"
+    event = load_legacy_event "pubsub_utf8.json", encoding: "ASCII-8BIT"
     assert_equal "1.0", event.spec_version
     assert_equal "1144231683168617", event.id
     assert_equal "//pubsub.googleapis.com/projects/sample-project/topics/gcf-test", event.source.to_s
