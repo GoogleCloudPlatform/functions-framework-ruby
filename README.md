@@ -60,7 +60,7 @@ Create a `Gemfile` listing the Functions Framework as a dependency:
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.9"
+gem "functions_framework", "~> 0.10"
 ```
 
 Create a file called `app.rb` and include the following code. This defines a
