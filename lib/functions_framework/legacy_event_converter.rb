@@ -41,7 +41,7 @@ module FunctionsFramework
 
     def read_input_json input, charset
       input = input.read if input.respond_to? :read
-      input = input.force_encoding charset if charset
+      input.force_encoding charset if charset
       content = ::JSON.parse input
       content = nil unless content.is_a? ::Hash
       content
