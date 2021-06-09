@@ -117,7 +117,7 @@ module FunctionsFramework
       source, subject = convert_source context[:service], context[:resource]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
-      ce_data, data_subject = convert_data context[:service], data
+      ce_data, data_subject = convert_data context, data
       content_type = "application/json"
       ::CloudEvents::Event.new id:                context[:id],
                                source:            source,
@@ -137,9 +137,12 @@ module FunctionsFramework
       ["//#{service}/#{match[1]}", match[2]]
     end
 
-    def convert_data service, data
+    def convert_data context, data
+      service = context[:service]
       case service
       when "pubsub.googleapis.com"
+        data["messageId"] = data["message_id"] = context[:id]
+        data["publishTime"] = data["publish_time"] = context[:timestamp]
         [{ "message" => data }, nil]
       when "firebaseauth.googleapis.com"
         if data.key? "metadata"
