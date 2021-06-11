@@ -104,7 +104,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "123", event.data["message"]["attributes"]["test"]
     assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
     assert_equal "1215011316659232", event.data["message"]["messageId"]
-    timestamp = event.time.to_time.utc.strftime("%Y-%m-%dT%H:%M:%S.%6NZ")
+    timestamp = event.time.to_time.utc.strftime "%Y-%m-%dT%H:%M:%S.%6NZ"
     assert_equal timestamp, event.data["message"]["publishTime"]
   end
 
@@ -119,7 +119,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "123", event.data["message"]["attributes"]["test"]
     assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
     assert_equal "1215011316659232", event.data["message"]["messageId"]
-    timestamp = event.time.to_time.utc.strftime("%Y-%m-%dT%H:%M:%S.%6NZ")
+    timestamp = event.time.to_time.utc.strftime "%Y-%m-%dT%H:%M:%S.%6NZ"
     assert_equal timestamp, event.data["message"]["publishTime"]
   end
 
