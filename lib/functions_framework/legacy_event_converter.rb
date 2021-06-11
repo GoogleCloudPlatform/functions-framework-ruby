@@ -141,8 +141,8 @@ module FunctionsFramework
       service = context[:service]
       case service
       when "pubsub.googleapis.com"
-        data["messageId"] = data["message_id"] = context[:id]
-        data["publishTime"] = data["publish_time"] = context[:timestamp]
+        data["messageId"] = context[:id]
+        data["publishTime"] = context[:timestamp]
         [{ "message" => data }, nil]
       when "firebaseauth.googleapis.com"
         if data.key? "metadata"
