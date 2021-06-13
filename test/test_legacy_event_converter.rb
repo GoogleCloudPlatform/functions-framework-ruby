@@ -36,6 +36,9 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "2020-05-18T12:13:19+00:00", event.time.rfc3339
     assert_equal "value1", event.data["message"]["attributes"]["attribute1"]
     assert_equal "VGhpcyBpcyBhIHNhbXBsZSBtZXNzYWdl", event.data["message"]["data"]
+    assert_equal "1215011316659232", event.data["message"]["messageId"]
+    assert_equal "2020-05-18T12:13:19.209Z", event.data["message"]["publishTime"]
+    assert_nil event.data["subscription"]
   end
 
   it "converts legacy_storage_change.json" do
@@ -59,6 +62,8 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "attr1-value", event.data["message"]["attributes"]["attr1"]
     assert_equal "dGVzdCBtZXNzYWdlIDM=", event.data["message"]["data"]
+    assert_equal "1144231683168617", event.data["message"]["messageId"]
+    assert_equal "2020-05-06T07:33:34.556Z", event.data["message"]["publishTime"]
   end
 
   it "converts pubsub_utf8.json" do
@@ -71,6 +76,8 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "あああ", event.data["message"]["attributes"]["attr1"]
     assert_equal "dGVzdCBtZXNzYWdlIDM=", event.data["message"]["data"]
+    assert_equal "1144231683168617", event.data["message"]["messageId"]
+    assert_equal "2020-05-06T07:33:34.556Z", event.data["message"]["publishTime"]
   end
 
   it "converts pubsub_binary.json" do
@@ -82,6 +89,8 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_nil event.subject
     assert_equal "2020-05-06T07:33:34+00:00", event.time.rfc3339
     assert_equal "AQIDBA==", event.data["message"]["data"]
+    assert_equal "1144231683168617", event.data["message"]["messageId"]
+    assert_equal "2020-05-06T07:33:34.556Z", event.data["message"]["publishTime"]
   end
 
   it "converts raw_pubsub.json" do
@@ -94,6 +103,9 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_in_delta event.time.to_time.to_f, Time.now.to_f, 1.0
     assert_equal "123", event.data["message"]["attributes"]["test"]
     assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
+    assert_equal "1215011316659232", event.data["message"]["messageId"]
+    timestamp = event.time.to_time.utc.strftime "%Y-%m-%dT%H:%M:%S.%6NZ"
+    assert_equal timestamp, event.data["message"]["publishTime"]
   end
 
   it "converts raw_pubsub.json with path" do
@@ -106,6 +118,9 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_in_delta event.time.to_time.to_f, Time.now.to_f, 1.0
     assert_equal "123", event.data["message"]["attributes"]["test"]
     assert_equal "eyJmb28iOiJiYXIifQ==", event.data["message"]["data"]
+    assert_equal "1215011316659232", event.data["message"]["messageId"]
+    timestamp = event.time.to_time.utc.strftime "%Y-%m-%dT%H:%M:%S.%6NZ"
+    assert_equal timestamp, event.data["message"]["publishTime"]
   end
 
   it "converts storage.json" do
