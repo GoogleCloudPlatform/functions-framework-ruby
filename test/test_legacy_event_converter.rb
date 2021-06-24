@@ -186,7 +186,9 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "firebase-db1.json"
     assert_equal "1.0", event.spec_version
     assert_equal "/SnHth9OSlzK1Puj85kk4tDbF90=", event.id
-    assert_equal "//firebasedatabase.googleapis.com/projects/_/locations/us-central1/instances/my-project-id", event.source.to_s
+    assert_equal \
+      "//firebasedatabase.googleapis.com/projects/_/locations/us-central1/instances/my-project-id",
+      event.source.to_s
     assert_equal "google.firebase.database.document.v1.written", event.type
     assert_equal "refs/gcf-test/xyz", event.subject
     assert_equal "2020-05-21T11:15:34+00:00", event.time.rfc3339
@@ -197,7 +199,9 @@ describe FunctionsFramework::LegacyEventConverter do
     event = load_legacy_event "firebase-dbdelete1.json"
     assert_equal "1.0", event.spec_version
     assert_equal "oIcVXHEMZfhQMNs/yD4nwpuKE0s=", event.id
-    assert_equal "//firebasedatabase.googleapis.com/projects/_/locations/europe-west1/instances/my-project-id", event.source.to_s
+    assert_equal \
+      "//firebasedatabase.googleapis.com/projects/_/locations/europe-west1/instances/my-project-id",
+      event.source.to_s
     assert_equal "google.firebase.database.document.v1.deleted", event.type
     assert_equal "refs/gcf-test/xyz", event.subject
     assert_equal "2020-05-21T11:53:45+00:00", event.time.rfc3339

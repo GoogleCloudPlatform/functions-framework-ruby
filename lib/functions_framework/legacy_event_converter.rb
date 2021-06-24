@@ -135,9 +135,9 @@ module FunctionsFramework
 
       match = CE_SERVICE_TO_RESOURCE_RE[service].match resource
       return [nil, nil] unless match
-      
+
       if service == "firebasedatabase.googleapis.com"
-        raise "Invalid firebasedatabase event: domain is nil" if domain == nil
+        raise "Invalid firebasedatabase event: domain is nil" if domain.nil?
         location = "us-central1"
         location = domain.split(".")[0] if domain != "firebaseio.com"
         ["//#{service}/projects/_/locations/#{location}/#{match[1]}", match[2]]
