@@ -137,9 +137,13 @@ module FunctionsFramework
       return [nil, nil] unless match
 
       if service == "firebasedatabase.googleapis.com"
-        raise "Invalid firebasedatabase event: domain is nil" if domain.nil?
+        return [nil, nil] if domain.nil?
         location = "us-central1"
-        location = domain.split(".")[0] if domain != "firebaseio.com"
+        if domain != "firebaseio.com"
+          location_match = domain.match(/^([\w-]+)\.firebasedatabase\.app$/)
+          return [nil, nil] unless location_match
+          location = location_match[1]
+        end
         ["//#{service}/projects/_/locations/#{location}/#{match[1]}", match[2]]
       else
         ["//#{service}/#{match[1]}", match[2]]
