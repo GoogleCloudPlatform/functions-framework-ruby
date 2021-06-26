@@ -206,4 +206,16 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "refs/gcf-test/xyz", event.subject
     assert_equal "2020-05-21T11:53:45+00:00", event.time.rfc3339
   end
+
+  it "converts firebase-dbdelete2.json" do
+    event = load_legacy_event "firebase-dbdelete2.json"
+    assert_equal "1.0", event.spec_version
+    assert_equal "KVLKeFKjFP2jepddr+EPGC0ZQ20=", event.id
+    assert_equal \
+      "//firebasedatabase.googleapis.com/projects/_/locations/us-central1/instances/my-project-id",
+      event.source.to_s
+    assert_equal "google.firebase.database.document.v1.deleted", event.type
+    assert_equal "refs/gcf-test/abc", event.subject
+    assert_equal "2020-05-21T11:56:12+00:00", event.time.rfc3339
+  end
 end
