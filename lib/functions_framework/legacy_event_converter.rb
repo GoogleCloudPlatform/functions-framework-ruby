@@ -84,10 +84,11 @@ module FunctionsFramework
       id = normalized_context_field input, "eventId"
       timestamp = normalized_context_field input, "timestamp"
       type = normalized_context_field input, "eventType"
+      domain = normalized_context_field input, "domain"
       service, resource = analyze_resource normalized_context_field input, "resource"
       service ||= service_from_type type
       return nil unless id && timestamp && type && service && resource
-      { id: id, timestamp: timestamp, type: type, service: service, resource: resource }
+      { id: id, timestamp: timestamp, type: type, service: service, resource: resource, domain: domain }
     end
 
     def normalized_context_field input, field
@@ -114,7 +115,7 @@ module FunctionsFramework
     end
 
     def construct_cloud_event context, data
-      source, subject = convert_source context[:service], context[:resource]
+      source, subject = convert_source context[:service], context[:resource], context[:domain]
       type = LEGACY_TYPE_TO_CE_TYPE[context[:type]]
       return nil unless type && source
       ce_data, data_subject = convert_data context, data
@@ -129,12 +130,24 @@ module FunctionsFramework
                                time:              context[:timestamp]
     end
 
-    def convert_source service, resource
+    def convert_source service, resource, domain
       return ["//#{service}/#{resource}", nil] unless CE_SERVICE_TO_RESOURCE_RE.key? service
 
       match = CE_SERVICE_TO_RESOURCE_RE[service].match resource
       return [nil, nil] unless match
-      ["//#{service}/#{match[1]}", match[2]]
+
+      if service == "firebasedatabase.googleapis.com"
+        return [nil, nil] if domain.nil?
+        location = "us-central1"
+        if domain != "firebaseio.com"
+          location_match = domain.match(/^([\w-]+)\.firebasedatabase\.app$/)
+          return [nil, nil] unless location_match
+          location = location_match[1]
+        end
+        ["//#{service}/projects/_/locations/#{location}/#{match[1]}", match[2]]
+      else
+        ["//#{service}/#{match[1]}", match[2]]
+      end
     end
 
     def convert_data context, data
@@ -192,7 +205,7 @@ module FunctionsFramework
 
     CE_SERVICE_TO_RESOURCE_RE = {
       "firebase.googleapis.com"         => %r{^(projects/[^/]+)/(events/[^/]+)$},
-      "firebasedatabase.googleapis.com" => %r{^(projects/_/instances/[^/]+)/(refs/.+)$},
+      "firebasedatabase.googleapis.com" => %r{^projects/_/(instances/[^/]+)/(refs/.+)$},
       "firestore.googleapis.com"        => %r{^(projects/[^/]+/databases/\(default\))/(documents/.+)$},
       "storage.googleapis.com"          => %r{^(projects/[^/]+/buckets/[^/]+)/([^#]+)(?:#.*)?$}
     }.freeze
