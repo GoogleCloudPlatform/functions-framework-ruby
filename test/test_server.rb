@@ -33,7 +33,7 @@ describe FunctionsFramework::Server do
   let(:port) { 8077 }
   let(:server_url) { "http://127.0.0.1:#{port}" }
   let(:quiet_logger) {
-    logger = ::Logger.new $stdout
+    logger = ::Logger.new $stderr
     logger.level = ::Logger::FATAL
     logger
   }

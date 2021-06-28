@@ -18,5 +18,6 @@ FunctionsFramework.cloud_event "cloudevent_func" do |event|
   end
 
   json_format = CloudEvents::JsonFormat.new
-  File.write OUTPUT_FILE, json_format.encode(event)
+  result = json_format.encode_event event: event
+  File.write OUTPUT_FILE, result[:content]
 end

@@ -431,7 +431,7 @@ module FunctionsFramework
           when ::CloudEvents::Event
             handle_cloud_event event, logger
           when ::Array
-            ::CloudEvents::HttpContentError.new "Batched CloudEvents are not supported"
+            ::CloudEvents::CloudEventsError.new "Batched CloudEvents are not supported"
           when ::CloudEvents::CloudEventsError
             event
           else
@@ -443,9 +443,13 @@ module FunctionsFramework
       private
 
       def decode_event env
-        @cloud_events.decode_rack_env(env) ||
+        begin
+          @cloud_events.decode_event env
+        rescue ::CloudEvents::NotCloudEventError
+          env["rack.input"].rewind rescue nil
           @legacy_events.decode_rack_env(env) ||
-          raise(::CloudEvents::HttpContentError, "Unrecognized event format")
+            raise(::CloudEvents::CloudEventsError, "Unrecognized event format")
+        end
       rescue ::CloudEvents::CloudEventsError => e
         e
       end
