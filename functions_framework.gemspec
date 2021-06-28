@@ -45,7 +45,7 @@ version = ::FunctionsFramework::VERSION
   spec.executables = ["functions-framework", "functions-framework-ruby"]
 
   spec.required_ruby_version = ">= 2.5.0"
-  spec.add_dependency "cloud_events", ">= 0.4", "< 2.a"
+  spec.add_dependency "cloud_events", ">= 0.5.1", "< 2.a"
   spec.add_dependency "puma", ">= 4.3.0", "< 6.a"
   spec.add_dependency "rack", "~> 2.1"
 
