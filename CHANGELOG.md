@@ -2,9 +2,8 @@
 
 ### v0.11.0 / 2021-06-28
 
-* FIXED: Updated the Pub/Sub event conversion logic to better align to Eventarc 
-* FIXED: Update CloudEvents dependency 
-* FIXED: Loosen firebasedatabase domain restriction in legacy event conversion 
+* UPDATED: Update CloudEvents dependency to 0.5 to get fixes for JSON formatting cases
+* FIXED: Updated Pub/Sub and Firebase event conversion logic to better align to Eventarc
 
 ### v0.10.0 / 2021-06-01
 
