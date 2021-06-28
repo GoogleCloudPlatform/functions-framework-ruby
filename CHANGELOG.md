@@ -1,5 +1,11 @@
 # Changelog
 
+### v0.11.0 / 2021-06-28
+
+* FIXED: Updated the Pub/Sub event conversion logic to better align to Eventarc 
+* FIXED: Update CloudEvents dependency 
+* FIXED: Loosen firebasedatabase domain restriction in legacy event conversion 
+
 ### v0.10.0 / 2021-06-01
 
 * ADDED: Support raw pubsub events sent by the pubsub emulator
