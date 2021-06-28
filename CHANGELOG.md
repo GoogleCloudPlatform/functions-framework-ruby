@@ -1,5 +1,10 @@
 # Changelog
 
+### v0.11.0 / 2021-06-28
+
+* UPDATED: Update CloudEvents dependency to 0.5 to get fixes for JSON formatting cases
+* FIXED: Updated Pub/Sub and Firebase event conversion logic to better align to Eventarc
+
 ### v0.10.0 / 2021-06-01
 
 * ADDED: Support raw pubsub events sent by the pubsub emulator
