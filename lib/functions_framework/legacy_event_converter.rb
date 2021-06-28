@@ -135,18 +135,22 @@ module FunctionsFramework
 
       match = CE_SERVICE_TO_RESOURCE_RE[service].match resource
       return [nil, nil] unless match
+      resource_fragment = match[1]
+      subject = match[2]
 
       if service == "firebasedatabase.googleapis.com"
-        return [nil, nil] if domain.nil?
-        location = "us-central1"
-        if domain != "firebaseio.com"
-          location_match = domain.match(/^([\w-]+)\.firebasedatabase\.app$/)
-          return [nil, nil] unless location_match
-          location = location_match[1]
-        end
-        ["//#{service}/projects/_/locations/#{location}/#{match[1]}", match[2]]
+        location =
+          case domain
+          when "firebaseio.com"
+            "us-central1"
+          when /^([\w-]+)\./
+            Regexp.last_match[1]
+          else
+            return [nil, nil]
+          end
+        ["//#{service}/projects/_/locations/#{location}/#{resource_fragment}", subject]
       else
-        ["//#{service}/#{match[1]}", match[2]]
+        ["//#{service}/#{resource_fragment}", subject]
       end
     end
 
