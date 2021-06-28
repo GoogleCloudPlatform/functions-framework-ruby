@@ -13,16 +13,27 @@
 # limitations under the License.
 
 require "helper"
+require "json"
+require "stringio"
 
 describe FunctionsFramework::LegacyEventConverter do
   let(:data_dir) { File.join __dir__, "legacy_events_data" }
 
-  def load_legacy_event filename, url_path: nil, encoding: "utf-8"
-    path = File.join data_dir, filename
-    File.open path, encoding: encoding do |io|
+  def load_legacy_event filename_or_json, url_path: nil, encoding: "utf-8"
+    converter = FunctionsFramework::LegacyEventConverter.new
+    case filename_or_json
+    when String
+      path = File.join data_dir, filename_or_json
+      File.open path, encoding: encoding do |io|
+        env = { "rack.input" => io, "CONTENT_TYPE" => "application/json", "PATH_INFO" => url_path }
+        converter.decode_rack_env env
+      end
+    when Hash
+      io = StringIO.new JSON.dump filename_or_json
       env = { "rack.input" => io, "CONTENT_TYPE" => "application/json", "PATH_INFO" => url_path }
-      converter = FunctionsFramework::LegacyEventConverter.new
       converter.decode_rack_env env
+    else
+      raise ArgumentError, filename_or_json.class.name
     end
   end
 
@@ -217,5 +228,27 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal "google.firebase.database.document.v1.deleted", event.type
     assert_equal "refs/gcf-test/abc", event.subject
     assert_equal "2020-05-21T11:56:12+00:00", event.time.rfc3339
+  end
+
+  it "declines to convert firebasedatabase without a domain" do
+    json = {
+      "eventType" => "providers/google.firebase.database/eventTypes/ref.write",
+      "params" => {
+        "child" => "xyz"
+      },
+      "auth" => {
+        "admin" => true
+      },
+      "data" => {
+        "data" => nil,
+        "delta" => {
+          "grandchild" => "other"
+        }
+      },
+      "resource" => "projects/_/instances/my-project-id/refs/gcf-test/xyz",
+      "timestamp" => "2020-05-21T11:15:34.178Z",
+      "eventId" => "/SnHth9OSlzK1Puj85kk4tDbF90="
+    }
+    assert_nil load_legacy_event json
   end
 end
