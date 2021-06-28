@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: Deploying Functions
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "deploying-functions";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: Deploying Functions</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="deploying-functions">Deploying Functions</h1>
+
+<p>This guide covers how to deploy your Ruby functions written with the Functions
+Framework. Functions can be deployed to
+<a href="https://cloud.google.com/functions">Google Cloud Functions</a>, Google&#39;s
+Functions-as-a-service (FaaS) product, to
+<a href="https://cloud.google.com/run">Google Cloud Run</a>. Google&#39;s container-based
+serverless environment, or to any KNative-based environment.
+For more information about the Framework as a whole, see the
+<a href="index.html" title="Overview Guide">Overview Guide</a>.</p>
+
+<h2 id="before-you-begin">Before you begin</h2>
+
+<p>To deploy to Google Cloud, whether to Cloud Functions or Cloud Run, you&#39;ll need
+a Google Cloud project with billing enabled. Go to the
+<a href="https://console.cloud.google.com/">Google Cloud console</a>, create a project (or
+select an existing project), and ensure billing is enabled.</p>
+
+<p>Additionally, install the <a href="https://cloud.google.com/sdk">Google Cloud SDK</a> if
+you haven&#39;t done so previously.</p>
+
+<h2 id="deploying-to-cloud-functions">Deploying to Cloud Functions</h2>
+
+<p>Google Cloud Functions is Google&#39;s scalable pay-as-you-go Functions-as-a-Service
+(FaaS) environment that can run your function with zero server management. The
+Functions Framework is designed especially for functions that can be hosted on
+Cloud Functions.</p>
+
+<p>You can run Ruby functions on Google Cloud Functions by selecting the <code>ruby26</code>
+runtime or <code>ruby27</code> runtime to use a recent release of Ruby 2.6 or Ruby 2.7.
+Support for Ruby 3.0 is forthcoming.</p>
+
+<h3 id="deploying-and-updating-your-function">Deploying and updating your function</h3>
+
+<p>Before you can deploy to Cloud Functions, make sure your bundle, and in
+particular your <code>Gemfile.lock</code> file, is up to date. The easiest way to do this
+is to <code>bundle install</code> or <code>bundle update</code> and run your local tests prior to
+deploying. Cloud Functions will not accept your function unless an up-to-date
+<code>Gemfile.lock</code> is present.</p>
+
+<p>Also, make sure your source file (which defines your function) is called
+<code>app.rb</code>. The Functions Framework lets you choose a function source file, but
+Cloud Functions currently requires you to use <code>app.rb</code>.</p>
+
+<p>Decide <em>which</em> function in the source file to invoke, that is, the name that you
+used when writing the function. This is called the <strong>target</strong>. (Note that if you
+did not specify a name for the function, it defaults to the name <code>function</code>.)</p>
+
+<p>Choose a Cloud Functions <strong>name</strong> for your function. The <strong>name</strong> identifies
+this function deployment (e.g. in the cloud console) and is also part of the
+function&#39;s default URL. (Note: the <strong>name</strong> and the <strong>target</strong> do not have to
+be the same value.)</p>
+
+<p>Then, issue the gcloud command to deploy:</p>
+
+<pre class="code sh"><code class="sh">gcloud functions deploy $YOUR_FUNCTION_NAME \
+    --project=$YOUR_PROJECT_ID \
+    --runtime=ruby27 \
+    --trigger-http \
+    --entry-point=$YOUR_FUNCTION_TARGET
+</code></pre>
+
+<p>The <code>--entry-point=</code> flag can be omitted if the <strong>target</strong> has the same value
+as the <strong>name</strong>. Additionally, the <code>--project</code> flag can be omitted if you&#39;ve
+set your default project using <code>gcloud config set project</code>.</p>
+
+<p>If your function handles events rather than HTTP requests, you&#39;ll need to
+replace <code>--trigger-http</code> with a different trigger. For details, see the
+<a href="https://cloud.google.com/sdk/gcloud/reference/functions/deploy">reference documentation</a>
+for <code>gcloud functions deploy</code>.</p>
+
+<p>To update your deployment, just redeploy using the same function <strong>name</strong>.</p>
+
+<h3 id="configuring-cloud-functions-deployments">Configuring Cloud Functions deployments</h3>
+
+<p>The Functions Framework provides various configuration parameters, described in
+<a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a>.
+If you want to set any of these parameters beyond the source file and target,
+you must set environment variables. For example, to limit logging to WARN level
+and above, set <code>FUNCTION_LOGGING_LEVEL</code> to <code>WARN</code> when deploying:</p>
+
+<pre class="code sh"><code class="sh">gcloud functions deploy $YOUR_FUNCTION_NAME --project=$YOUR_PROJECT_ID \
+  --runtime=ruby27 --trigger-http --source=$YOUR_FUNCTION_SOURCE \
+  --entry-point=$YOUR_FUNCTION_TARGET \
+  --set-env-vars=FUNCTION_LOGGING_LEVEL=WARN
+</code></pre>
+
+<p>Consult the table in
+<a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a>
+for a list of the environment variables that can be set.</p>
+
+<h2 id="deploying-to-cloud-run">Deploying to Cloud Run</h2>
+
+<p>Google Cloud Run is Google&#39;s managed compute platform for deploying and scaling
+containerized applications quickly and securely. It can run any container-based
+workload, including a containerized function.</p>
+
+<p>Cloud Run has a hosted fully-managed option that runs on Google&#39;s infrastructure
+and monitors and scales your application automatically, and a self-managed or
+on-prem option called Cloud Run for Anthos that runs atop Kubernetes. Both
+flavors use the same general interface and can run functions in the same way.
+This tutorial is written for the managed option, but it should not be difficult
+to adapt it if you have an Anthos installation.</p>
+
+<h3 id="building-an-image-for-your-function">Building an image for your function</h3>
+
+<p>Before you can deploy to Cloud Run, make sure your bundle, and in
+particular your <code>Gemfile.lock</code> file, is up to date. The easiest way to do this
+is to <code>bundle install</code> or <code>bundle update</code> and run your local tests prior to
+deploying. The configuration used in the Dockerfile below will not accept your
+function unless an up-to-date <code>Gemfile.lock</code> is present.</p>
+
+<p>First, build a Docker image containing your function. Following is a simple
+Dockerfile that you can use as a starting point. Feel free to adjust it to the
+needs of your project:</p>
+
+<pre class="code ruby"><code class="ruby">FROM ruby:2.7
+WORKDIR /app
+COPY . .
+RUN gem install --no-document bundler \
+    &amp;&amp; bundle config --local frozen true \
+    &amp;&amp; bundle config --local without &quot;development test&quot; \
+    &amp;&amp; bundle install
+ENTRYPOINT [&quot;bundle&quot;, &quot;exec&quot;, &quot;functions-framework-ruby&quot;]
+</code></pre>
+
+<p>You can test your image locally using the steps described under
+<a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a>.</p>
+
+<p>When your Dockerfile is ready, you can use
+<a href="https://cloud.google.com/cloud-build">Cloud Build</a> to build it and store the
+image in your project&#39;s container registry.</p>
+
+<pre class="code sh"><code class="sh">gcloud builds submit --tag=gcr.io/$YOUR_PROJECT_ID/$YOUR_APP_NAME:$YOUR_BUILD_ID .
+</code></pre>
+
+<p>You must use your project ID, but you can choose an app name and build ID. The
+command may ask you for permission to enable the Cloud Build API for the project
+if it isn&#39;t already enabled.</p>
+
+<p>Because you provide your own Docker image when deploying to Cloud Run, you can
+use any version of Ruby supported by the Functions Framework, from 2.5 through
+3.0.</p>
+
+<h3 id="deploying-an-image-to-cloud-run">Deploying an image to Cloud Run</h3>
+
+<p>To deploy to Cloud Run, specify the same image URL that you built above. For
+example:</p>
+
+<pre class="code sh"><code class="sh">gcloud run deploy $YOUR_APP_NAME --project=$YOUR_PROJECT_ID \
+  --image=gcr.io/$YOUR_PROJECT_ID/$YOUR_APP_NAME:$YOUR_BUILD_ID \
+  --platform=managed --allow-unauthenticated --region=us-central1 \
+  --set-env-vars=FUNCTION_SOURCE=$YOUR_SOURCE,FUNCTION_TARGET=$YOUR_TARGET
+</code></pre>
+
+<p>You can omit the <code>--project</code> flag if you&#39;ve already set it as the default with
+<code>gcloud config set project</code>.</p>
+
+<p>The command may ask you for permission to enable the Cloud Run API for the
+project, if it isn&#39;t already enabled.</p>
+
+<p>At the end of the deployment process, the command will display the hostname for
+the Cloud Run service. You can use that hostname to send test requests to your
+deployed function.</p>
+
+<h3 id="configuring-cloud-run-deployments">Configuring Cloud Run deployments</h3>
+
+<p>Note that our Dockerfile&#39;s entrypoint did not pass any source file or target
+name to the Functions Framework. If these are not specified, the Framework will
+use the source <code>./app.rb</code> and the target <code>function</code> by default. To use different
+values, you need to set the appropriate environment variables when deploying, as
+illustrated above with the <code>FUNCTION_SOURCE</code> and <code>FUNCTION_TARGET</code> variables.</p>
+
+<p>Source and target are not the only configuration parameters available. The
+various parameters, along with their environment variables, are described in
+<a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a>.
+Any of these can be specified in the <code>--set-env-vars</code> flag when you deploy to
+Google Cloud Run.</p>
+
+<p>It is also possible to &quot;hard-code&quot; configuration into the Dockerfile, by setting
+environment variables in the Dockerfile, or adding flags to the entrypoint.
+However, it is often better practice to keep your Dockerfile &quot;generic&quot;, and set
+configuration environment variables during deployment, so that you do not need
+to rebuild your Docker image every time you want to change configuration.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Mon Jun 28 17:17:41 2021 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.26 (ruby-2.7.3).
+</div>
+
+    </div>
+  </body>
+</html>
