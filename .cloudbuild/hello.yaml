@@ -1,0 +1,3 @@
+steps:
+  - name: "ruby:3.0"
+    entrypoint: ".cloudbuild/hello.sh"
