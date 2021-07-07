@@ -111,7 +111,7 @@ dependency on Sinatra in your `Gemfile`:
 
 ```ruby
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.11"
+gem "functions_framework", "~> 1.0"
 gem "sinatra", "~> 2.0"
 ```
 
@@ -152,7 +152,7 @@ information about it:
 require "functions_framework"
 
 FunctionsFramework.cloud_event "hello" do |event|
-  FunctionsFramework.logger.info "I received an event of type #{event.type}!"
+  logger.info "I received an event of type #{event.type}!"
 end
 ```
 
@@ -470,7 +470,7 @@ Following is a typical layout for a Functions Framework based project.
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.11"
+gem "functions_framework", "~> 1.0"
 ```
 
 ```ruby

@@ -1,5 +1,9 @@
 # Changelog
 
+### v1.0.0 / 2021-07-07
+
+* Bumping the version to 1.0. No significant changes.
+
 ### v0.11.0 / 2021-06-28
 
 * UPDATED: Update CloudEvents dependency to 0.5 to get fixes for JSON formatting cases

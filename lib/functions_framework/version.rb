@@ -17,5 +17,5 @@ module FunctionsFramework
   # Version of the Ruby Functions Framework
   # @return [String]
   #
-  VERSION = "0.11.0".freeze
+  VERSION = "1.0.0".freeze
 end
