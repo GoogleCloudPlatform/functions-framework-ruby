@@ -4,7 +4,7 @@ An open source framework for writing lightweight, portable Ruby functions that
 run in a serverless environment. Functions written to this Framework will run
 in many different environments, including:
 
- *  [Google Cloud Functions](https://cloud.google.com/functions) *(public preview)*
+ *  [Google Cloud Functions](https://cloud.google.com/functions)
  *  [Google Cloud Run](https://cloud.google.com/run)
  *  Any other [Knative](https://github.com/knative)-based environment
  *  Your local development machine
@@ -60,7 +60,7 @@ Create a `Gemfile` listing the Functions Framework as a dependency:
 ```ruby
 # Gemfile
 source "https://rubygems.org"
-gem "functions_framework", "~> 0.11"
+gem "functions_framework", "~> 1.0"
 ```
 
 Create a file called `app.rb` and include the following code. This defines a
