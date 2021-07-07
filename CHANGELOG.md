@@ -2,7 +2,8 @@
 
 ### v1.0.0 / 2021-07-07
 
-* Bumping the version to 1.0. No significant changes.
+* Bumped the version to 1.0.
+* Removed the "preview" notices for Google Cloud Functions since the Ruby runtime is now GA.
 
 ### v0.11.0 / 2021-06-28
 
