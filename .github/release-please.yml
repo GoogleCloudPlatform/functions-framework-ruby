@@ -1,0 +1,5 @@
+primaryBranch: main
+releaseType: ruby
+bumpMinorPreMajor: true
+packageName: functions_framework
+monorepoTags: true

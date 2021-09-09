@@ -1,0 +1,25 @@
+name: "Push docs to gh-pages"
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  push-gh-pages:
+    env:
+      ruby_version: "3.0"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Ruby ${{ env.ruby_version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ env.ruby_version }}
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: "gem install --no-document toys && bundle install"
+      - name: Publish docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          toys release publish-gh-pages --verbose < /dev/null
