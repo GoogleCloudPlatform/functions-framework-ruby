@@ -200,7 +200,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal \
       "//firebasedatabase.googleapis.com/projects/_/locations/us-central1/instances/my-project-id",
       event.source.to_s
-    assert_equal "google.firebase.database.document.v1.written", event.type
+    assert_equal "google.firebase.database.ref.v1.written", event.type
     assert_equal "refs/gcf-test/xyz", event.subject
     assert_equal "2020-05-21T11:15:34+00:00", event.time.rfc3339
     assert_equal "other", event.data["delta"]["grandchild"]
@@ -213,7 +213,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal \
       "//firebasedatabase.googleapis.com/projects/_/locations/europe-west1/instances/my-project-id",
       event.source.to_s
-    assert_equal "google.firebase.database.document.v1.deleted", event.type
+    assert_equal "google.firebase.database.ref.v1.deleted", event.type
     assert_equal "refs/gcf-test/xyz", event.subject
     assert_equal "2020-05-21T11:53:45+00:00", event.time.rfc3339
   end
@@ -225,7 +225,7 @@ describe FunctionsFramework::LegacyEventConverter do
     assert_equal \
       "//firebasedatabase.googleapis.com/projects/_/locations/us-central1/instances/my-project-id",
       event.source.to_s
-    assert_equal "google.firebase.database.document.v1.deleted", event.type
+    assert_equal "google.firebase.database.ref.v1.deleted", event.type
     assert_equal "refs/gcf-test/abc", event.subject
     assert_equal "2020-05-21T11:56:12+00:00", event.time.rfc3339
   end
