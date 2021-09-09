@@ -1,8 +1,0 @@
-repo: GoogleCloudPlatform/functions-framework-ruby
-enable_release_automation: false
-docs_builder_tool: [yardoc]
-commit_lint:
-  fail_checks: true
-  merge: squash
-gems:
-  - name: functions_framework

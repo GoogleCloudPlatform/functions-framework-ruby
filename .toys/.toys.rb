@@ -24,6 +24,7 @@ expand :yardoc do |t|
   t.fail_on_undocumented_objects = true
   t.use_bundler
 end
+alias_tool :yard, :yardoc
 
 expand :gem_build
 
