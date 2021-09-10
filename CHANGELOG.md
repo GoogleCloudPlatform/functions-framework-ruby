@@ -1,37 +1,37 @@
 # Changelog
 
-### v1.0.0 / 2021-07-07
+## 1.0.0 (2021-07-07)
 
 * Bumped the version to 1.0.
 * Removed the "preview" notices for Google Cloud Functions since the Ruby runtime is now GA.
 
-### v0.11.0 / 2021-06-28
+## v0.11.0 / 2021-06-28
 
 * UPDATED: Update CloudEvents dependency to 0.5 to get fixes for JSON formatting cases
 * FIXED: Updated Pub/Sub and Firebase event conversion logic to better align to Eventarc
 
-### v0.10.0 / 2021-06-01
+## v0.10.0 / 2021-06-01
 
 * ADDED: Support raw pubsub events sent by the pubsub emulator
 * FIXED: Set proper response content-type charset when a function returns a string (plain text) or hash (JSON)
 * FIXED: Properly handle conversion of non-ascii characters in legacy event strings
 
-### v0.9.0 / 2021-03-18
+## v0.9.0 / 2021-03-18
 
 * BREAKING CHANGE: Servers are configured as single-threaded in production by default, matching the current behavior of Google Cloud Functions.
 * FIXED: Fixed conversion of Firebase events to CloudEvents to conform to the specs used by Cloud Functions and Cloud Run.
 * FIXED: Fixed an error when reading a global set to a Minitest::Mock. This will make it easier to write tests that use mocks for global resources.
 
-### v0.8.0 / 2021-03-02
+## v0.8.0 / 2021-03-02
 
 * ADDED: Support for lazily-initialized globals
 
-### v0.7.1 / 2021-01-26
+## v0.7.1 / 2021-01-26
 
 * DOCS: Fixed several errors in the writing-functions doc samples
 * DOCS: Updated documentation to note public release of GCF support 
 
-### v0.7.0 / 2020-09-25
+## v0.7.0 / 2020-09-25
 
 * Now requires Ruby 2.5 or later.
 * BREAKING CHANGE: Renamed "context" hash to "globals" and made it read-only for normal functions.
@@ -45,33 +45,33 @@
 * DOCS: Expanded documentation on initialization, execution context, and shared resources.
 * DEPRECATED: The functions-framework executable is deprecated. Use functions-framework-ruby instead.
 
-### v0.6.0 / 2020-09-17
+## v0.6.0 / 2020-09-17
 
 * ADDED: You can use the --version flag to print the framework version
 * ADDED: You can use the --verify flag to verify that a given function is defined
 * ADDED: You can now define blocks that are executed at server startup
 
-### v0.5.2 / 2020-09-06
+## v0.5.2 / 2020-09-06
 
 * FIXED: Use global $stderr rather than STDERR for logger 
 * DOCS: Fix instructions for deployment to Google Cloud Functions 
 
-### v0.5.1 / 2020-07-20
+## v0.5.1 / 2020-07-20
 
 * Updated some documentation links. No functional changes.
 
-### v0.5.0 / 2020-07-09
+## v0.5.0 / 2020-07-09
 
 * Removed embedded CloudEvents classes and added the official CloudEvents SDK as a dependency. A `FunctionsFramework::CloudEvents` alias provides backward compatibility.
 
-### v0.4.1 / 2020-07-08
+## v0.4.1 / 2020-07-08
 
 * Fixed unsupported signal error on Windows.
 * Fixed several edge case errors in legacy event conversion.
 * Generated Content-Type headers now properly quote param values if needed.
 * Minor documentation updates.
 
-### v0.4.0 / 2020-06-29
+## v0.4.0 / 2020-06-29
 
 * Dropped the legacy and largely unsupported `:event` function type. All event functions should be of type `:cloud_event`.
 * Define the object context for function execution, and include an extensible context helper.
@@ -82,21 +82,21 @@
 * Removed redundant `_string` accessors from event classes since raw forms are already available via `[]`.
 * A variety of corrections to event-related class documentation.
 
-### v0.3.1 / 2020-06-27
+## v0.3.1 / 2020-06-27
 
 * Fixed crash when using "return" directly in a function block.
 * Added a more flexible request generation helper in the testing module.
 * Fixed several typos in the documentation.
 
-### v0.3.0 / 2020-06-26
+## v0.3.0 / 2020-06-26
 
 * Updated the CloudEvent data format for converted pubsub events to conform to Cloud Run's conversion.
 
-### v0.2.1 / 2020-06-25
+## v0.2.1 / 2020-06-25
 
 * The `--signature-type` check recognizes the legacy `event` type for `:cloud_event` functions.
 
-### v0.2.0 / 2020-06-24
+## v0.2.0 / 2020-06-24
 
 Significant changes:
 
@@ -115,11 +115,11 @@ Minor changes:
 * Renamed a few undocumented environment variables, and added support for a logging level environment variable. All CLI flags now have associated environment variables.
 * Several fixes to the example code, and added a new Sinatra example.
 
-### v0.1.1 / 2020-02-27
+## v0.1.1 / 2020-02-27
 
 * Server returns 404 when receiving a /favicon.ico or /robots.txt request.
 * Correct a rack constant name in Testing#make_post_request
 
-### v0.1.0 / 2020-01-30
+## v0.1.0 / 2020-01-30
 
 * Initial release
