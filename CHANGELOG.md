@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.1](https://www.github.com/GoogleCloudPlatform/functions-framework-ruby/compare/functions_framework/v1.0.0...functions_framework/v1.0.1) (2021-09-10)
+
+
+### Bug Fixes
+
+* Update legacy event conversion to set the correct types for firebase database events ([a0e4df5](https://www.github.com/GoogleCloudPlatform/functions-framework-ruby/commit/a0e4df5fa0a6364032bdf0d036065a3bc9887395))
+
 ## 1.0.0 (2021-07-07)
 
 * Bumped the version to 1.0.
