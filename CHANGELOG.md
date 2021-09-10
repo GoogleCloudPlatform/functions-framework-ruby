@@ -1,6 +1,6 @@
 # Changelog
 
-### [1.0.1](https://www.github.com/GoogleCloudPlatform/functions-framework-ruby/compare/functions_framework/v1.0.0...functions_framework/v1.0.1) (2021-09-10)
+## [1.0.1](https://www.github.com/GoogleCloudPlatform/functions-framework-ruby/compare/functions_framework/v1.0.0...functions_framework/v1.0.1) (2021-09-10)
 
 
 ### Bug Fixes
