@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2021-09-10)
+
+* FIXED: Update legacy event conversion to set the correct types for firebase database events
+
 ## 1.0.0 (2021-07-07)
 
 * Bumped the version to 1.0.
