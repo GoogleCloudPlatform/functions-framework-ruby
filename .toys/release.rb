@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load_git remote: "https://github.com/googleapis/google-cloud-ruby.git",
-         path: ".toys/release"
+load_git remote: "https://github.com/googleapis/ruby-common-tools.git",
+         path: "toys/release"
 
 tool "publish-gh-pages" do
   flag :dry_run, default: ENV["RELEASE_DRY_RUN"] == "true"
