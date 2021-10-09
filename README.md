@@ -106,6 +106,7 @@ Here is how to build and run a deployable container on your local machine.
 	```sh
 	pack build \
 		--builder gcr.io/buildpacks/builder:v1 \
+		--env GOOGLE_RUNTIME=ruby \
 		--env GOOGLE_FUNCTION_SIGNATURE_TYPE=http \
 		--env GOOGLE_FUNCTION_TARGET=hello \
 		my-first-function
