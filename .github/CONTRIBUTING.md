@@ -28,9 +28,9 @@ the one above, the
 
 ### Useful tools
 
-The Functions Framework runs on Ruby 2.5 through 3.0. We recommend having a
-recent version of Ruby for development and testing. The CI will test against
-all supported versions of Ruby.
+The Functions Framework runs on Ruby 2.5 or later. We recommend having a recent
+version of Ruby for development and testing. The CI will test against all
+supported versions of Ruby.
 
 To run tests and other development processes, you should install the
 [Toys](https://github.com/dazuma/toys) gem, which provides the task runner and
