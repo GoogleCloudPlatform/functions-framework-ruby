@@ -7,6 +7,8 @@ AllCops:
     - "**/*.rb"
     - "**/Gemfile"
     - "*.gemspec"
+  Exclude:
+    - "examples/*/vendor/**/*.rb"
 
 Lint/ConstantDefinitionInBlock:
   Exclude:
