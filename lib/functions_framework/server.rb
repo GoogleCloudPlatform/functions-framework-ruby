@@ -352,7 +352,9 @@ module FunctionsFramework
         when ::CloudEvents::CloudEventsError
           cloud_events_error_response response
         when ::StandardError
-          error_response "#{response.class}: #{response.message}\n#{response.backtrace}\n"
+          message = "#{response.class}: #{response.message}"
+          message = [message, *response.backtrace].join "\n\t"
+          error_response message
         else
           error_response "Unexpected response type: #{response.class}"
         end

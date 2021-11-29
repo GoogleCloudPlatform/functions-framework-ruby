@@ -335,7 +335,8 @@ module FunctionsFramework
           json = ::JSON.dump response
           string_response json, 200, content_type: "application/json"
         when ::StandardError
-          message = "#{response.class}: #{response.message}\n#{response.backtrace}\n"
+          message = "#{response.class}: #{response.message}"
+          message = [message, *response.backtrace].join "\n\t"
           string_response message, 500
         else
           raise "Unexpected response type: #{response.inspect}"
