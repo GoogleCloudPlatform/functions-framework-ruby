@@ -287,4 +287,13 @@ describe FunctionsFramework::Server do
     assert_match(/Unrecognized event format/, response.body)
     assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
+
+  it "returns no content when an event server receives a get" do
+    response = query_server_with_retry event_server do
+      ::Net::HTTP.get_response URI("#{server_url}/")
+    end
+    refute_nil response
+    assert_equal "204", response.code
+    assert_nil response.body
+  end
 end

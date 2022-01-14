@@ -362,6 +362,10 @@ module FunctionsFramework
         string_response "Not found", 404
       end
 
+      def no_content_response
+        [204, [], []]
+      end
+
       def string_response string, status, content_type: nil
         string.force_encoding ::Encoding::ASCII_8BIT unless string.valid_encoding?
         if string.encoding == ::Encoding::ASCII_8BIT
@@ -401,7 +405,7 @@ module FunctionsFramework
         return notfound_response if excluded_path? env
         response =
           begin
-            logger = env["rack.logger"] ||= @config.logger
+            logger = env[::Rack::RACK_LOGGER] ||= @config.logger
             request = ::Rack::Request.new env
             logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
             @function.call request, globals: @globals, logger: logger
@@ -424,7 +428,8 @@ module FunctionsFramework
 
       def call env
         return notfound_response if excluded_path? env
-        logger = env["rack.logger"] ||= @config.logger
+        return no_content_response if env[::Rack::REQUEST_METHOD] == "GET"
+        logger = env[::Rack::RACK_LOGGER] ||= @config.logger
         event = decode_event env
         response =
           case event
@@ -446,9 +451,8 @@ module FunctionsFramework
         begin
           @cloud_events.decode_event env
         rescue ::CloudEvents::NotCloudEventError
-          env["rack.input"].rewind rescue nil
-          @legacy_events.decode_rack_env(env) ||
-            raise(::CloudEvents::CloudEventsError, "Unrecognized event format")
+          env[::Rack::RACK_INPUT].rewind rescue nil
+          @legacy_events.decode_rack_env(env) || ::CloudEvents::CloudEventsError.new("Unrecognized event format")
         end
       rescue ::CloudEvents::CloudEventsError => e
         e
