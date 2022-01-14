@@ -393,6 +393,11 @@ module FunctionsFramework
         message = "Unexpected internal error" unless @config.show_error_details?
         string_response message, 500
       end
+
+      def flush_streams
+        $stdout.flush
+        $stderr.flush
+      end
     end
 
     ## @private
@@ -415,6 +420,8 @@ module FunctionsFramework
             e
           end
         interpret_response response
+      ensure
+        flush_streams
       end
     end
 
@@ -445,6 +452,8 @@ module FunctionsFramework
             raise "Unexpected event type: #{event.class}"
           end
         interpret_response response
+      ensure
+        flush_streams
       end
 
       private
