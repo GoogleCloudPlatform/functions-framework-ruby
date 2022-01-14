@@ -26,16 +26,22 @@ jobs:
             ruby: "3.0"
             flags: "--only --test-unit"
           - os: ubuntu-latest
-            ruby: jruby
-            flags: "--only --test-unit"
-          - os: macos-latest
-            ruby: "2.7"
-            flags: "--only --test-unit"
-          - os: windows-latest
-            ruby: "2.7"
+            ruby: "3.1"
             flags: "--only --test-unit"
           - os: ubuntu-latest
-            ruby: "2.7"
+            ruby: jruby
+            flags: "--only --test-unit"
+          - os: ubuntu-latest
+            ruby: truffleruby
+            flags: "--only --test-unit"
+          - os: macos-latest
+            ruby: "3.0"
+            flags: "--only --test-unit"
+          - os: windows-latest
+            ruby: "3.0"
+            flags: "--only --test-unit"
+          - os: ubuntu-latest
+            ruby: "3.0"
             flags: "--only --test-yardoc --test-build --test-examples"
       fail-fast: false
     runs-on: ${{ matrix.os }}
