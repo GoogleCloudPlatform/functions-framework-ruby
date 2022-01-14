@@ -244,7 +244,7 @@ describe FunctionsFramework::Server do
       ::Net::HTTP.get_response URI("#{server_url}/")
     end
     assert_equal "500", response.code
-    assert_match(/Whoops!/, response.body)
+    assert_match(/RuntimeError: Whoops!\n\t#{__FILE__}/, response.body)
     assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
