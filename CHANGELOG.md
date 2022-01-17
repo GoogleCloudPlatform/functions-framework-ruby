@@ -1,18 +1,11 @@
 # Changelog
 
-## [1.1.0](https://github.com/GoogleCloudPlatform/functions-framework-ruby/compare/functions_framework/v1.0.1...functions_framework/v1.1.0) (2022-01-17)
+## 1.1.0 (2022-01-17)
 
-
-### Features
-
-* Increase default max thread pool size to 8 ([#125](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/125)) ([3e5da5e](https://github.com/GoogleCloudPlatform/functions-framework-ruby/commit/3e5da5ebf4a186d71fe64a9e543d857a427fdae2))
-* Return 204 from GET requests to an event function, to support health checks ([#128](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/128)) ([f87ce40](https://github.com/GoogleCloudPlatform/functions-framework-ruby/commit/f87ce40b2c55279a519650320d91142b6630a06c))
-
-
-### Bug Fixes
-
-* Flush stdout and stderr streams at the end of each request ([#126](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/126)) ([1b6847d](https://github.com/GoogleCloudPlatform/functions-framework-ruby/commit/1b6847dc87c7324b0807ea9c4340fb50a2be39b8))
-* Format the error backtrace ([a23620f](https://github.com/GoogleCloudPlatform/functions-framework-ruby/commit/a23620f037d86733f8d2eb7fbb2d25fde1c9a194))
+* Increase default max thread pool size to 8.
+* Return 204 when a GET request is sent to an event function, to support health checks.
+* Flush stdout and stderr streams at the end of each request.
+* Format the error backtrace.
 
 ## 1.0.1 (2021-09-10)
 
