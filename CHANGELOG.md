@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 (2022-01-17)
+
+* Increase default max thread pool size to 8.
+* Return 204 when a GET request is sent to an event function, to support health checks.
+* Flush stdout and stderr streams at the end of each request.
+* Format the error backtrace.
+
 ## 1.0.1 (2021-09-10)
 
 * FIXED: Update legacy event conversion to set the correct types for firebase database events
