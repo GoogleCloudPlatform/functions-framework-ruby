@@ -1,5 +1,5 @@
 primaryBranch: main
-releaseType: ruby
+releaseType: ruby-yoshi
 bumpMinorPreMajor: true
 packageName: functions_framework
 monorepoTags: true
