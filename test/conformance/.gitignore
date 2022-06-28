@@ -1,0 +1,5 @@
+# These files are generate dynamically based off the git commit sha
+# when trying to build the conformance test function with buildpacks,
+# and should not be checked in.
+Gemfile
+Gemfile.lock
