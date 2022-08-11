@@ -22,7 +22,7 @@ FunctionsFramework.cloud_event "cloudevent_func" do |event|
   File.write OUTPUT_FILE, result[:content]
 end
 
-FunctionsFramework.http "concurrent_http_func" do |request|
-  sleep(1)
+FunctionsFramework.http "concurrent_http_func" do
+  sleep 1
   "ok"
 end
