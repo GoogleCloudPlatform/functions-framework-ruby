@@ -27,15 +27,22 @@ jobs:
     - name: Bundle install
       run: 'bundle install'
     - name: Run HTTP conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@v1.4.1
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@v1.6.0
       with:
         functionType: 'http'
         useBuildpacks: false
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target http_func --signature-type http'"
     - name: Run CloudEvent conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@v1.4.1
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@v1.6.0
       with:
         functionType: 'cloudevent'
         useBuildpacks: false
         validateMapping: true
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target cloudevent_func --signature-type cloudevent'"
+    - name: Run HTTP concurrency tests
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@v1.6.0
+      with:
+        functionType: 'http'
+        useBuildpacks: false
+        validateConcurrency: true
+        cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target concurrent_http_func --signature-type http'"
