@@ -37,7 +37,7 @@ jobs:
           - os: macos-latest
             ruby: "3.0"
             flags: "--only --test-unit"
-          - os: windows-2019
+          - os: windows-latest
             ruby: "3.0"
             flags: "--only --test-unit"
           - os: ubuntu-latest
