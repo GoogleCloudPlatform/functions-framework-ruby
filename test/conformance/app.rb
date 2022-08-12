@@ -21,3 +21,8 @@ FunctionsFramework.cloud_event "cloudevent_func" do |event|
   result = json_format.encode_event event: event
   File.write OUTPUT_FILE, result[:content]
 end
+
+FunctionsFramework.http "concurrent_http_func" do
+  sleep 1
+  "ok"
+end
