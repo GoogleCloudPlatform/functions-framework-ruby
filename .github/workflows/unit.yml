@@ -47,14 +47,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
     - name: Install Ruby ${{ matrix.ruby }}
-      uses: ruby/setup-ruby@v1.112.0
+      uses: ruby/setup-ruby@v1
       with:
         ruby-version: "${{ matrix.ruby }}"
     - name: Install dependencies
       shell: bash
-      run: "bundle install && gem install --no-document toys"
+      run: "gem install --no-document toys bundler && bundle install"
     - name: Test ${{ matrix.flags }}
       shell: bash
       run: toys ci ${{ matrix.flags }}
