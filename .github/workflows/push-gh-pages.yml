@@ -10,14 +10,15 @@ jobs:
       ruby_version: "3.0"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
       - name: Install Ruby ${{ env.ruby_version }}
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ env.ruby_version }}
-      - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: "gem install --no-document toys && bundle install"
+          bundler-cache: true
+      - name: Install toys
+        run: gem install --no-document toys
       - name: Publish docs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
