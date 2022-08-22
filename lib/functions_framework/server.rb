@@ -306,7 +306,7 @@ module FunctionsFramework
       # @return [Integer]
       #
       def max_threads
-        @max_threads || 1024
+        @max_threads || 16
       end
 
       ##
