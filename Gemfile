@@ -16,8 +16,8 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "google-style", "~> 1.25.1"
-gem "minitest", "~> 5.14"
+gem "google-style", "~> 1.26.1"
+gem "minitest", "~> 5.16"
 gem "minitest-focus", "~> 1.2"
 gem "minitest-rg", "~> 5.2"
 gem "redcarpet", "~> 3.5" unless ::RUBY_PLATFORM == "java"

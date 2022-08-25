@@ -147,8 +147,8 @@ command may ask you for permission to enable the Cloud Build API for the project
 if it isn't already enabled.
 
 Because you provide your own Docker image when deploying to Cloud Run, you can
-use any version of Ruby supported by the Functions Framework, from 2.5 through
-3.0.
+use any version of Ruby supported by the Functions Framework, from 2.6 through
+3.1.
 
 ### Deploying an image to Cloud Run
 

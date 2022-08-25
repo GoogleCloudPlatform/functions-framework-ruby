@@ -85,8 +85,8 @@ module FunctionsFramework
           @source = val
         end
         op.on "--signature-type TYPE",
-              "Asserts that the function has the given signature type." \
-              " Supported values are 'http' and 'cloudevent'." do |val|
+              "Asserts that the function has the given signature type. " \
+              "Supported values are 'http' and 'cloudevent'." do |val|
           @signature_type = val
         end
         op.on "-p", "--port PORT", "Set the port to listen to (defaults to 8080)" do |val|
@@ -196,8 +196,8 @@ module FunctionsFramework
       function = ::FunctionsFramework.global_registry[@target]
       raise "Undefined function: #{@target.inspect}" if function.nil?
       unless @signature_type.nil? ||
-             @signature_type == "http" && function.type == :http ||
-             ["cloudevent", "event"].include?(@signature_type) && function.type == :cloud_event
+             (@signature_type == "http" && function.type == :http) ||
+             (["cloudevent", "event"].include?(@signature_type) && function.type == :cloud_event)
         raise "Function #{@target.inspect} does not match type #{@signature_type}"
       end
       function
