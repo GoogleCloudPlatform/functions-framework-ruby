@@ -1,5 +1,15 @@
 # Changelog
 
+### 1.2.0 (2022-08-25)
+
+#### Features
+
+* Increase maximum concurrent requests for the server to 1000 ([#138](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/138)) 
+* Update minimum Ruby version to 2.6 ([#145](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/145)) 
+#### Bug Fixes
+
+* Set default max_threads back to 16 ([#143](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/143)) 
+
 ## 1.1.0 (2022-01-18)
 
 * Increase default max thread pool size to 8.
