@@ -208,7 +208,7 @@ describe FunctionsFramework::Server do
     _out, err = capture_subprocess_io do
       response = query_server_with_retry event_server do
         file_path = File.join __dir__, "legacy_events_data", "legacy_pubsub.json"
-        event_json = IO.read file_path
+        event_json = File.read file_path
         ::Net::HTTP.post URI("#{server_url}/"), event_json, "Content-Type" => "application/json"
       end
     end
@@ -224,7 +224,7 @@ describe FunctionsFramework::Server do
     _out, err = capture_subprocess_io do
       response = query_server_with_retry event_server do
         file_path = File.join __dir__, "legacy_events_data", "pubsub_utf8.json"
-        event_json = IO.read file_path
+        event_json = File.read file_path
         ::Net::HTTP.post URI("#{server_url}/"), event_json, "Content-Type" => "application/json; charset=utf-8"
       end
     end

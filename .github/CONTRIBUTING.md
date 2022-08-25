@@ -28,7 +28,7 @@ the one above, the
 
 ### Useful tools
 
-The Functions Framework runs on Ruby 2.5 or later. We recommend having a recent
+The Functions Framework runs on Ruby 2.6 or later. We recommend having a recent
 version of Ruby for development and testing. The CI will test against all
 supported versions of Ruby.
 
