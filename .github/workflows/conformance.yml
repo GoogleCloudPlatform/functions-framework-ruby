@@ -8,7 +8,7 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  build:
+  conformance:
     runs-on: ubuntu-latest
     strategy:
       matrix:
