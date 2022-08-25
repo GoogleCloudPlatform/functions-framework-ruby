@@ -8,7 +8,7 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  test:
+  unit-test:
     if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     strategy:
       matrix:
