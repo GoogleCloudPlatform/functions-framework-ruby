@@ -82,11 +82,19 @@ module FunctionsFramework
     def start
       synchronize do
         unless running?
-          @server = ::Puma::Server.new @app
-          @server.min_threads = @config.min_threads
-          @server.max_threads = @config.max_threads
-          @server.leak_stack_on_error = @config.show_error_details?
-          @server.binder.add_tcp_listener @config.bind_addr, @config.port
+          # environment: sets leak_stack_on_error
+          opts = {
+            min_threads: @config.min_threads,
+            max_threads: @config.max_threads,
+            environment: @config.show_error_details? ? "development" : "prod"
+          }
+          @server =
+            if ::Puma::Const::PUMA_VERSION >= "6"
+              ::Puma::Server.new @app, nil, opts
+            else # Puma >= 5.0.3
+              ::Puma::Server.new @app, ::Puma::Events.stdio, opts
+            end
+          @server.add_tcp_listener @config.bind_addr, @config.port
           @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect} " \
                               "on port #{@config.port}..."
           @server.run true

@@ -46,7 +46,7 @@ version = ::FunctionsFramework::VERSION
 
   spec.required_ruby_version = ">= 2.6.0"
   spec.add_dependency "cloud_events", ">= 0.7.0", "< 2.a"
-  spec.add_dependency "puma", ">= 4.3.0", "< 6.a"
+  spec.add_dependency "puma", ">= 5.0.3", "< 6.a"
   spec.add_dependency "rack", "~> 2.1"
 
   if spec.respond_to? :metadata
