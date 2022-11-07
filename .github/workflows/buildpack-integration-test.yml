@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 jobs:
   ruby30-buildpack-test:
-    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.5.5
+    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.0
     with:
       http-builder-source: 'test/conformance'
       http-builder-target: 'http_func'
@@ -15,5 +15,3 @@ jobs:
       cloudevent-builder-target: 'cloudevent_func'
       prerun: 'test/conformance/prerun.sh ${{ github.sha }}'
       builder-runtime: 'ruby30'
-      # Latest uploaded tag from us.gcr.io/fn-img/buildpacks/ruby30/builder
-      builder-tag: 'ruby30_20220620_3_0_4_RC00'
