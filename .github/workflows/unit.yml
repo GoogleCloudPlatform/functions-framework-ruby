@@ -40,6 +40,9 @@ jobs:
           - os: ubuntu-latest
             ruby: "3.0"
             flags: "--only --test-yardoc --test-build --test-examples"
+          - os: ubuntu-latest
+            ruby: "3.2"
+            flags: "--only --test-unit"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
