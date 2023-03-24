@@ -43,7 +43,7 @@ describe FunctionsFramework::Server do
   let(:retry_interval) { 0.5 }
   let(:app_context) { {} }
 
-  def make_basic_server function
+  def make_basic_server function, show_error_details: true
     FunctionsFramework::Server.new function, app_context do |config|
       config.min_threads = 1
       config.max_threads = 1
@@ -51,7 +51,7 @@ describe FunctionsFramework::Server do
       config.bind_addr = "127.0.0.1"
       config.rack_env = "development"
       config.logger = quiet_logger
-      config.show_error_details = true
+      config.show_error_details = show_error_details
     end
   end
 
@@ -235,7 +235,7 @@ describe FunctionsFramework::Server do
     assert_match(/あああ/, err)
   end
 
-  it "interprets exceptions" do
+  it "interprets exceptions showing error details" do
     function = FunctionsFramework::Function.new "my-func", :http do |_request|
       raise "Whoops!"
     end
@@ -245,6 +245,21 @@ describe FunctionsFramework::Server do
     end
     assert_equal "500", response.code
     assert_match(/RuntimeError: Whoops!\n\t#{__FILE__}/, response.body)
+    assert_match %r{test/test_server\.rb:}, response.body
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
+  end
+
+  it "interprets exceptions hiding error details" do
+    function = FunctionsFramework::Function.new "my-func", :http do |_request|
+      raise "Whoops!"
+    end
+    server = make_basic_server function, show_error_details: false
+    response = query_server_with_retry server do
+      ::Net::HTTP.get_response URI("#{server_url}/")
+    end
+    assert_equal "500", response.code
+    refute_match(/Whoops/, response.body)
+    assert_equal "Unexpected internal error", response.body
     assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
