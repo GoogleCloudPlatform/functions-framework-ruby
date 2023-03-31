@@ -15,19 +15,10 @@ jobs:
     if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     strategy:
       matrix:
+        os: [ubuntu-latest]
+        ruby: ["2.6", "2.7", "3.0", "3.1", "3.2"]
+        flags: ["--only --test-unit"]
         include:
-          - os: ubuntu-latest
-            ruby: "2.6"
-            flags: "--only --test-unit"
-          - os: ubuntu-latest
-            ruby: "2.7"
-            flags: "--only --test-unit"
-          - os: ubuntu-latest
-            ruby: "3.0"
-            flags: "--only --test-unit"
-          - os: ubuntu-latest
-            ruby: "3.1"
-            flags: "--only --test-unit"
           - os: ubuntu-latest
             ruby: jruby
             flags: "--only --test-unit"
@@ -43,9 +34,6 @@ jobs:
           - os: ubuntu-latest
             ruby: "3.0"
             flags: "--only --test-yardoc --test-build --test-examples"
-          - os: ubuntu-latest
-            ruby: "3.2"
-            flags: "--only --test-unit"
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
