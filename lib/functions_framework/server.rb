@@ -82,10 +82,21 @@ module FunctionsFramework
     def start
       synchronize do
         unless running?
-          @server = ::Puma::Server.new @app
-          @server.min_threads = @config.min_threads
-          @server.max_threads = @config.max_threads
-          @server.leak_stack_on_error = @config.show_error_details?
+          # Puma >= 6.0 interprets these settings from options
+          options = {
+            min_threads: @config.min_threads,
+            max_threads: @config.max_threads,
+            environment: @config.show_error_details? ? "development" : "production"
+          }
+          # Puma::Events.stdio for Puma < 6.0; otherwise nil for Puma >= 6.0
+          events = ::Puma::Events.stdio if ::Puma::Events.respond_to? :stdio
+          @server = ::Puma::Server.new @app, events, options
+          if @server.respond_to? :min_threads=
+            # Puma < 6.0 sets server attributes for these settings
+            @server.min_threads = @config.min_threads
+            @server.max_threads = @config.max_threads
+            @server.leak_stack_on_error = @config.show_error_details?
+          end
           @server.binder.add_tcp_listener @config.bind_addr, @config.port
           @config.logger.info "FunctionsFramework: Serving function #{@function.name.inspect} " \
                               "on port #{@config.port}..."
@@ -377,8 +388,8 @@ module FunctionsFramework
           content_type = "#{content_type}; charset=#{string.encoding.name.downcase}"
         end
         headers = {
-          "Content-Type"   => content_type,
-          "Content-Length" => string.bytesize
+          "content-type"   => content_type,
+          "content-length" => string.bytesize
         }
         [status, headers, [string]]
       end

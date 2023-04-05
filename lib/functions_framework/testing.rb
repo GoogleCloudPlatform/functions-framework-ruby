@@ -367,8 +367,8 @@ module FunctionsFramework
           ::Rack::QUERY_STRING    => url.query,
           ::Rack::SERVER_NAME     => url.host,
           ::Rack::SERVER_PORT     => url.port,
+          ::Rack::SERVER_PROTOCOL => "HTTP/1.1",
           ::Rack::RACK_URL_SCHEME => url.scheme,
-          ::Rack::RACK_VERSION    => ::Rack::VERSION,
           ::Rack::RACK_LOGGER     => ::FunctionsFramework.logger,
           ::Rack::RACK_INPUT      => ::StringIO.new,
           ::Rack::RACK_ERRORS     => ::StringIO.new

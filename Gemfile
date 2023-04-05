@@ -16,9 +16,11 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "google-style", "~> 1.26.1"
+gem "google-style", "~> 1.26.3"
 gem "minitest", "~> 5.16"
 gem "minitest-focus", "~> 1.2"
 gem "minitest-rg", "~> 5.2"
+gem "puma", ENV["FF_DEPENDENCY_TEST_PUMA"] if ENV["FF_DEPENDENCY_TEST_PUMA"]
+gem "rack", ENV["FF_DEPENDENCY_TEST_RACK"] if ENV["FF_DEPENDENCY_TEST_RACK"]
 gem "redcarpet", "~> 3.5" unless ::RUBY_PLATFORM == "java"
 gem "yard", "~> 0.9.25"
