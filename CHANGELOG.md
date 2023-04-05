@@ -1,5 +1,12 @@
 # Changelog
 
+### 1.3.0 (2023-04-05)
+
+#### Features
+
+* configure security scorecard ([#148](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/148)) 
+* Support for Puma 6 and Rack 3 ([#152](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/152)) 
+
 ### 1.2.0 (2022-08-25)
 
 * Update minimum Ruby version to 2.6
