@@ -4,8 +4,7 @@
 
 #### Features
 
-* configure security scorecard ([#148](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/148)) 
-* Support for Puma 6 and Rack 3 ([#152](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/152)) 
+* Support for Puma 6 and Rack 3
 
 ### 1.2.0 (2022-08-25)
 
