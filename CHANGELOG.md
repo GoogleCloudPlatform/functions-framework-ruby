@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.3.0 (2023-04-05)
+
+#### Features
+
+* Support for Puma 6 and Rack 3
+
 ### 1.2.0 (2022-08-25)
 
 * Update minimum Ruby version to 2.6
