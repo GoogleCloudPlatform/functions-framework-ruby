@@ -54,6 +54,8 @@ module FunctionsFramework
           HttpApp.new function, globals, @config
         when :cloud_event
           EventApp.new function, globals, @config
+        when :typed
+          TypedApp.new function, globals, @config
         else
           raise "Unrecognized function type: #{function.type}"
         end
@@ -405,6 +407,11 @@ module FunctionsFramework
         string_response message, 500
       end
 
+      def bad_request message
+        message = "Bad Request" unless @config.show_error_details?
+        string_response message, 400
+      end
+
       def flush_streams
         $stdout.flush
         $stderr.flush
@@ -425,12 +432,49 @@ module FunctionsFramework
           begin
             logger = env[::Rack::RACK_LOGGER] ||= @config.logger
             request = ::Rack::Request.new env
-            logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
+            logger.info "FunctionsFramework: Handling Typed HTTP #{request.request_method} request"
             @function.call request, globals: @globals, logger: logger
           rescue ::StandardError => e
             e
           end
         interpret_response response
+      ensure
+        flush_streams
+      end
+    end
+
+    ## @private
+    class TypedApp < AppBase
+      def initialize function, globals, config
+        super config
+        @function = function
+        @globals = globals
+      end
+
+      def call env
+        return notfound_response if excluded_path? env
+        begin
+          logger = env[::Rack::RACK_LOGGER] ||= @config.logger
+          request = ::Rack::Request.new env
+          logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
+
+          begin
+            req = if @function.request_class
+                    request_class.decode_json request.body.read.to_s
+                  else
+                    JSON.parse request.body.read.to_s
+                  end
+          rescue JSON::ParserError => e
+            return bad_request e.message
+          end
+
+          res = @function.call req, globals: @globals, logger: logger
+          return string_response res.to_json, 200, content_type: "application/json" if res
+
+          string_response "", 204
+        rescue ::StandardError => e
+          interpret_response e
+        end
       ensure
         flush_streams
       end

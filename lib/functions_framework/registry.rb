@@ -82,6 +82,29 @@ module FunctionsFramework
     end
 
     ##
+    # Add a Typed function to the registry.
+    #
+    # You must provide a name for the function, and a block that implements the
+    # function. The block should take a single `Hash` argument which will be the
+    # JSON decoded request payload. It should return a `Hash` response which
+    # will be JSON encoded and written to the response.
+    #
+    # @param name [String] The function name. Defaults to {DEFAULT_TARGET}
+    # @param request_class [#decode_json] An optional class which will be used
+    #         to decode the request.
+    # @param block [Proc] The function code as a proc
+    # @return [self]
+    #
+    def add_typed name, request_class: nil, &block
+      name = name.to_s
+      @mutex.synchronize do
+        raise ::ArgumentError, "Function already defined: #{name}" if @functions.key? name
+        @functions[name] = Function.typed name, request_class: request_class, &block
+      end
+      self
+    end
+
+    ##
     # Add a CloudEvent function to the registry.
     #
     # You must provide a name for the function, and a block that implemets the

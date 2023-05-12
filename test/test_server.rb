@@ -25,6 +25,13 @@ describe FunctionsFramework::Server do
       "Received: #{request.body&.read.inspect}"
     end
   }
+  let(:typed_function) {
+    FunctionsFramework::Function.new "my-func", :typed do |event|
+      return {
+        value: event["value"] + 1
+      }
+    end
+  }
   let(:event_function) {
     FunctionsFramework::Function.new "my-func", :cloud_event do |event|
       FunctionsFramework.logger.unknown "Received: #{event.data.inspect}"
@@ -38,6 +45,7 @@ describe FunctionsFramework::Server do
     logger
   }
   let(:http_server) { make_basic_server http_function }
+  let(:typed_server) { make_basic_server typed_function }
   let(:event_server) { make_basic_server event_function }
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
@@ -154,6 +162,62 @@ describe FunctionsFramework::Server do
     assert_equal "200", response.code
     assert_equal '{"foo":"bar"}', response.body
     assert_equal "application/json; charset=utf-8", response["Content-Type"]
+  end
+
+  it "handles typed functions" do
+    server = make_basic_server typed_function
+
+    response = query_server_with_retry server do
+      ::Net::HTTP.post(URI("#{server_url}/"), "{\"value\":1}", {
+                         "Content-Type" => "application/json"
+                       })
+    end
+
+    assert_equal "200", response.code
+    assert_equal "{\"value\":2}", response.body
+    assert_equal "application/json; charset=utf-8", response["Content-Type"]
+  end
+
+  it "handles typed function parse error" do
+    server = make_basic_server typed_function
+
+    response = query_server_with_retry server do
+      ::Net::HTTP.post(URI("#{server_url}/"), "not json", {
+                         "Content-Type" => "application/json"
+                       })
+    end
+
+    assert_equal "400", response.code
+    assert_equal "unexpected token at 'not json'", response.body
+    assert_equal "text/plain; charset=utf-8", response["Content-Type"]
+  end
+
+  it "handles typed function execution error" do
+    server = make_basic_server typed_function
+
+    response = query_server_with_retry server do
+      ::Net::HTTP.post(URI("#{server_url}/"), "{\"value\": \"nan\"}", {
+                         "Content-Type" => "application/json"
+                       })
+    end
+
+    assert_equal "500", response.code
+  end
+
+  it "handles typed function empty response" do
+    func = FunctionsFramework::Function.new "my-func", :typed do |_req|
+      nil
+    end
+    server = make_basic_server func
+
+    response = query_server_with_retry server do
+      ::Net::HTTP.post(URI("#{server_url}/"), "{}", {
+                         "Content-Type" => "application/json"
+                       })
+    end
+
+    assert_equal "204", response.code
+    assert_nil response.body
   end
 
   it "handles CloudEvents" do
