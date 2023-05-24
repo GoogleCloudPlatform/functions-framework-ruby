@@ -196,7 +196,7 @@ describe FunctionsFramework::Function do
       assert_equal "int_adder", function.name
       assert_equal :typed, function.type
 
-      res = function.call (IntValue.new 1), globals: {}
+      res = function.call IntValue.new(1), globals: {}
 
       assert_equal 2, res.get
     end

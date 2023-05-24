@@ -165,6 +165,7 @@ module FunctionsFramework
     # @param request_type [#decode_json] An optional class which will be used to
     #        decode the request if it implements a `decode_json` static method.
     # @param block [Proc] The function code as a proc @return [self]
+    # @return [self]
     #
     def typed name = DEFAULT_TARGET, request_type: nil, &block
       global_registry.add_typed name, request_type: request_type, &block

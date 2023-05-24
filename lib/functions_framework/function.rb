@@ -148,7 +148,7 @@ module FunctionsFramework
     attr_reader :type
 
     ##
-    # @return [#decode_json]
+    # @return [#decode_json] The class for the request parameter. Only used for typed functions.
     #
     attr_reader :request_class
 

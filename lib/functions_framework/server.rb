@@ -432,7 +432,7 @@ module FunctionsFramework
           begin
             logger = env[::Rack::RACK_LOGGER] ||= @config.logger
             request = ::Rack::Request.new env
-            logger.info "FunctionsFramework: Handling Typed HTTP #{request.request_method} request"
+            logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
             @function.call request, globals: @globals, logger: logger
           rescue ::StandardError => e
             e
@@ -456,7 +456,7 @@ module FunctionsFramework
         begin
           logger = env[::Rack::RACK_LOGGER] ||= @config.logger
           request = ::Rack::Request.new env
-          logger.info "FunctionsFramework: Handling HTTP #{request.request_method} request"
+          logger.info "FunctionsFramework: Handling Typed HTTP #{request.request_method} request"
 
           begin
             req = if @function.request_class

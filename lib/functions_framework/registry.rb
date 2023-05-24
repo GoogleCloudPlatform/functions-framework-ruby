@@ -89,7 +89,7 @@ module FunctionsFramework
     # JSON decoded request payload. It should return a `Hash` response which
     # will be JSON encoded and written to the response.
     #
-    # @param name [String] The function name. Defaults to {DEFAULT_TARGET}
+    # @param name [String] The function name.
     # @param request_class [#decode_json] An optional class which will be used
     #         to decode the request.
     # @param block [Proc] The function code as a proc
