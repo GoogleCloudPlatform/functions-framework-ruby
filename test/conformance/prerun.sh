@@ -23,5 +23,6 @@ cat Gemfile
 sudo gem install bundler
 
 # Generate a Gemfile.lock without installing any Gems
-bundle lock --update
+sudo bundle lock --add-platform ruby
+sudo bundle lock --update
 cat Gemfile.lock

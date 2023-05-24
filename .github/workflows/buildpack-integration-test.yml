@@ -11,7 +11,7 @@ permissions: read-all
 
 jobs:
   ruby30-buildpack-test:
-    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.0
+    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@garethgeorge/robust-logs
     with:
       http-builder-source: 'test/conformance'
       http-builder-target: 'http_func'
@@ -19,3 +19,5 @@ jobs:
       cloudevent-builder-target: 'cloudevent_func'
       prerun: 'test/conformance/prerun.sh ${{ github.sha }}'
       builder-runtime: 'ruby30'
+      conformance-client-version: '6b9698820f817dee9ac6782710dd127409e81e8b'
+      conformance-action-version: '6b9698820f817dee9ac6782710dd127409e81e8b'
