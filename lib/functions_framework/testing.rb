@@ -134,16 +134,42 @@ module FunctionsFramework
     #
     def call_http name, request, globals: nil, logger: nil
       globals ||= run_startup_tasks name, logger: logger, lenient: true
-      function = Testing.current_registry[name]
-      case function&.type
-      when :http
+      Testing.call :http, name, readable_name: "HTTP" do |function|
         Testing.interpret_response do
           function.call request, globals: globals, logger: logger
         end
-      when nil
-        raise "Unknown function name #{name}"
-      else
-        raise "Function #{name} is not an HTTP function"
+      end
+    end
+
+    ##
+    # Call the given Typed function for testing. The underlying function must
+    # be of type `:typed`. Returns the Rack response.
+    #
+    # By default, the startup tasks will be run for the given function if they
+    # have not already been run. You can, however, disable running startup
+    # tasks by providing an explicit globals hash.
+    #
+    # By default, the {FunctionsFramework.logger} will be used, but you can
+    # override that by providing your own logger. In particular, to disable
+    # logging, you can pass `Logger.new(nil)`.
+    #
+    # @param name [String] The name of the function to call
+    # @param request [Rack::Request] The Rack request to send
+    # @param globals [Hash] Do not run startup tasks, and instead provide the
+    #     globals directly. Optional.
+    # @param logger [Logger] Use the given logger instead of the Functions
+    #     Framework's global logger. Optional.
+    # @return [Rack::Response]
+    #
+    def call_typed name, request, globals: nil, logger: nil
+      globals ||= run_startup_tasks name, logger: logger, lenient: true
+      Testing.call :typed, name, readable_name: "Typed" do |function|
+        Testing.interpret_response do
+          config = FunctionsFramework::Server::Config.new
+          config.logger = logger
+          app = FunctionsFramework::Server::TypedApp.new function, globals, config
+          app.call request.env
+        end
       end
     end
 
@@ -169,15 +195,9 @@ module FunctionsFramework
     #
     def call_event name, event, globals: nil, logger: nil
       globals ||= run_startup_tasks name, logger: logger, lenient: true
-      function = Testing.current_registry[name]
-      case function&.type
-      when :cloud_event
+      Testing.call :cloud_event, name, readable_name: "CloudEvent" do |function|
         function.call event, globals: globals, logger: logger
         nil
-      when nil
-        raise "Unknown function name #{name}"
-      else
-        raise "Function #{name} is not a CloudEvent function"
       end
     end
 
@@ -313,6 +333,20 @@ module FunctionsFramework
           globals_by_name[name] = globals
         else
           globals_by_name[name]
+        end
+      end
+
+      ## @private
+      def call type, name, readable_name: nil
+        readable_name ||= type
+        function = Testing.current_registry[name]
+        case function&.type
+        when type
+          yield function
+        when nil
+          raise "Unknown function name #{name}"
+        else
+          raise "Function #{name} is not a #{readable_name} function"
         end
       end
 
