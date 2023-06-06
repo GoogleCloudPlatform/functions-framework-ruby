@@ -17,5 +17,5 @@ jobs:
       http-builder-target: 'http_func'
       cloudevent-builder-source: 'test/conformance'
       cloudevent-builder-target: 'cloudevent_func'
-      prerun: 'test/conformance/prerun.sh ${{ github.sha }}'
+      prerun: 'test/conformance/prerun.sh cbfd2046c3e3f60d80d606231b912702e4e1f86d'
       builder-runtime: 'ruby30'
