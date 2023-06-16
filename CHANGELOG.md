@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.4.0 (2023-06-16)
+
+#### Features
+
+* implement typed function signature ([#158](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/158)) 
+
 ### 1.3.0 (2023-04-05)
 
 #### Features
