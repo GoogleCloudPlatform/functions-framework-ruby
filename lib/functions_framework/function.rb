@@ -71,6 +71,23 @@ module FunctionsFramework
     end
 
     ##
+    # Create a new Typed function definition.
+    #
+    # @param name [String] The function name
+    # @param callable [Class,#call] A callable object or class.
+    # @param request_class [#decode_json] A class that can be read from JSON.
+    # @param block [Proc] The function code as a block.
+    # @return [FunctionsFramework::Function]
+    #
+    def self.typed name, request_class: nil, callable: nil, &block
+      if request_class && !(request_class.respond_to? :decode_json)
+        raise ::ArgumentError, "Type does not implement 'decode_json' class method"
+      end
+
+      new name, :typed, callable: callable, request_class: request_class, &block
+    end
+
+    ##
     # Create a new CloudEvents function definition.
     #
     # @param name [String] The function name
@@ -102,9 +119,10 @@ module FunctionsFramework
     # @param callable [Class,#call] A callable object or class.
     # @param block [Proc] The function code as a block.
     #
-    def initialize name, type, callable: nil, &block
+    def initialize name, type, callable: nil, request_class: nil, &block
       @name = name
       @type = type
+      @request_class = request_class
       @callable = @callable_class = nil
       if callable.respond_to? :call
         @callable = callable
@@ -128,6 +146,11 @@ module FunctionsFramework
     # @return [Symbol] The function type
     #
     attr_reader :type
+
+    ##
+    # @return [#decode_json] The class for the request parameter. Only used for typed functions.
+    #
+    attr_reader :request_class
 
     ##
     # Populate the given globals hash with this function's info.

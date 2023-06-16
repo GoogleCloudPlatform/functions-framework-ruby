@@ -148,4 +148,97 @@ describe FunctionsFramework::Function do
     startup.call "the-startup", globals: globals
     function.call "the-function", globals: globals
   end
+
+  describe "typed" do
+    # Ruby class representing a single integer value encoded as a JSON int
+    class IntValue
+      def initialize val
+        @value = val
+      end
+
+      def self.decode_json json
+        IntValue.new json.to_i
+      end
+
+      def to_json(*_args)
+        get.to_s
+      end
+
+      def get
+        @value
+      end
+    end
+
+    # class_func provides a function as a class that implements the Callable
+    # interface.
+    class_func = ::Class.new FunctionsFramework::Function::Callable do
+      define_method :call do |_request|
+        global :function_name
+      end
+    end
+
+    it "can be defined with no custom type" do
+      function = FunctionsFramework::Function.typed "int_adder" do |request|
+        request + 1
+      end
+      assert_equal "int_adder", function.name
+      assert_equal :typed, function.type
+
+      res = function.call 1, globals: {}
+
+      assert_equal 2, res
+    end
+
+    it "can be defined using a block and custom_type" do
+      function = FunctionsFramework::Function.typed "int_adder", request_class: IntValue do |request|
+        IntValue.new request.get + 1
+      end
+      assert_equal "int_adder", function.name
+      assert_equal :typed, function.type
+
+      res = function.call IntValue.new(1), globals: {}
+
+      assert_equal 2, res.get
+    end
+
+    it "can be defined using a callable class" do
+      function = FunctionsFramework::Function.typed "using_callable_class", callable: class_func
+      assert_equal "using_callable_class", function.name
+      assert_equal :typed, function.type
+      globals = function.populate_globals
+
+      res = function.call nil, globals: globals
+
+      assert_equal function.name, res
+    end
+
+    it "can be defined using an instance of a callable" do
+      callable_class = class_func.new globals: { function_name: "fake_global_name" }
+      function = FunctionsFramework::Function.typed "using_callable", callable: callable_class
+      assert_equal "using_callable", function.name
+      assert_equal :typed, function.type
+      globals = function.populate_globals
+
+      res = function.call nil, globals: globals
+
+      assert_equal "fake_global_name", res
+    end
+
+    it "function can access globals" do
+      function = FunctionsFramework::Function.typed "printName" do |_request|
+        global :function_name
+      end
+      globals = function.populate_globals
+
+      res = function.call nil, globals: globals
+
+      assert_equal function.name, res
+    end
+
+    it "function rejects request_class that does not implement decode_json" do
+      assert_raises ::ArgumentError do
+        FunctionsFramework::Function.typed "bad_fn", request_class: ::Class
+      end
+    end
+  end
 end

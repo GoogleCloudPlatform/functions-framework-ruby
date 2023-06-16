@@ -37,6 +37,16 @@ describe FunctionsFramework::Registry do
     assert_equal "hello", response
   end
 
+  it "defines a typed function" do
+    registry.add_typed "echo" do |event|
+      return event
+    end
+    assert_equal ["echo"], registry.names
+    function = registry["echo"]
+    assert_equal "echo", function.name
+    assert_equal :typed, function.type
+  end
+
   it "defines a cloud_event function" do
     tester = self
     registry.add_cloud_event "my_func" do |event|

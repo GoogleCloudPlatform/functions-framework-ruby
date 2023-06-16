@@ -115,9 +115,9 @@ module FunctionsFramework
     attr_accessor :logger
 
     ##
-    # Define a function that response to HTTP requests.
+    # Define a function that responds to HTTP requests.
     #
-    # You must provide a name for the function, and a block that implemets the
+    # You must provide a name for the function, and a block that implements the
     # function. The block should take a single `Rack::Request` argument. It
     # should return one of the following:
     #  *  A standard 3-element Rack response array. See
@@ -142,10 +142,40 @@ module FunctionsFramework
       self
     end
 
+    ## Define a Typed function that responds to HTTP requests.
+    #
+    # You must provide a name for the function, and a block that implements the
+    # function. The block should take a single argument representing the request
+    # payload. If a `request_type` is provided, the argument object will be of
+    # the given decoded type; otherwise, it will be a JSON hash. The  block
+    # should return a JSON hash or an object that implements `#to_json`.
+    #
+    # ## Example
+    #     FunctionsFramework.typed "my-sum-function" do |add_request|
+    #       {sum: add_request["num1"] + add_response["num2"]}
+    #     end
+    #
+    # ## Example with Type
+    #     FunctionsFramework.typed "identity",
+    #                             request_class: MyCustomType do |custom_type|
+    #       custom_type
+    #     end
+    #
+    # @param name [String] The function name. Defaults to {DEFAULT_TARGET}
+    # @param request_class [#decode_json] An optional class which will be used to
+    #        decode the request if it implements a `decode_json` static method.
+    # @param block [Proc] The function code as a proc @return [self]
+    # @return [self]
+    #
+    def typed name = DEFAULT_TARGET, request_class: nil, &block
+      global_registry.add_typed name, request_class: request_class, &block
+      self
+    end
+
     ##
     # Define a function that responds to CloudEvents.
     #
-    # You must provide a name for the function, and a block that implemets the
+    # You must provide a name for the function, and a block that implements the
     # function. The block should take one argument: the event object of type
     # [`CloudEvents::Event`](https://cloudevents.github.io/sdk-ruby/latest/CloudEvents/Event).
     # Any return value is ignored.

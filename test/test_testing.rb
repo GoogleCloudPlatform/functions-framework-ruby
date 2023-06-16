@@ -20,6 +20,7 @@ describe FunctionsFramework::Testing do
   let(:registry) { FunctionsFramework::Registry.new }
   let(:simple_http_path) { File.join __dir__, "function_definitions", "simple_http.rb" }
   let(:simple_event_path) { File.join __dir__, "function_definitions", "simple_event.rb" }
+  let(:simple_typed_path) { File.join __dir__, "function_definitions", "simple_typed.rb" }
   let(:return_http_path) { File.join __dir__, "function_definitions", "return_http.rb" }
   let(:startup_block_path) { File.join __dir__, "function_definitions", "startup_block.rb" }
 
@@ -234,6 +235,22 @@ describe FunctionsFramework::Testing do
           FunctionsFramework::Testing.call_event "simple_event", event, logger: Logger.new(nil)
         end
         assert_empty err
+      end
+    end
+  end
+
+  describe "#call_typed" do
+    it "calls a typed function" do
+      FunctionsFramework::Testing.load_temporary simple_typed_path do
+        request = FunctionsFramework::Testing.make_post_request "http://example.com/", "{\"value\": 1}"
+        response = nil
+        _out, err = capture_subprocess_io do
+          response = FunctionsFramework::Testing.call_typed "simple_typed", request
+        end
+
+        assert_match %r{FunctionsFramework: Handling Typed POST request}, err
+        assert_match %r{I received a request: 1}, err
+        assert_equal "{\"value\":2}", response.body.join
       end
     end
   end
