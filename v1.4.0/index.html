@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: Functions Framework Overview
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "overview";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: Functions Framework Overview</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="functions-framework-for-ruby">Functions Framework for Ruby</h1>
+
+<p>The Functions Framework is an open source framework for writing lightweight,
+portable Ruby functions that run in a serverless environment. Functions written
+to this Framework will run in many different environments, including:</p>
+
+<ul>
+<li> <a href="https://cloud.google.com/functions">Google Cloud Functions</a></li>
+<li> <a href="https://cloud.google.com/run">Google Cloud Run</a></li>
+<li> Any other <a href="https://github.com/knative">Knative</a>-based environment</li>
+<li> Your local development machine</li>
+</ul>
+
+<p>The framework allows you to go from:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, world!\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>To:</p>
+
+<pre class="code sh"><code class="sh">curl http://my-url
+# Output: Hello, world!
+</code></pre>
+
+<p>Running on a fully-managed or self-managed serverless environment, without
+requiring an HTTP server or complicated request handling logic.</p>
+
+<h2 id="features">Features</h2>
+
+<ul>
+<li> Define named functions using normal Ruby constructs.</li>
+<li> Invoke functions in response to requests.</li>
+<li> Automatically unmarshal events conforming to the
+<a href="https://cloudevents.io">CloudEvents</a> spec.</li>
+<li> Automatically convert most legacy events from Google Cloud services such
+as Cloud Pub/Sub and Cloud Storage, to CloudEvents.</li>
+<li> Spin up a local development server for quick testing.</li>
+<li> Integrate with standard Ruby libraries such as Rack and Minitest.</li>
+<li> Portable between serverless platforms.</li>
+<li> Supports all non-end-of-life versions of Ruby.</li>
+</ul>
+
+<h2 id="supported-ruby-versions">Supported Ruby versions</h2>
+
+<p>This library is supported on Ruby 2.6+.</p>
+
+<p>Google provides official support for Ruby versions that are actively supported
+by Ruby Core—that is, Ruby versions that are either in normal maintenance or
+in security maintenance, and not end of life. Older versions of Ruby <em>may</em>
+still work, but are unsupported and not recommended. See
+<a href="https://www.ruby-lang.org/en/downloads/branches/">https://www.ruby-lang.org/en/downloads/branches/</a> for details about the Ruby
+support schedule.</p>
+
+<h2 id="quickstart">Quickstart</h2>
+
+<p>Here is how to run a Hello World function on your local machine.</p>
+
+<p>Create a <code>Gemfile</code> listing the Functions Framework as a dependency:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># Gemfile
+</span><span class='id identifier rubyid_source'>source</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>https://rubygems.org</span><span class='tstring_end'>&quot;</span></span>
+<span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>~&gt; 1.0</span><span class='tstring_end'>&quot;</span></span>
+</code></pre>
+
+<p>Create a file called <code>app.rb</code> and include the following code. This defines a
+simple function called &quot;hello&quot;.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># app.rb
+</span><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>functions_framework</span><span class='tstring_end'>&quot;</span></span>
+
+<span class='const'><span class='object_link'><a href="FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span><span class='period'>.</span><span class='id identifier rubyid_http'><span class='object_link'><a href="FunctionsFramework.html#http-class_method" title="FunctionsFramework.http (method)">http</a></span></span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>hello</span><span class='tstring_end'>&quot;</span></span><span class='rparen'>)</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_request'>request</span><span class='op'>|</span>
+  <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Hello, world!\n</span><span class='tstring_end'>&quot;</span></span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>Install the bundle, and start the framework. This spins up a local web server
+running your &quot;hello&quot; function:</p>
+
+<pre class="code sh"><code class="sh">bundle install
+# ...installs the functions_framework gem and other dependencies
+bundle exec functions-framework-ruby --target hello
+# ...starts the functions server in the foreground
+</code></pre>
+
+<p>In a separate shell, you can send requests to this function using curl:</p>
+
+<pre class="code sh"><code class="sh">curl http://localhost:8080
+# Output: Hello, world!
+</code></pre>
+
+<p>Stop the server with <code>CTRL+C</code>.</p>
+
+<h2 id="documentation">Documentation</h2>
+
+<p>These guides provide additional getting-started information.</p>
+
+<ul>
+<li> <strong><a href="file.writing-functions.html" title="Writing Functions">Writing Functions</a></strong> :
+How to write functions that respond to HTTP requests, industry-standard
+<a href="https://cloudevents.io">CloudEvents</a>, as well as events sent from Google
+Cloud services such as <a href="https://cloud.google.com/pubsub">Pub/Sub</a> and
+<a href="https://cloud.google.com/storage">Storage</a>.</li>
+<li> <strong><a href="file.testing-functions.html" title="Testing Functions">Testing Functions</a></strong> :
+How to use the testing features of the Functions Framework to write local
+unit tests for your functions using standard Ruby testing frameworks such
+as <a href="https://github.com/seattlerb/minitest">Minitest</a> and
+<a href="https://rspec.info/">RSpec</a>.</li>
+<li> <strong><a href="file.running-a-functions-server.html" title="Running a Functions Server">Running a Functions Server</a></strong> :
+How to use the <code>functions-framework-ruby</code> executable to run a local
+functions server.</li>
+<li> <strong><a href="file.deploying-functions.html" title="Deploying Functions">Deploying Functions</a></strong> :
+How to deploy functions to
+<a href="https://cloud.google.com/functions">Google Cloud Functions</a> or
+<a href="https://cloud.google.com/run">Google Cloud Run</a>.</li>
+</ul>
+
+<p>The library reference documentation can be found at:
+<a href="https://googlecloudplatform.github.io/functions-framework-ruby">https://googlecloudplatform.github.io/functions-framework-ruby</a></p>
+
+<p>Additional examples are available in the GitHub repository:
+<a href="https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/examples/">https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/examples/</a></p>
+
+<h2 id="development">Development</h2>
+
+<p>The source for the Ruby Functions Framework is available on GitHub at
+<a href="https://github.com/GoogleCloudPlatform/functions-framework-ruby">https://github.com/GoogleCloudPlatform/functions-framework-ruby</a>. For more
+information on the Functions Framework contract implemented by this framework,
+as well as links to Functions Frameworks for other languages, see
+<a href="https://github.com/GoogleCloudPlatform/functions-framework">https://github.com/GoogleCloudPlatform/functions-framework</a>.</p>
+
+<p>The Functions Framework is open source under the Apache 2.0 license.
+Contributions are welcome. Please see the contributing guide at
+<a href="https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/.github/CONTRIBUTING.md">https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/.github/CONTRIBUTING.md</a>.</p>
+
+<p>Report issues at
+<a href="https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues">https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues</a>.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Fri Jun 16 20:39:49 2023 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.34 (ruby-3.0.6).
+</div>
+
+    </div>
+  </body>
+</html>
