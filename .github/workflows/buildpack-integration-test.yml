@@ -11,7 +11,7 @@ permissions: read-all
 
 jobs:
   ruby30-buildpack-test:
-    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.0
+    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.1
     with:
       http-builder-source: 'test/conformance'
       http-builder-target: 'http_func'
