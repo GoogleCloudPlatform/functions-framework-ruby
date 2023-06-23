@@ -29,6 +29,6 @@ end
 
 FunctionsFramework.typed "typed_func" do |request|
   return {
-    :payload => request,
+    payload: request
   }
 end
