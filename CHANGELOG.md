@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.4.1 (2023-06-27)
+
+#### Bug Fixes
+
+* enable typed function compatibility with http signature ([#174](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/174)) 
+
 ### 1.4.0 (2023-06-16)
 
 #### Features
