@@ -45,22 +45,30 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - name: Run HTTP conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@1975792fb34ebbfa058d690666186d669d3a5977 # v1.8.0
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
       with:
         functionType: 'http'
         useBuildpacks: false
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target http_func --signature-type http'"
+    - name: Run Typed conformance tests
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
+      with:
+        functionType: 'http'
+        declarativeType: 'typed'
+        useBuildpacks: false
+        cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target typed_func --signature-type http'"
     - name: Run CloudEvent conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@1975792fb34ebbfa058d690666186d669d3a5977 # v1.8.0
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
       with:
         functionType: 'cloudevent'
         useBuildpacks: false
         validateMapping: true
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target cloudevent_func --signature-type cloudevent'"
     - name: Run HTTP concurrency tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@1975792fb34ebbfa058d690666186d669d3a5977 # v1.8.0
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
       with:
         functionType: 'http'
         useBuildpacks: false
         validateConcurrency: true
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target concurrent_http_func --signature-type http'"
+    

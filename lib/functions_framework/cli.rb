@@ -197,6 +197,7 @@ module FunctionsFramework
       raise "Undefined function: #{@target.inspect}" if function.nil?
       unless @signature_type.nil? ||
              (@signature_type == "http" && function.type == :http) ||
+             (@signature_type == "http" && function.type == :typed) ||
              (["cloudevent", "event"].include?(@signature_type) && function.type == :cloud_event)
         raise "Function #{@target.inspect} does not match type #{@signature_type}"
       end

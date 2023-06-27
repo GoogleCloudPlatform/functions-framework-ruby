@@ -26,3 +26,9 @@ FunctionsFramework.http "concurrent_http_func" do
   sleep 1
   "ok"
 end
+
+FunctionsFramework.typed "typed_func" do |request|
+  return {
+    payload: request
+  }
+end
