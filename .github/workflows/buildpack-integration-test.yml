@@ -4,18 +4,23 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
+  # Runs every day on 12:00 AM PST
+  schedule:
+    - cron: "0 0 * * *"
 
 # Declare default permissions as read only.
 permissions: read-all
 
 jobs:
   ruby30-buildpack-test:
-    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.1
+    uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@v1.8.5
     with:
       http-builder-source: 'test/conformance'
       http-builder-target: 'http_func'
       cloudevent-builder-source: 'test/conformance'
       cloudevent-builder-target: 'cloudevent_func'
-      prerun: 'test/conformance/prerun.sh ${{ github.sha }}'
+      prerun: ${{format('test/conformance/prerun.sh {0} testdata/conformance/function', github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha )}}
       builder-runtime: 'ruby30'
+      builder-runtime-version: '3.0'
