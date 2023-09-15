@@ -28,7 +28,7 @@ def run
       exec ["git", "clone", github_url]
     end
     cd "functions-framework-conformance" do
-      exec ["git", "pull"]
+      exec ["git", "pull", "origin", "main"]
       exec ["go", "build"], chdir: "client"
     end
   end
