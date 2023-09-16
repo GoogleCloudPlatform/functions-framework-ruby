@@ -37,7 +37,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
       with:
-        go-version: '1.17'
+        go-version: '1.21'
         check-latest: true
     - name: Setup Ruby
       uses: ruby/setup-ruby@5311f05890856149502132d25c4a24985a00d426 # v1.153.0
