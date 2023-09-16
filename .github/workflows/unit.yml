@@ -59,4 +59,6 @@ jobs:
       run: gem install --no-document toys
     - name: Test ${{ matrix.flags }}
       shell: bash
+      env:
+        MT_COMPAT: "true"
       run: toys ci ${{ matrix.flags }}

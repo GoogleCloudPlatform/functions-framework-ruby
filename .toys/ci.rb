@@ -57,8 +57,12 @@ def run
 end
 
 tool "deps-matrix" do
-  static :puma_versions, ["4.0", "5.0", "6.0"]
-  static :rack_versions, ["2.1", "3.0"]
+  static :matrix, [
+    {puma: "4.0", rack: "2.1"},
+    {puma: "5.0", rack: "2.1"},
+    {puma: "6.0", rack: "2.1"},
+    {puma: "6.0", rack: "3.0"},
+  ]
 
   include :exec, result_callback: :handle_result
   include :terminal
@@ -75,15 +79,13 @@ tool "deps-matrix" do
   def run
     @errors = []
     ::Dir.chdir context_directory
-    puma_versions.each do |puma_version|
-      rack_versions.each do |rack_version|
-        name = "Puma #{puma_version} / Rack #{rack_version}"
-        env = {
-          "FF_DEPENDENCY_TEST_PUMA" => "~> #{puma_version}",
-          "FF_DEPENDENCY_TEST_RACK" => "~> #{rack_version}",
-        }
-        exec_separate_tool ["test", "test/test_server.rb"], env: env, name: name
-      end
+    matrix.each do |versions|
+      name = "Puma #{versions[:puma]} / Rack #{versions[:rack]}"
+      env = {
+        "FF_DEPENDENCY_TEST_PUMA" => "~> #{versions[:puma]}",
+        "FF_DEPENDENCY_TEST_RACK" => "~> #{versions[:rack]}",
+      }
+      exec_separate_tool ["test", "test/test_server.rb"], env: env, name: name
     end
     @errors.each do |err|
       puts "Failed: #{err}", :red, :bold
