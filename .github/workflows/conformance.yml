@@ -19,7 +19,7 @@ jobs:
         ruby: ["2.6", "2.7", "3.0", "3.1", "3.2"]
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@128a63446a954579617e875aaab7d2978154e969 # v2.4.0
+      uses: step-security/harden-runner@8ca2b8b2ece13480cda6dacd3511b49857a23c09 # v2.5.1
       with:
         disable-sudo: true
         egress-policy: block
@@ -45,27 +45,27 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
     - name: Run HTTP conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@72a4f36b10f1c6435ab1a86a9ea24bda464cc262 # main
       with:
         functionType: 'http'
         useBuildpacks: false
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target http_func --signature-type http'"
     - name: Run Typed conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@72a4f36b10f1c6435ab1a86a9ea24bda464cc262 # main
       with:
         functionType: 'http'
         declarativeType: 'typed'
         useBuildpacks: false
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target typed_func --signature-type http'"
     - name: Run CloudEvent conformance tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@72a4f36b10f1c6435ab1a86a9ea24bda464cc262 # main
       with:
         functionType: 'cloudevent'
         useBuildpacks: false
         validateMapping: true
         cmd: "'bundle exec functions-framework-ruby --source test/conformance/app.rb --target cloudevent_func --signature-type cloudevent'"
     - name: Run HTTP concurrency tests
-      uses: GoogleCloudPlatform/functions-framework-conformance/action@2f5f319c06a3531be7f75dc5acf6bd00417ff76e # v1.8.3
+      uses: GoogleCloudPlatform/functions-framework-conformance/action@72a4f36b10f1c6435ab1a86a9ea24bda464cc262 # main
       with:
         functionType: 'http'
         useBuildpacks: false
