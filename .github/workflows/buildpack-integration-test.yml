@@ -15,6 +15,7 @@ permissions: read-all
 
 jobs:
   ruby30-buildpack-test:
+    if: github.repository == 'GoogleCloudPlatform/functions-framework-ruby'
     uses: GoogleCloudPlatform/functions-framework-conformance/.github/workflows/buildpack-integration-test.yml@main
     with:
       http-builder-source: 'test/conformance'
