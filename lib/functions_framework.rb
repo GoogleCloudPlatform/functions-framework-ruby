@@ -121,7 +121,7 @@ module FunctionsFramework
     # function. The block should take a single `Rack::Request` argument. It
     # should return one of the following:
     #  *  A standard 3-element Rack response array. See
-    #     https://github.com/rack/rack/blob/master/SPEC.rdoc
+    #     https://github.com/rack/rack/blob/main/SPEC.rdoc
     #  *  A `Rack::Response` object.
     #  *  A simple String that will be sent as the response body.
     #  *  A Hash object that will be encoded as JSON and sent as the response
