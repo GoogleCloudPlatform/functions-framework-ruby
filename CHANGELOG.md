@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.4.2 (2024-01-18)
+
+#### Documentation
+
+* fix a broken link to the rack SPEC 
+
 ### 1.4.1 (2023-06-27)
 
 #### Bug Fixes
