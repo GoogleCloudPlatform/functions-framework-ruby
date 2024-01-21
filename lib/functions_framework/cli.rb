@@ -36,6 +36,7 @@ module FunctionsFramework
       @source = ::ENV["FUNCTION_SOURCE"] || ::FunctionsFramework::DEFAULT_SOURCE
       @env = nil
       @port = nil
+      @pidfile = nil
       @bind = nil
       @min_threads = nil
       @max_threads = nil
@@ -68,6 +69,12 @@ module FunctionsFramework
     attr_reader :error_message
 
     ##
+    # @return [String] The pidfile.
+    # @return [nil] if not running.
+    #
+    attr_reader :pidfile
+
+    ##
     # Parse the given command line arguments.
     # Exits if argument parsing failed.
     #
@@ -88,6 +95,9 @@ module FunctionsFramework
               "Asserts that the function has the given signature type. " \
               "Supported values are 'http' and 'cloudevent'." do |val|
           @signature_type = val
+        end
+        op.on "-P", "--pidfile PIDFILE", "Set the pidfile for the server (defaults to puma.pid)" do |val|
+          @pidfile = val
         end
         op.on "-p", "--port PORT", "Set the port to listen to (defaults to 8080)" do |val|
           @port = val.to_i
@@ -218,6 +228,7 @@ module FunctionsFramework
       ::FunctionsFramework.start function do |config|
         config.rack_env = @env
         config.port = @port
+        config.pidfile = @pidfile
         config.bind_addr = @bind
         config.show_error_details = @detailed_errors
         config.min_threads = @min_threads
