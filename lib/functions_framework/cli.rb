@@ -98,10 +98,10 @@ module FunctionsFramework
         op.on "-e", "--environment ENV", "Set the Rack environment" do |val|
           @env = val
         end
-        op.on "--min-threads NUM", "Set the minimum threead pool size" do |val|
+        op.on "--min-threads NUM", "Set the minimum thread pool size" do |val|
           @min_threads = val
         end
-        op.on "--max-threads NUM", "Set the maximum threead pool size" do |val|
+        op.on "--max-threads NUM", "Set the maximum thread pool size" do |val|
           @max_threads = val
         end
         op.on "--[no-]detailed-errors", "Set whether to show error details" do |val|
