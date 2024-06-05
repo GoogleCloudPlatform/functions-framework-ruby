@@ -27,6 +27,7 @@ describe FunctionsFramework::CLI do
   let(:retry_count) { 10 }
   let(:retry_interval) { 0.5 }
   let(:port) { "8066" }
+  let(:pidfile) { "server.pid" }
   let(:timeout) { 10 }
 
   def run_with_retry cli
@@ -102,6 +103,21 @@ describe FunctionsFramework::CLI do
     end
     assert_equal "200", response.code
     assert_equal "I received a request: GET http://127.0.0.1:#{port}/", response.body
+  end
+
+  it "runs an http server with a pidfile" do
+    args = [
+      "--source", http_source,
+      "--target", "simple_http",
+      "--port", port,
+      "--pidfile", pidfile,
+      "-q"
+    ]
+    cli = FunctionsFramework::CLI.new.parse_args args
+    _response = run_with_retry cli do
+      Net::HTTP.get_response URI("http://127.0.0.1:#{port}/")
+    end
+    assert_equal pidfile, cli.pidfile
   end
 
   it "runs an http server with a function that includes a return" do

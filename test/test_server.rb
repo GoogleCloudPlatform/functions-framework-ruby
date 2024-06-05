@@ -38,6 +38,7 @@ describe FunctionsFramework::Server do
     end
   }
   let(:port) { 8077 }
+  let(:pidfile) { "server.pid" }
   let(:server_url) { "http://127.0.0.1:#{port}" }
   let(:quiet_logger) {
     logger = ::Logger.new $stderr
@@ -56,6 +57,7 @@ describe FunctionsFramework::Server do
       config.min_threads = 1
       config.max_threads = 1
       config.port = port
+      config.pidfile = pidfile
       config.bind_addr = "127.0.0.1"
       config.rack_env = "development"
       config.logger = quiet_logger
@@ -90,6 +92,19 @@ describe FunctionsFramework::Server do
     assert http_server.running?
     http_server.stop.wait_until_stopped timeout: 10
     refute http_server.running?
+  ensure
+    http_server.stop.wait_until_stopped timeout: 10
+  end
+
+  it "uses a pidfile" do
+    refute http_server.pidfile?
+    refute http_server.pidfile
+    http_server.start
+    assert http_server.pidfile?
+    assert http_server.pidfile
+    http_server.stop.wait_until_stopped timeout: 10
+    refute http_server.running?
+    refute http_server.pidfile?
   ensure
     http_server.stop.wait_until_stopped timeout: 10
   end
