@@ -1,5 +1,14 @@
 # Changelog
 
+### 1.4.2 (2024-09-18)
+
+#### Bug Fixes
+
+* typo in cli help ([#196](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/196)) 
+#### Documentation
+
+* fix a broken link to the rack SPEC 
+
 ### 1.4.1 (2023-06-27)
 
 #### Bug Fixes
