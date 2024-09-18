@@ -36,12 +36,15 @@ jobs:
             bestpractices.coreinfrastructure.org:443
             fulcio.sigstore.dev:443
             github.com:443
+            *.github.com:443
             oss-fuzz-build-logs.storage.googleapis.com:443
             sigstore-tuf-root.storage.googleapis.com:443
             rekor.sigstore.dev:443
+            *.githubusercontent.com:443
+            www.bestpractices.dev:443
 
       - name: "Checkout code"
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
         with:
           persist-credentials: false
 
@@ -58,6 +61,6 @@ jobs:
 
       # Upload the results to GitHub's code scanning dashboard.
       - name: "Upload to code-scanning"
-        uses: github/codeql-action/upload-sarif@83f0fe6c4988d98a455712a27f0255212bba9bd4 # v2.3.6
+        uses: github/codeql-action/upload-sarif@0b21cf2492b6b02c465a3e5d7c473717ad7721ba # v3.23.1
         with:
           sarif_file: results.sarif
