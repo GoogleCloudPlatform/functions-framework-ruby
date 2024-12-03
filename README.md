@@ -4,8 +4,7 @@ An open source framework for writing lightweight, portable Ruby functions that
 run in a serverless environment. Functions written to this Framework will run
 in many different environments, including:
 
- *  [Google Cloud Functions](https://cloud.google.com/functions)
- *  [Google Cloud Run](https://cloud.google.com/run)
+ *  [Google Cloud Run functions](https://cloud.google.com/functions)
  *  Any other [Knative](https://github.com/knative)-based environment
  *  Your local development machine
 
@@ -113,8 +112,7 @@ These guides provide additional getting-started information.
     functions server.
  *  **[Deploying Functions](https://googlecloudplatform.github.io/functions-framework-ruby/latest/file.deploying-functions.html)**
     : How to deploy functions to
-    [Google Cloud Functions](https://cloud.google.com/functions) or
-    [Google Cloud Run](https://cloud.google.com/run).
+    [Google Cloud Run functions](https://cloud.google.com/functions)
 
 The library reference documentation can be found at:
 https://googlecloudplatform.github.io/functions-framework-ruby
