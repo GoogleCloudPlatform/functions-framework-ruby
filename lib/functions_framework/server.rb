@@ -153,6 +153,24 @@ module FunctionsFramework
     end
 
     ##
+    # Returns pidfile if server is currently running
+    #
+    # @return [String, nil]
+    #
+    def pidfile
+      @config.pidfile if running?
+    end
+
+    ##
+    # Returns whether pidfile is present.
+    #
+    # @return [Boolean]
+    #
+    def pidfile?
+      !!@config.pidfile && running?
+    end
+
+    ##
     # Cause this server to respond to SIGTERM, SIGINT, and SIGHUP by shutting
     # down gracefully.
     #
@@ -214,6 +232,7 @@ module FunctionsFramework
         self.rack_env = nil
         self.bind_addr = nil
         self.port = nil
+        self.pidfile = nil
         self.min_threads = nil
         self.max_threads = nil
         self.show_error_details = nil
@@ -243,6 +262,14 @@ module FunctionsFramework
       #
       def port= port
         @port = (port || ::ENV["PORT"] || 8080).to_i
+      end
+
+      ##
+      # Set the pidfile string, or `nil` to use the default.
+      # @param pidfile [String,nil]
+      #
+      def pidfile= path
+        @pidfile = (path || ::ENV["PIDFILE"] || "puma.pid").to_s
       end
 
       ##
@@ -304,6 +331,14 @@ module FunctionsFramework
       #
       def port
         @port
+      end
+
+      ##
+      # Returns the current pidfile string.
+      # @return [String]
+      #
+      def pidfile
+        @pidfile
       end
 
       ##
