@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.5.0 (2025-01-03)
+
+#### Features
+
+* Support pidfile in CLI & Server (defaults to puma.pid) ([#178](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/178)) 
+
 ### 1.4.2 (2024-09-18)
 
 #### Bug Fixes
