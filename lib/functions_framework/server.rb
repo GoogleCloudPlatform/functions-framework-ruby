@@ -266,7 +266,7 @@ module FunctionsFramework
 
       ##
       # Set the pidfile string, or `nil` to use the default.
-      # @param pidfile [String,nil]
+      # @param path [String,nil]
       #
       def pidfile= path
         @pidfile = (path || ::ENV["PIDFILE"] || "puma.pid").to_s
