@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: Running a Functions Server
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "running-a-functions-server";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="file_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: Running a Functions Server</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'><h1 id="running-a-functions-server">Running a Functions Server</h1>
+
+<p>This guide covers how to use the <code>functions-framework-ruby</code> executable to launch
+a functions server hosting Ruby functions written for the Functions Framework.
+For more information about the Framework as a whole, see the
+<a href="index.html" title="Overview Guide">Overview Guide</a>.</p>
+
+<h2 id="running-functions-locally">Running functions locally</h2>
+
+<p>The <code>functions-framework-ruby</code> command-line executable is used to run a
+functions server. This executable is installed with the <code>functions_framework</code>
+gem, and can be run with <code>bundle exec</code>. It wraps your function in a web server
+request handler, and runs it in the <a href="https://puma.io/">Puma</a> web server.</p>
+
+<p>Pass the name of the function to run in the <code>--target</code> option. By default,
+<code>functions-framework-ruby</code> will load functions from the file <code>app.rb</code> in the
+current directory. If you want to load functions from a different file, use the
+<code>--source</code> option.</p>
+
+<pre class="code sh"><code class="sh">bundle install
+bundle exec functions-framework-ruby --source=foo.rb --target=hello
+</code></pre>
+
+<p>You can now send requests to your function. e.g.</p>
+
+<pre class="code sh"><code class="sh">curl http://localhost:8080/
+</code></pre>
+
+<p>The executable will write logs to the standard error stream while it is running.
+To stop the server, hit <code>CTRL+C</code> or otherwise send it an appropriate signal.
+The executable has no &quot;background&quot; or &quot;daemon&quot; mode. To run it in the background
+from a shell, use the shell&#39;s background syntax (such as appending <code>&amp;</code> to the
+command).</p>
+
+<p>By default, the executable will listen on the port specified by the <code>$PORT</code>
+environment variable, or port 8080 if the variable is not set. You can also
+override this by passing the <code>--port</code> option. A number of other options are
+also available. See the section below on configuring the server, or pass
+<code>--help</code> to the executable to display online help.</p>
+
+<h2 id="running-functions-in-docker">Running functions in Docker</h2>
+
+<p>The <code>functions-framework-ruby</code> executable is designed to be run in a Docker
+container. This is how it is run in some container-based hosting services such
+as Google Cloud Run, but you can also run it in Docker locally.</p>
+
+<p>First, write a Dockerfile for your project. Following is a simple starting
+point; feel free to adjust it to the needs of your project:</p>
+
+<pre class="code ruby"><code class="ruby">FROM ruby:2.6
+WORKDIR /app
+COPY . .
+RUN gem install --no-document bundler \
+    &amp;&amp; bundle config --local frozen true \
+    &amp;&amp; bundle config --local without &quot;development test&quot; \
+    &amp;&amp; bundle install
+ENV PORT=8080
+ENTRYPOINT [&quot;bundle&quot;, &quot;exec&quot;, &quot;functions-framework-ruby&quot;]
+</code></pre>
+
+<p>Build an image for your project using the Dockerfile.</p>
+
+<pre class="code sh"><code class="sh">docker build --tag my-image .
+</code></pre>
+
+<p>Then, you can run the Docker container locally as follows:</p>
+
+<pre class="code sh"><code class="sh">docker run --rm -it -p 8080:8080 my-image --source=foo.rb --target=hello
+</code></pre>
+
+<p>The arguments after the image name (e.g. <code>--source</code> and <code>--target</code> in the above
+example) are passed to the <code>functions-framework-ruby</code> executable.</p>
+
+<p>Because the docker container above maps port 8080 internally to port 8080
+externally, you can use that port to send requests to your function. e.g.</p>
+
+<pre class="code sh"><code class="sh">curl http://localhost:8080/
+</code></pre>
+
+<p>You can stop the running Docker container with <code>CTRL+C</code> or by sending an
+appropriate signal.</p>
+
+<h2 id="configuring-the-server">Configuring the server</h2>
+
+<p>The Ruby Functions Framework recognizes the following command line arguments to
+the <code>functions-framework-ruby</code> executable. Each argument also corresponds to an
+environment variable. If you specify both, the flag takes precedence.</p>
+
+<table><thead>
+<tr>
+<th>Command-line flag</th>
+<th>Environment variable</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code>--port</code></td>
+<td><code>PORT</code></td>
+<td>The port on which the Functions Framework listens for requests. Default: <code>8080</code>.</td>
+</tr>
+<tr>
+<td><code>--target</code></td>
+<td><code>FUNCTION_TARGET</code></td>
+<td>The name of the exported function to be invoked in response to requests. Default: <code>function</code>.</td>
+</tr>
+<tr>
+<td><code>--source</code></td>
+<td><code>FUNCTION_SOURCE</code></td>
+<td>The path to the file containing your function. Default: <code>app.rb</code> (in the current working directory).</td>
+</tr>
+<tr>
+<td><code>--signature-type</code></td>
+<td><code>FUNCTION_SIGNATURE_TYPE</code></td>
+<td>Verifies that the function has the expected signature. Allowed values: <code>http</code>, <code>event</code>, or <code>cloudevent</code>.</td>
+</tr>
+<tr>
+<td><code>--environment</code></td>
+<td><code>RACK_ENV</code></td>
+<td>Sets the Rack environment.</td>
+</tr>
+<tr>
+<td><code>--bind</code></td>
+<td><code>FUNCTION_BIND_ADDR</code></td>
+<td>Binds to the given address. Default: <code>0.0.0.0</code>.</td>
+</tr>
+<tr>
+<td><code>--min-threads</code></td>
+<td><code>FUNCTION_MIN_THREADS</code></td>
+<td>Sets the minimum thread pool size, overriding Puma&#39;s default.</td>
+</tr>
+<tr>
+<td><code>--max-threads</code></td>
+<td><code>FUNCTION_MAX_THREADS</code></td>
+<td>Sets the maximum thread pool size, overriding Puma&#39;s default.</td>
+</tr>
+<tr>
+<td><code>--detailed-errors</code></td>
+<td><code>FUNCTION_DETAILED_ERRORS</code></td>
+<td>No value. If present, shows exception details in exception responses. Defaults to false.</td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td><code>FUNCTION_LOGGING_LEVEL</code></td>
+<td>No value. Increases log verbosity (e.g. from INFO to DEBUG). Can be given more than once.</td>
+</tr>
+<tr>
+<td><code>--quiet</code></td>
+<td><code>FUNCTION_LOGGING_LEVEL</code></td>
+<td>No value. Decreases log verbosity (e.g. from INFO to WARN). Can be given more than once.</td>
+</tr>
+</tbody></table>
+
+<p>Detailed errors are enabled by default if the <code>FUNCTION_DETAILED_ERRORS</code>
+environment variable is set to a <em>non-empty</em> string. The exact value does not
+matter. Detailed errors are disabled if the variable is unset or empty.</p>
+
+<p>The logging level defaults to the value of the <code>FUNCTION_LOGGING_LEVEL</code>
+environment variable, which can be one of the following values: <code>DEBUG</code>, <code>INFO</code>,
+<code>WARN</code>, <code>ERROR</code>, <code>FATAL</code>, or <code>UNKNOWN</code>, corresponding to Ruby&#39;s
+<a href="https://ruby-doc.org/stdlib/libdoc/logger/rdoc/Logger/Severity.html">Logger::Severity</a>
+constants. If <code>FUNCTION_LOGGING_LEVEL</code> is not set to one of those values, it
+defaults to <code>INFO</code>.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Fri Jan  3 23:18:06 2025 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.0.7).
+</div>
+
+    </div>
+  </body>
+</html>
