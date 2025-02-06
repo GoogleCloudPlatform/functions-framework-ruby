@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.5.1 (2025-02-06)
+
+### Miscellaneous Chores
+
+* release 1.5.1 ([#211](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/211)) 
+
 ### 1.5.0 (2025-01-03)
 
 #### Features
