@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.6.0 (2025-02-07)
+
+#### Features
+
+* drop support for ruby &lt;3.0 ([#210](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/210)) 
+
 ### 1.5.1 (2025-02-06)
 
 ### Miscellaneous Chores
