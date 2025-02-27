@@ -297,7 +297,7 @@ module FunctionsFramework
           if show_error_details.nil?
             !::ENV["FUNCTION_DETAILED_ERRORS"].to_s.empty?
           else
-            show_error_details ? true : false
+            !!show_error_details
           end
       end
 
