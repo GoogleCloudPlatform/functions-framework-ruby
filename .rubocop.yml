@@ -31,3 +31,5 @@ Naming/FileName:
 Style/BlockDelimiters:
   Exclude:
     - "test/**/test_*.rb"
+Style/DoubleNegation:
+  Enabled: false
