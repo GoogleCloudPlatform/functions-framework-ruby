@@ -19,7 +19,7 @@ jobs:
         ruby: ['3.0', '3.1', '3.2', '3.3']
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+      uses: step-security/harden-runner@4d991eb9b905ef189e4c376166672c3f2f230481 # v2.11.0
       with:
         disable-sudo: true
         egress-policy: block
@@ -37,10 +37,10 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
       with:
-        go-version: '1.21'
+        go-version: '1.24'
         check-latest: true
     - name: Setup Ruby
-      uses: ruby/setup-ruby@d781c1b4ed31764801bfae177617bb0446f5ef8d # v1.218.0
+      uses: ruby/setup-ruby@6c79f721fa26dd64559c2700086ac852c18e0756 # v1.225.0
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true
