@@ -10,7 +10,7 @@ permissions: read-all
 jobs:
   push-gh-pages:
     env:
-      ruby_version: "3.0"
+      ruby_version: "3.1"
     runs-on: ubuntu-latest
 
     permissions:

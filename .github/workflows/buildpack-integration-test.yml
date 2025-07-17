@@ -23,5 +23,5 @@ jobs:
       cloudevent-builder-source: 'test/conformance'
       cloudevent-builder-target: 'cloudevent_func'
       prerun: ${{format('test/conformance/prerun.sh {0} testdata/conformance/function', github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha )}}
-      builder-runtime: 'ruby30'
-      builder-runtime-version: '3.0'
+      builder-runtime: 'ruby31'
+      builder-runtime-version: '3.1'
