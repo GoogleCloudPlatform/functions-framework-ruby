@@ -203,7 +203,7 @@ describe FunctionsFramework::Server do
     end
 
     assert_equal "400", response.code
-    assert_equal "unexpected token at 'not json'", response.body
+    assert_equal "unexpected token 'not' at line 1 column 1", response.body
     assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
