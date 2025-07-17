@@ -203,7 +203,7 @@ describe FunctionsFramework::Server do
     end
 
     assert_equal "400", response.code
-    assert_match "/unexpected token/", response.body
+    assert_match(/unexpected token/, response.body)
     assert_equal "text/plain; charset=utf-8", response["Content-Type"]
   end
 
