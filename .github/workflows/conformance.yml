@@ -29,6 +29,7 @@ jobs:
           index.rubygems.org:443
           objects.githubusercontent.com:443
           proxy.golang.org:443
+          release-assets.githubusercontent.com:443
           rubygems.org:443
           storage.googleapis.com:443
 
