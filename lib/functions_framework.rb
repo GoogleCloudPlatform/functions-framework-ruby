@@ -137,8 +137,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a proc.
     # @return [self]
     #
-    def http name = DEFAULT_TARGET, &block
-      global_registry.add_http name, &block
+    def http(name = DEFAULT_TARGET, &)
+      global_registry.add_http(name, &)
       self
     end
 
@@ -167,8 +167,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a proc @return [self]
     # @return [self]
     #
-    def typed name = DEFAULT_TARGET, request_class: nil, &block
-      global_registry.add_typed name, request_class: request_class, &block
+    def typed(name = DEFAULT_TARGET, request_class: nil, &)
+      global_registry.add_typed(name, request_class: request_class, &)
       self
     end
 
@@ -190,8 +190,8 @@ module FunctionsFramework
     # @param block [Proc] The function code as a proc.
     # @return [self]
     #
-    def cloud_event name = DEFAULT_TARGET, &block
-      global_registry.add_cloud_event name, &block
+    def cloud_event(name = DEFAULT_TARGET, &)
+      global_registry.add_cloud_event(name, &)
       self
     end
 
@@ -211,8 +211,8 @@ module FunctionsFramework
     # @param block [Proc] The startup task
     # @return [self]
     #
-    def on_startup &block
-      global_registry.add_startup_task(&block)
+    def on_startup(&)
+      global_registry.add_startup_task(&)
       self
     end
 
@@ -227,7 +227,7 @@ module FunctionsFramework
     #     manipulated to configure the server.
     # @return [FunctionsFramework::Server]
     #
-    def start target, &block
+    def start(target, &)
       require "functions_framework/server"
       if target.is_a? ::FunctionsFramework::Function
         function = target
@@ -236,7 +236,7 @@ module FunctionsFramework
         raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       end
       globals = function.populate_globals
-      server = Server.new function, globals, &block
+      server = Server.new(function, globals, &)
       global_registry.startup_tasks.each do |task|
         task.call function, globals: globals, logger: server.config.logger
       end
@@ -255,8 +255,8 @@ module FunctionsFramework
     #     manipulated to configure the server.
     # @return [self]
     #
-    def run target, &block
-      server = start target, &block
+    def run(target, &)
+      server = start(target, &)
       server.wait_until_stopped
       self
     end

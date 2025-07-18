@@ -70,9 +70,9 @@ module FunctionsFramework
     #
     # @param path [String] File path to load
     #
-    def load_temporary path, &block
+    def load_temporary(path, &)
       path = ::File.expand_path path
-      Testing.load_for_testing path, &block
+      Testing.load_for_testing(path, &)
     end
 
     ##
