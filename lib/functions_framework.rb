@@ -134,7 +134,6 @@ module FunctionsFramework
     #     end
     #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
-    # @param block [Proc] The function code as a proc.
     # @return [self]
     #
     def http(name = DEFAULT_TARGET, &)
@@ -164,7 +163,6 @@ module FunctionsFramework
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}
     # @param request_class [#decode_json] An optional class which will be used to
     #        decode the request if it implements a `decode_json` static method.
-    # @param block [Proc] The function code as a proc @return [self]
     # @return [self]
     #
     def typed(name = DEFAULT_TARGET, request_class: nil, &)
@@ -187,7 +185,6 @@ module FunctionsFramework
     #     end
     #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
-    # @param block [Proc] The function code as a proc.
     # @return [self]
     #
     def cloud_event(name = DEFAULT_TARGET, &)
@@ -196,7 +193,7 @@ module FunctionsFramework
     end
 
     ##
-    # Define a server startup task. This is useful for initializing shared
+    # Define a server startup task as a block. This is useful for initializing shared
     # resources that should be accessible across all function invocations in
     # this Ruby VM.
     #
@@ -208,7 +205,6 @@ module FunctionsFramework
     # Startup tasks are passed the {FunctionsFramework::Function} identifying
     # the function to execute, and have no return value.
     #
-    # @param block [Proc] The startup task
     # @return [self]
     #
     def on_startup(&)
