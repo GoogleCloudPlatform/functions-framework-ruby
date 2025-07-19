@@ -134,11 +134,10 @@ module FunctionsFramework
     #     end
     #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
-    # @param block [Proc] The function code as a proc.
     # @return [self]
     #
-    def http name = DEFAULT_TARGET, &block
-      global_registry.add_http name, &block
+    def http(name = DEFAULT_TARGET, &)
+      global_registry.add_http(name, &)
       self
     end
 
@@ -164,11 +163,10 @@ module FunctionsFramework
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}
     # @param request_class [#decode_json] An optional class which will be used to
     #        decode the request if it implements a `decode_json` static method.
-    # @param block [Proc] The function code as a proc @return [self]
     # @return [self]
     #
-    def typed name = DEFAULT_TARGET, request_class: nil, &block
-      global_registry.add_typed name, request_class: request_class, &block
+    def typed(name = DEFAULT_TARGET, request_class: nil, &)
+      global_registry.add_typed(name, request_class: request_class, &)
       self
     end
 
@@ -187,16 +185,15 @@ module FunctionsFramework
     #     end
     #
     # @param name [String] The function name. Defaults to {DEFAULT_TARGET}.
-    # @param block [Proc] The function code as a proc.
     # @return [self]
     #
-    def cloud_event name = DEFAULT_TARGET, &block
-      global_registry.add_cloud_event name, &block
+    def cloud_event(name = DEFAULT_TARGET, &)
+      global_registry.add_cloud_event(name, &)
       self
     end
 
     ##
-    # Define a server startup task. This is useful for initializing shared
+    # Define a server startup task as a block. This is useful for initializing shared
     # resources that should be accessible across all function invocations in
     # this Ruby VM.
     #
@@ -208,11 +205,10 @@ module FunctionsFramework
     # Startup tasks are passed the {FunctionsFramework::Function} identifying
     # the function to execute, and have no return value.
     #
-    # @param block [Proc] The startup task
     # @return [self]
     #
-    def on_startup &block
-      global_registry.add_startup_task(&block)
+    def on_startup(&)
+      global_registry.add_startup_task(&)
       self
     end
 
@@ -227,7 +223,7 @@ module FunctionsFramework
     #     manipulated to configure the server.
     # @return [FunctionsFramework::Server]
     #
-    def start target, &block
+    def start(target, &)
       require "functions_framework/server"
       if target.is_a? ::FunctionsFramework::Function
         function = target
@@ -236,7 +232,7 @@ module FunctionsFramework
         raise ::ArgumentError, "Undefined function: #{target.inspect}" if function.nil?
       end
       globals = function.populate_globals
-      server = Server.new function, globals, &block
+      server = Server.new(function, globals, &)
       global_registry.startup_tasks.each do |task|
         task.call function, globals: globals, logger: server.config.logger
       end
@@ -255,8 +251,8 @@ module FunctionsFramework
     #     manipulated to configure the server.
     # @return [self]
     #
-    def run target, &block
-      server = start target, &block
+    def run(target, &)
+      server = start(target, &)
       server.wait_until_stopped
       self
     end

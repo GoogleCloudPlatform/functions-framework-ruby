@@ -185,6 +185,7 @@ module FunctionsFramework
       %r{^providers/google\.firebase\.analytics/} => "firebase.googleapis.com",
       %r{^providers/google\.firebase\.database/} => "firebasedatabase.googleapis.com"
     }.freeze
+    private_constant :LEGACY_TYPE_TO_SERVICE
 
     LEGACY_TYPE_TO_CE_TYPE = {
       "google.pubsub.topic.publish"                              => "google.cloud.pubsub.topic.v1.messagePublished",
@@ -206,6 +207,7 @@ module FunctionsFramework
       "providers/google.firebase.database/eventTypes/ref.delete" => "google.firebase.database.ref.v1.deleted",
       "providers/cloud.storage/eventTypes/object.change"         => "google.cloud.storage.object.v1.finalized"
     }.freeze
+    private_constant :LEGACY_TYPE_TO_CE_TYPE
 
     CE_SERVICE_TO_RESOURCE_RE = {
       "firebase.googleapis.com"         => %r{^(projects/[^/]+)/(events/[^/]+)$},
@@ -213,11 +215,13 @@ module FunctionsFramework
       "firestore.googleapis.com"        => %r{^(projects/[^/]+/databases/\(default\))/(documents/.+)$},
       "storage.googleapis.com"          => %r{^(projects/[^/]+/buckets/[^/]+)/([^#]+)(?:#.*)?$}
     }.freeze
+    private_constant :CE_SERVICE_TO_RESOURCE_RE
 
     # Map Firebase Auth legacy event metadata field names to their equivalent CloudEvent field names.
     FIREBASE_AUTH_METADATA_LEGACY_TO_CE = {
       "createdAt"      => "createTime",
       "lastSignedInAt" => "lastSignInTime"
     }.freeze
+    private_constant :FIREBASE_AUTH_METADATA_LEGACY_TO_CE
   end
 end
