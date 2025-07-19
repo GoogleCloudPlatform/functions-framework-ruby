@@ -1,5 +1,12 @@
 # Changelog
 
+### 1.6.1 (2025-07-19)
+
+#### Bug Fixes
+
+* update google-style to 1.31, fix linting issues ([#224](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/224)) 
+* update workflow configs to drop ruby 3.0 ([#220](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/220)) 
+
 ### 1.6.0 (2025-02-07)
 
 #### Features
