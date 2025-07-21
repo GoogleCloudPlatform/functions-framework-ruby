@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.6.2 (2025-07-21)
+
+#### Bug Fixes
+
+* add api.deps.dev to allowlist for scorecard.yml ([#225](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/225)) 
+
 ### 1.6.1 (2025-07-19)
 
 #### Bug Fixes
