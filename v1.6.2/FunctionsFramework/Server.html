@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: FunctionsFramework::Server
+  
+    &mdash; Functions
+  
+</title>
+
+  <link rel="stylesheet" href="../css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="../css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "FunctionsFramework::Server";
+  relpath = '../';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="../js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="../class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="../_index.html">Index (S)</a> &raquo;
+    <span class='title'><span class='object_link'><a href="../FunctionsFramework.html" title="FunctionsFramework (module)">FunctionsFramework</a></span></span>
+     &raquo; 
+    <span class="title">Server</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="../class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: FunctionsFramework::Server
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">FunctionsFramework::Server</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd>MonitorMixin</dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>lib/functions_framework/server.rb</dd>
+  </dl>
+  
+</div>
+
+<h2>Overview</h2><div class="docstring">
+  <div class="discussion">
+    <p>A web server that wraps a function.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><h2>Defined Under Namespace</h2>
+<p class="children">
+  
+    
+  
+    
+      <strong class="classes">Classes:</strong> <span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">Config</a></span>
+    
+  
+</p>
+
+
+
+
+  <h2>Instance Attribute Summary <small><a href="#" class="summary_toggle">collapse</a></small></h2>
+  <ul class="summary">
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#config-instance_method" title="#config (instance method)">#<strong>config</strong>  &#x21d2; FunctionsFramework::Server::Config </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The final configuration.</p>
+</div></span>
+  
+</li>
+
+    
+      <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#function-instance_method" title="#function (instance method)">#<strong>function</strong>  &#x21d2; FunctionsFramework::Function </a>
+    
+
+    
+  </span>
+  
+  
+  
+    
+      <span class="note title readonly">readonly</span>
+    
+    
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>The function to execute.</p>
+</div></span>
+  
+</li>
+
+    
+  </ul>
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>(function, globals) {|FunctionsFramework::Server::Config| ... } &#x21d2; Server </a>
+    
+
+    
+  </span>
+  
+  
+    <span class="note title constructor">constructor</span>
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Create a new web server given a function definition, a set of application globals, and server configuration.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pidfile-instance_method" title="#pidfile (instance method)">#<strong>pidfile</strong>  &#x21d2; String<sup>?</sup> </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns pidfile if server is currently running.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#pidfile%3F-instance_method" title="#pidfile? (instance method)">#<strong>pidfile?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Returns whether pidfile is present.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#respond_to_signals-instance_method" title="#respond_to_signals (instance method)">#<strong>respond_to_signals</strong>  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Cause this server to respond to SIGTERM, SIGINT, and SIGHUP by shutting down gracefully.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#running%3F-instance_method" title="#running? (instance method)">#<strong>running?</strong>  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Determine if the web server is currently running.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#start-instance_method" title="#start (instance method)">#<strong>start</strong>  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Start the web server in the background.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#stop-instance_method" title="#stop (instance method)">#<strong>stop</strong>(force: false, wait: false)  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Stop the web server in the background.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#wait_until_stopped-instance_method" title="#wait_until_stopped (instance method)">#<strong>wait_until_stopped</strong>(timeout: nil)  &#x21d2; self </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'><p>Wait for the server to stop.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  <div id="constructor_details" class="method_details_list">
+  <h2>Constructor Details</h2>
+  
+    <div class="method_details first">
+  <h3 class="signature first" id="initialize-instance_method">
+  
+    #<strong>initialize</strong>(function, globals) {|FunctionsFramework::Server::Config| ... } &#x21d2; <tt><span class='object_link'><a href="" title="FunctionsFramework::Server (class)">Server</a></span></tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Create a new web server given a function definition, a set of application
+globals, and server configuration.</p>
+
+<p>To configure the server, pass a block that takes a
+<span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">Config</a></span> object as the parameter. This block
+is the only opportunity to modify the configuration; once the server is
+initialized, configuration is frozen.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>function</span>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Function.html" title="FunctionsFramework::Function (class)">FunctionsFramework::Function</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>The function to execute.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>globals</span>
+      
+      
+        <span class='type'>(<tt>Hash</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>Globals to pass to invocations. This hash should
+normally be frozen so separate function invocations cannot interfere
+with one another&#39;s globals.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Yields:</p>
+<ul class="yield">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">FunctionsFramework::Server::Config</a></span></tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'><p>A config object that can be
+manipulated to configure this server.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 45</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_globals'>globals</span>
+  <span class='kw'>super</span><span class='lparen'>(</span><span class='rparen'>)</span>
+  <span class='ivar'>@config</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">Config</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="Server/Config.html#initialize-instance_method" title="FunctionsFramework::Server::Config#initialize (method)">new</a></span></span>
+  <span class='kw'>yield</span> <span class='ivar'>@config</span> <span class='kw'>if</span> <span class='id identifier rubyid_block_given?'>block_given?</span>
+  <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_freeze'>freeze</span>
+  <span class='ivar'>@function</span> <span class='op'>=</span> <span class='id identifier rubyid_function'>function</span>
+  <span class='ivar'>@app</span> <span class='op'>=</span>
+    <span class='kw'>case</span> <span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+    <span class='kw'>when</span> <span class='symbol'>:http</span>
+      <span class='const'>HttpApp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_globals'>globals</span><span class='comma'>,</span> <span class='ivar'>@config</span>
+    <span class='kw'>when</span> <span class='symbol'>:cloud_event</span>
+      <span class='const'>EventApp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_globals'>globals</span><span class='comma'>,</span> <span class='ivar'>@config</span>
+    <span class='kw'>when</span> <span class='symbol'>:typed</span>
+      <span class='const'>TypedApp</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='id identifier rubyid_function'>function</span><span class='comma'>,</span> <span class='id identifier rubyid_globals'>globals</span><span class='comma'>,</span> <span class='ivar'>@config</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Unrecognized function type: </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_function'>function</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span><span class='embexpr_end'>}</span><span class='tstring_end'>&quot;</span></span>
+    <span class='kw'>end</span>
+  <span class='ivar'>@server</span> <span class='op'>=</span> <span class='kw'>nil</span>
+  <span class='ivar'>@signals_installed</span> <span class='op'>=</span> <span class='kw'>false</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+  
+</div>
+
+  <div id="instance_attr_details" class="attr_details">
+    <h2>Instance Attribute Details</h2>
+    
+      
+      <span id=""></span>
+      <div class="method_details first">
+  <h3 class="signature first" id="config-instance_method">
+  
+    #<strong>config</strong>  &#x21d2; <tt><span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">FunctionsFramework::Server::Config</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The final configuration. This is a frozen object that cannot be modified.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Server/Config.html" title="FunctionsFramework::Server::Config (class)">FunctionsFramework::Server::Config</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+76
+77
+78</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 76</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_config'>config</span>
+  <span class='ivar'>@config</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      
+      <span id=""></span>
+      <div class="method_details ">
+  <h3 class="signature " id="function-instance_method">
+  
+    #<strong>function</strong>  &#x21d2; <tt><span class='object_link'><a href="Function.html" title="FunctionsFramework::Function (class)">FunctionsFramework::Function</a></span></tt>  <span class="extras">(readonly)</span>
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>The function to execute.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt><span class='object_link'><a href="Function.html" title="FunctionsFramework::Function (class)">FunctionsFramework::Function</a></span></tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+70
+71
+72</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 70</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_function'>function</span>
+  <span class='ivar'>@function</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="pidfile-instance_method">
+  
+    #<strong>pidfile</strong>  &#x21d2; <tt>String</tt><sup>?</sup> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns pidfile if server is currently running</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>, <tt>nil</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+160
+161
+162</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 160</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pidfile'>pidfile</span>
+  <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_pidfile'>pidfile</span> <span class='kw'>if</span> <span class='id identifier rubyid_running?'>running?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="pidfile?-instance_method">
+  
+    #<strong>pidfile?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Returns whether pidfile is present.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+169
+170
+171</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 169</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_pidfile?'>pidfile?</span>
+  <span class='op'>!</span><span class='op'>!</span><span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_pidfile'>pidfile</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_running?'>running?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="respond_to_signals-instance_method">
+  
+    #<strong>respond_to_signals</strong>  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Cause this server to respond to SIGTERM, SIGINT, and SIGHUP by shutting
+down gracefully.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 179</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_respond_to_signals'>respond_to_signals</span>
+  <span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>return</span> <span class='kw'>self</span> <span class='kw'>if</span> <span class='ivar'>@signals_installed</span>
+    <span class='op'>::</span><span class='const'>Signal</span><span class='period'>.</span><span class='id identifier rubyid_trap'>trap</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGTERM</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='const'><span class='object_link'><a href="" title="FunctionsFramework::Server (class)">Server</a></span></span><span class='period'>.</span><span class='id identifier rubyid_signal_enqueue'>signal_enqueue</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGTERM</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='comma'>,</span> <span class='ivar'>@server</span>
+    <span class='kw'>end</span>
+    <span class='op'>::</span><span class='const'>Signal</span><span class='period'>.</span><span class='id identifier rubyid_trap'>trap</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGINT</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+      <span class='const'><span class='object_link'><a href="" title="FunctionsFramework::Server (class)">Server</a></span></span><span class='period'>.</span><span class='id identifier rubyid_signal_enqueue'>signal_enqueue</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGINT</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='comma'>,</span> <span class='ivar'>@server</span>
+    <span class='kw'>end</span>
+    <span class='kw'>begin</span>
+      <span class='op'>::</span><span class='const'>Signal</span><span class='period'>.</span><span class='id identifier rubyid_trap'>trap</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGHUP</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>do</span>
+        <span class='const'><span class='object_link'><a href="" title="FunctionsFramework::Server (class)">Server</a></span></span><span class='period'>.</span><span class='id identifier rubyid_signal_enqueue'>signal_enqueue</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>SIGHUP</span><span class='tstring_end'>&quot;</span></span><span class='comma'>,</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='comma'>,</span> <span class='ivar'>@server</span>
+      <span class='kw'>end</span>
+    <span class='kw'>rescue</span> <span class='op'>::</span><span class='const'>ArgumentError</span>
+      <span class='comment'># Not available on all systems
+</span>    <span class='kw'>end</span>
+    <span class='ivar'>@signals_installed</span> <span class='op'>=</span> <span class='kw'>true</span>
+  <span class='kw'>end</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="running?-instance_method">
+  
+    #<strong>running?</strong>  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Determine if the web server is currently running</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+151
+152
+153</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 151</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_running?'>running?</span>
+  <span class='ivar'>@server</span><span class='op'>&amp;.</span><span class='id identifier rubyid_thread'>thread</span><span class='op'>&amp;.</span><span class='id identifier rubyid_alive?'>alive?</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="start-instance_method">
+  
+    #<strong>start</strong>  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Start the web server in the background. Does nothing if the web server
+is already running.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 84</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_start'>start</span>
+  <span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>unless</span> <span class='id identifier rubyid_running?'>running?</span>
+      <span class='comment'># Puma &gt;= 6.0 interprets these settings from options
+</span>      <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span>
+        <span class='label'>min_threads:</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_min_threads'>min_threads</span><span class='comma'>,</span>
+        <span class='label'>max_threads:</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_max_threads'>max_threads</span><span class='comma'>,</span>
+        <span class='label'>environment:</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_show_error_details?'>show_error_details?</span> <span class='op'>?</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>development</span><span class='tstring_end'>&quot;</span></span> <span class='op'>:</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>production</span><span class='tstring_end'>&quot;</span></span>
+      <span class='rbrace'>}</span>
+      <span class='comment'># Puma::Events.stdio for Puma &lt; 6.0; otherwise nil for Puma &gt;= 6.0
+</span>      <span class='id identifier rubyid_events'>events</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Puma</span><span class='op'>::</span><span class='const'>Events</span><span class='period'>.</span><span class='id identifier rubyid_stdio'>stdio</span> <span class='kw'>if</span> <span class='op'>::</span><span class='const'>Puma</span><span class='op'>::</span><span class='const'>Events</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:stdio</span>
+      <span class='ivar'>@server</span> <span class='op'>=</span> <span class='op'>::</span><span class='const'>Puma</span><span class='op'>::</span><span class='const'>Server</span><span class='period'>.</span><span class='id identifier rubyid_new'>new</span> <span class='ivar'>@app</span><span class='comma'>,</span> <span class='id identifier rubyid_events'>events</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span>
+      <span class='kw'>if</span> <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_respond_to?'>respond_to?</span> <span class='symbol'>:min_threads=</span>
+        <span class='comment'># Puma &lt; 6.0 sets server attributes for these settings
+</span>        <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_min_threads'>min_threads</span> <span class='op'>=</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_min_threads'>min_threads</span>
+        <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_max_threads'>max_threads</span> <span class='op'>=</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_max_threads'>max_threads</span>
+        <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_leak_stack_on_error'>leak_stack_on_error</span> <span class='op'>=</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_show_error_details?'>show_error_details?</span>
+      <span class='kw'>end</span>
+      <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_binder'>binder</span><span class='period'>.</span><span class='id identifier rubyid_add_tcp_listener'>add_tcp_listener</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_bind_addr'>bind_addr</span><span class='comma'>,</span> <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span>
+      <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>FunctionsFramework: Serving function </span><span class='embexpr_beg'>#{</span><span class='ivar'>@function</span><span class='period'>.</span><span class='id identifier rubyid_name'>name</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span><span class='embexpr_end'>}</span><span class='tstring_content'> </span><span class='tstring_end'>&quot;</span></span> \
+                          <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>on port </span><span class='embexpr_beg'>#{</span><span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_port'>port</span><span class='embexpr_end'>}</span><span class='tstring_content'>...</span><span class='tstring_end'>&quot;</span></span>
+      <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_run'>run</span> <span class='kw'>true</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="stop-instance_method">
+  
+    #<strong>stop</strong>(force: false, wait: false)  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Stop the web server in the background. Does nothing if the web server
+is not running.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>force</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Use a forced halt instead of a graceful shutdown</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>wait</span>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>false</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>Block until shutdown is complete</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 119</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_stop'>stop</span> <span class='label'>force:</span> <span class='kw'>false</span><span class='comma'>,</span> <span class='label'>wait:</span> <span class='kw'>false</span>
+  <span class='id identifier rubyid_synchronize'>synchronize</span> <span class='kw'>do</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_running?'>running?</span>
+      <span class='ivar'>@config</span><span class='period'>.</span><span class='id identifier rubyid_logger'>logger</span><span class='period'>.</span><span class='id identifier rubyid_info'>info</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>FunctionsFramework: Shutting down server...</span><span class='tstring_end'>&quot;</span></span>
+      <span class='kw'>if</span> <span class='id identifier rubyid_force'>force</span>
+        <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_halt'>halt</span> <span class='id identifier rubyid_wait'>wait</span>
+      <span class='kw'>else</span>
+        <span class='ivar'>@server</span><span class='period'>.</span><span class='id identifier rubyid_stop'>stop</span> <span class='id identifier rubyid_wait'>wait</span>
+      <span class='kw'>end</span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="wait_until_stopped-instance_method">
+  
+    #<strong>wait_until_stopped</strong>(timeout: nil)  &#x21d2; <tt>self</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    <p>Wait for the server to stop. Returns immediately if the server is not
+running.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>timeout</span>
+      
+      
+        <span class='type'>(<tt>nil</tt>, <tt>Numeric</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>nil</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'><p>The timeout. If <code>nil</code> (the default), waits
+indefinitely, otherwise times out after the given number of seconds.</p>
+</div>
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+141
+142
+143
+144</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File 'lib/functions_framework/server.rb', line 141</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_wait_until_stopped'>wait_until_stopped</span> <span class='label'>timeout:</span> <span class='kw'>nil</span>
+  <span class='ivar'>@server</span><span class='op'>&amp;.</span><span class='id identifier rubyid_thread'>thread</span><span class='op'>&amp;.</span><span class='id identifier rubyid_join'>join</span> <span class='id identifier rubyid_timeout'>timeout</span>
+  <span class='kw'>self</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Mon Jul 21 21:28:05 2025 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.37 (ruby-3.1.7).
+</div>
+
+    </div>
+  </body>
+</html>
