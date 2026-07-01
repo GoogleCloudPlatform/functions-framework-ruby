@@ -13,7 +13,6 @@ permissions: read-all
 
 jobs:
   conformance:
-    if: ${{ github.repository == 'GoogleCloudPlatform/functions-framework-ruby' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
