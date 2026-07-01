@@ -160,7 +160,7 @@ describe FunctionsFramework::Function do
         IntValue.new json.to_i
       end
 
-      def to_json(*_args)
+      def to_json *_args
         get.to_s
       end
 
