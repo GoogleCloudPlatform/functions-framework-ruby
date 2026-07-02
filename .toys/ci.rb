@@ -62,6 +62,10 @@ tool "deps-matrix" do
     {puma: "5.0", rack: "2.1"},
     {puma: "6.0", rack: "2.1"},
     {puma: "6.0", rack: "3.0"},
+    {puma: "7.0", rack: "2.1"},
+    {puma: "7.0", rack: "3.0"},
+    {puma: "8.0", rack: "2.1"},
+    {puma: "8.0", rack: "3.0"},
   ]
 
   include :exec, result_callback: :handle_result
