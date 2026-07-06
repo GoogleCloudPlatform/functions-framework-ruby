@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.7.0 (2026-07-02)
+
+#### Features
+
+* Allow puma v7 and v8 ([#237](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/237)) 
+
 ### 1.6.2 (2025-07-21)
 
 #### Bug Fixes
