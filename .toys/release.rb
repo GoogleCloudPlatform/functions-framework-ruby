@@ -40,13 +40,12 @@ tool "publish-gh-pages" do
   end
 
   def pull_gh_pages
-    require "base64"
     Dir.chdir gh_pages_dir do
       exec ["git", "init"]
       exec ["git", "config", "--local", "user.name", "Google APIs"]
       exec ["git", "config", "--local", "user.email", "googleapis-packages@google.com"]
       if github_token && !github_token.empty? && github_remote.start_with?("https://")
-        encoded_token = Base64.strict_encode64("x-access-token:#{github_token}")
+        encoded_token = ["x-access-token:#{github_token}"].pack("m0")
         log_cmd = '["git", "config", "--local", "http.https://github.com/.extraheader", "****"]'
         exec ["git", "config", "--local", "http.https://github.com/.extraheader",
               "Authorization: Basic #{encoded_token}"],
