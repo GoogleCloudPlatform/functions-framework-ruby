@@ -32,7 +32,7 @@ jobs:
     - name: Install Ruby 3.1
       uses: ruby/setup-ruby@472790540115ce5bd69d399a020189a8c87d641f # v1.247.0
       with:
-        ruby-version: "3.1"
+        ruby-version: "4.0.6"
         bundler-cache: true
     - name: Install toys
       run: gem install --no-document toys
