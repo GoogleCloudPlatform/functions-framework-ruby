@@ -18,7 +18,7 @@ gemspec
 
 gem "base64"
 gem "google-style", "~> 1.31.0"
-gem "minitest", "~> 5.16"
+gem "minitest", "~> 6.0"
 gem "minitest-focus", "~> 1.2"
 gem "minitest-rg", "~> 5.2"
 gem "puma", ENV["FF_DEPENDENCY_TEST_PUMA"] if ENV["FF_DEPENDENCY_TEST_PUMA"]
