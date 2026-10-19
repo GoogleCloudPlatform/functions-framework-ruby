@@ -134,3 +134,4 @@ https://github.com/GoogleCloudPlatform/functions-framework-ruby/blob/master/.git
 
 Report issues at
 https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues.
+
