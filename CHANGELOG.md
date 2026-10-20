@@ -1,5 +1,11 @@
 # Changelog
 
+### 1.7.1 (2026-10-19)
+
+#### Documentation
+
+* trigger a release to verify the new publishing pipeline ([#245](https://github.com/GoogleCloudPlatform/functions-framework-ruby/issues/245)) 
+
 ### 1.7.0 (2026-07-02)
 
 #### Features
