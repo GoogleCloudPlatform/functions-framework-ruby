@@ -16,7 +16,6 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "base64"
 gem "google-style", "~> 1.31.0"
 gem "minitest", "~> 5.16"
 gem "minitest-focus", "~> 1.2"
